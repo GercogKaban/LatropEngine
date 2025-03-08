@@ -314,3 +314,4 @@ android-ndk-r25b
 *.pbxproj
 .ninja_deps
 .ninja_log
+.vscode/settings.json
