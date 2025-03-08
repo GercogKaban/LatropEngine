@@ -1,7 +1,8 @@
 #include "CollisionDetection.h"
 #include <glm/glm.hpp>
 
-bool checkCapsulePlaneCollision(const Capsule& capsule, const Plane& plane) {
+bool checkCapsulePlaneCollision(const Capsule& capsule, const Plane& plane) 
+{
     // Compute distances of the capsule's endpoints from the plane
     float d1 = glm::dot(capsule.start, plane.normal) - plane.distance;
     float d2 = glm::dot(capsule.end, plane.normal) - plane.distance;
