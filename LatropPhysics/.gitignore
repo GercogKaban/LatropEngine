@@ -312,3 +312,5 @@ android-ndk-r25b
 *.xcbkptlist
 *.plist
 *.pbxproj
+.ninja_deps
+.ninja_log
