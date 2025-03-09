@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.20)
 project(LatropPhysics C CXX)
 
 # File globs for headers and sources
-file(GLOB HEADER_FILES include/*.h)
-file(GLOB SOURCE_FILES src/*.cpp)
+file(GLOB_RECURSE HEADER_FILES include/*.h)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
 
 # Set the GLM path based on the VULKAN_SDK environment variable or located
 # using the find_package command
