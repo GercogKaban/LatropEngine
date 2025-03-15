@@ -57,6 +57,6 @@ void CollisionWorld::resolveCollisions(float deltaTime)
 
     solveCollisions(collisions, deltaTime);
 
-    sendCollisionEvents(collisions, deltaTime);
-    sendCollisionEvents(triggers, deltaTime);
+    // sendCollisionEvents(collisions, deltaTime);
+    // sendCollisionEvents(triggers, deltaTime);
 }

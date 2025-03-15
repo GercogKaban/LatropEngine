@@ -17,7 +17,6 @@ public:
     Collider* collider;
     Transform* transform;
 
-    // bool isDynamic;
     bool isTrigger;
     
     std::function<void(Collision, float)> m_onCollision;

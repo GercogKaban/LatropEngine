@@ -19,7 +19,7 @@ public:
     }
 
     void integrate(float deltaTime);
-protected:
+// protected:
     glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
 
 private:
