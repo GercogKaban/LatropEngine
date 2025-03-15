@@ -25,10 +25,12 @@ int main()
 
 	LRenderer renderer(wnd);
 
-	auto cube1 = ObjectBuilder::construct<LG::LCube>();
-
 	auto plane1 = ObjectBuilder::construct<LTickablePlane>();
 	plane1->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+
+	// use macro DEBUG_CODE to exlude some code from release config
+	// constructDebug doesn't exist in release configuration so we have to wrap it
+	DEBUG_CODE(auto cube1 = ObjectBuilder::constructDebug<LG::LCube>();)
 
 	renderer.loop();
 }
