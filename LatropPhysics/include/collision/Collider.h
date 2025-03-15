@@ -16,11 +16,11 @@ struct Collider
         const Transform* otherTransform
     ) const = 0;
     
-    virtual CollisionPoints testCollision(
-        const Transform* transform,
-        const SphereCollider* other,
-        const Transform* otherTransform
-    ) const = 0;
+    // virtual CollisionPoints testCollision(
+    //     const Transform* transform,
+    //     const SphereCollider* other,
+    //     const Transform* otherTransform
+    // ) const = 0;
 
     virtual CollisionPoints testCollision(
         const Transform* transform,

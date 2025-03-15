@@ -1,9 +1,9 @@
-#include "collision/PlaneCollider.h"
+#include "collision/AABBCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 
 using namespace LatropPhysics;
 
-CollisionPoints PlaneCollider::testCollision(
+CollisionPoints AABBCollider::testCollision(
     const Transform* transform,
     const Collider* other,
     const Transform* otherTransform
@@ -11,17 +11,15 @@ CollisionPoints PlaneCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-// CollisionPoints PlaneCollider::testCollision(
+// CollisionPoints AABBCollider::testCollision(
 //     const Transform* transform,
 //     const SphereCollider* other,
 //     const Transform* otherTransform
 // ) const {
-//     return collisionDetectors::findPlaneSphereCollisionPoints(
-//         this, transform, other, otherTransform
-//     );
+//     
 // }
 
-CollisionPoints PlaneCollider::testCollision(
+CollisionPoints AABBCollider::testCollision(
     const Transform* transform,
     const PlaneCollider* other,
     const Transform* otherTransform

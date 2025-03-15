@@ -12,7 +12,7 @@ protected:
     Collider* collider;
     Transform* transform;
 
-    bool isDynamic;
+    // bool isDynamic;
     bool isTrigger;
 public:
 };

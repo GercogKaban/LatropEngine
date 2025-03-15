@@ -42,13 +42,11 @@ if(ENABLE_TESTING)
     include_directories(${GTEST_INCLUDE_DIRS})
 
     # Add the test executable
-    add_executable(CapsulePlaneTests 
-        tests/main.cpp
-        tests/CapsulePlaneTests.cpp
-    )
+    file(GLOB_RECURSE TEST_SOURCE_FILES tests/*.cpp)
+    add_executable(LatropPhysicsTests ${TEST_SOURCE_FILES})
 
     # Link the test executable with the LatropPhysics library and Google Test
-    target_link_libraries(CapsulePlaneTests
+    target_link_libraries(LatropPhysicsTests
         LatropPhysics      # Link your LatropPhysics library
         ${GTEST_LIBRARIES}  # Link Google Test
         pthread             # For POSIX systems (Linux/macOS)
@@ -56,7 +54,7 @@ if(ENABLE_TESTING)
 
     # Optionally: Enable testing and automatically run the tests when building
     enable_testing()
-    add_test(NAME CapsulePlaneTests COMMAND CapsulePlaneTests)
+    add_test(NAME LatropPhysicsTests COMMAND LatropPhysicsTests)
 
-    gtest_discover_tests(CapsulePlaneTests)
+    gtest_discover_tests(LatropPhysicsTests)
 endif()

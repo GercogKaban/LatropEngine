@@ -11,15 +11,15 @@ CollisionPoints SphereCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-CollisionPoints SphereCollider::testCollision(
-    const Transform* transform,
-    const SphereCollider* other,
-    const Transform* otherTransform
-) const {
-    return collisionDetectors::findSphereSphereCollisionPoints(
-        this, transform, other, otherTransform
-    );
-}
+// CollisionPoints SphereCollider::testCollision(
+//     const Transform* transform,
+//     const SphereCollider* other,
+//     const Transform* otherTransform
+// ) const {
+//     return collisionDetectors::findSphereSphereCollisionPoints(
+//         this, transform, other, otherTransform
+//     );
+// }
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,
