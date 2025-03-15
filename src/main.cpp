@@ -2,7 +2,7 @@
 #include <LRenderer.h>
 #include <collision/Collider.h>
 
-class LTickablePlane : public Primitives::LPlane, public LTickable
+class LTickablePlane : public LG::LPlane, public LTickable
 {
 
 protected:
@@ -25,10 +25,10 @@ int main()
 
 	LRenderer renderer(wnd);
 
-	auto plane1 = ObjectBuilder::construct<Primitives::LPlane>();
+	auto cube1 = ObjectBuilder::construct<LG::LCube>();
 
-	auto plane2 = ObjectBuilder::construct<LTickablePlane>();
-	plane2->translate(glm::vec3(1.0f, 0.0f, 0.0f));
+	auto plane1 = ObjectBuilder::construct<LTickablePlane>();
+	plane1->translate(glm::vec3(1.0f, 0.0f, 0.0f));
 
 	renderer.loop();
 }
