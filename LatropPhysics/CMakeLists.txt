@@ -23,7 +23,10 @@ endif()
 add_library(LatropPhysics STATIC ${SOURCE_FILES} ${HEADER_FILES})
 
 # Include directories for the library
-target_include_directories(LatropPhysics PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(LatropPhysics PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 include_directories(${GLM_PATH})
 
 # Set C++ standard for the library

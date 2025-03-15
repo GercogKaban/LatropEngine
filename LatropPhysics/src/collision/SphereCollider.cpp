@@ -1,5 +1,5 @@
-#include "../include/collision/SphereCollider.h"
-#include "../include/collision/algorithms/CollisionDetection.h"
+#include "collision/SphereCollider.h"
+#include "collision/algorithms/CollisionDetection.h"
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,
