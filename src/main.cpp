@@ -1,5 +1,5 @@
-#include "src/LWindow.h"
-#include "src/LRenderer.h"
+#include <LWindow.h>
+#include <LRenderer.h>
 #include <collision/Collider.h>
 
 class LTickablePlane : public Primitives::LPlane, public LTickable
