@@ -33,25 +33,30 @@ include_directories(${GLM_PATH})
 target_compile_features(LatropPhysics PRIVATE cxx_std_17)
 
 # MARK: - Testing
-# Find Google Test package
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIRS})
+# Option to enable or disable tests
+option(ENABLE_TESTING "Enable building tests" ON)
 
-# Add the test executable
-add_executable(CapsulePlaneTests 
-    tests/main.cpp
-    tests/CapsulePlaneTests.cpp
-)
+if(ENABLE_TESTING)
+    # Find Google Test package
+    find_package(GTest REQUIRED)
+    include_directories(${GTEST_INCLUDE_DIRS})
 
-# Link the test executable with the LatropPhysics library and Google Test
-target_link_libraries(CapsulePlaneTests
-    LatropPhysics      # Link your LatropPhysics library
-    ${GTEST_LIBRARIES}  # Link Google Test
-    pthread             # For POSIX systems (Linux/macOS)
-)
+    # Add the test executable
+    add_executable(CapsulePlaneTests 
+        tests/main.cpp
+        tests/CapsulePlaneTests.cpp
+    )
 
-# Optionally: Enable testing and automatically run the tests when building
-enable_testing()
-add_test(NAME CapsulePlaneTests COMMAND CapsulePlaneTests)
+    # Link the test executable with the LatropPhysics library and Google Test
+    target_link_libraries(CapsulePlaneTests
+        LatropPhysics      # Link your LatropPhysics library
+        ${GTEST_LIBRARIES}  # Link Google Test
+        pthread             # For POSIX systems (Linux/macOS)
+    )
 
-gtest_discover_tests(CapsulePlaneTests)
+    # Optionally: Enable testing and automatically run the tests when building
+    enable_testing()
+    add_test(NAME CapsulePlaneTests COMMAND CapsulePlaneTests)
+
+    gtest_discover_tests(CapsulePlaneTests)
+endif()
