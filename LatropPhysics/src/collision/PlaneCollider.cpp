@@ -1,5 +1,5 @@
-#include "../include/collision/PlaneCollider.h"
-#include "../include/collision/algorithms/CollisionDetection.h"
+#include "collision/PlaneCollider.h"
+#include "collision/algorithms/CollisionDetection.h"
 
 CollisionPoints PlaneCollider::testCollision(
     const Transform* transform,

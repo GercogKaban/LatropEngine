@@ -1,4 +1,6 @@
-#include "../include/collision/algorithms/CollisionDetection.h"
+#include "collision/algorithms/CollisionDetection.h"
+#include "collision/SphereCollider.h"
+#include "collision/PlaneCollider.h"
 
 CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     const SphereCollider* a, const Transform* transformA,

@@ -1,6 +1,8 @@
 #pragma once
-#include "../SphereCollider.h"
-#include "../PlaneCollider.h"
+struct SphereCollider;
+struct PlaneCollider;
+struct Transform;
+struct CollisionPoints;
 
 namespace collisionDetectors {
     CollisionPoints findSphereSphereCollisionPoints(

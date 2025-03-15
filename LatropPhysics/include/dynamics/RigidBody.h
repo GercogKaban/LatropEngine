@@ -1,7 +1,7 @@
 #pragma once
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "../collision/CollisionBody.h"
+#include "collision/CollisionBody.h"
 
 struct RigidBody: CollisionBody
 {
