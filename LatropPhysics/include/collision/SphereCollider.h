@@ -1,6 +1,9 @@
 #pragma once
 #include "Collider.h"
 
+namespace LatropPhysics 
+{
+
 struct SphereCollider: Collider
 {
     glm::vec3 center;
@@ -24,3 +27,5 @@ struct SphereCollider: Collider
         const Transform* otherTransform
     ) const override;
 };
+
+} // namespace LatropPhysics

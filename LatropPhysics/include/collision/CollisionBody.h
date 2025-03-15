@@ -3,6 +3,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include "Collider.h"
 
+namespace LatropPhysics 
+{
+
 struct CollisionBody
 {
 protected:
@@ -13,3 +16,5 @@ protected:
     bool isTrigger;
 public:
 };
+
+} // namespace LatropPhysics

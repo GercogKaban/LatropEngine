@@ -2,6 +2,8 @@
 #include "collision/SphereCollider.h"
 #include "collision/PlaneCollider.h"
 
+using namespace LatropPhysics;
+
 CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     const SphereCollider* a, const Transform* transformA,
     const SphereCollider* b, const Transform* transformB

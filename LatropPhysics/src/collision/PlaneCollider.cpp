@@ -1,6 +1,8 @@
 #include "collision/PlaneCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 
+using namespace LatropPhysics;
+
 CollisionPoints PlaneCollider::testCollision(
     const Transform* transform,
     const Collider* other,

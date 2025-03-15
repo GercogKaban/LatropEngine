@@ -1,10 +1,14 @@
 #pragma once
+namespace LatropPhysics 
+{
+
 struct SphereCollider;
 struct PlaneCollider;
 struct Transform;
 struct CollisionPoints;
 
-namespace collisionDetectors {
+namespace collisionDetectors 
+{
     CollisionPoints findSphereSphereCollisionPoints(
         const SphereCollider* a, const Transform* transformA,
         const SphereCollider* b, const Transform* transformB
@@ -20,3 +24,5 @@ namespace collisionDetectors {
         const SphereCollider* b, const Transform* transformB
     );
 }
+
+} // namespace LatropPhysics

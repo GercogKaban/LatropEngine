@@ -1,6 +1,9 @@
 #pragma once
 #include "Collider.h"
 
+namespace LatropPhysics 
+{
+
 struct PlaneCollider: Collider {
     glm::vec3 plane;
     float distance;
@@ -23,3 +26,5 @@ struct PlaneCollider: Collider {
         const Transform* otherTransform
     ) const override;
 };
+
+} // namespace LatropPhysics

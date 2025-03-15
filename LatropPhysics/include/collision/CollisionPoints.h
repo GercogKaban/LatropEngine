@@ -2,6 +2,9 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+namespace LatropPhysics 
+{
+
 struct CollisionPoints 
 {
     /// @brief The furthest point of `start` into `end`.
@@ -18,3 +21,5 @@ struct CollisionPoints
 
     bool hasCollision;
 };
+
+} // namespace LatropPhysics

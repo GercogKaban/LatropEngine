@@ -3,6 +3,9 @@
 #include <glm/gtc/quaternion.hpp>
 #include "collision/CollisionBody.h"
 
+namespace LatropPhysics 
+{
+
 struct RigidBody: CollisionBody
 {
 private:
@@ -26,3 +29,5 @@ public:
     /// It is the elasticity or 'bounciness' of collision.
     float m_restitution;
 };
+
+} // namespace LatropPhysics
