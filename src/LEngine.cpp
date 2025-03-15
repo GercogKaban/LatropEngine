@@ -1,5 +1,6 @@
 #include "LEngine.h"
 #include <glfw3.h>
+#include <dynamics/BasicSolver.h>
 
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
@@ -125,6 +126,7 @@ LEngine::LEngine(const LWindow& window)
 	:LRenderer(window)
 {
 	thisPtr = this;
+	physicsWorld.addSolver(new LatropPhysics::BasicSolver());
 }
 
 void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
@@ -150,6 +152,19 @@ void LEngine::loop()
 		if (bNeedToUpdateProjView)
 		{
 			updateProjView();
+		}
+
+		physicsWorld.integrate(getDelta());
+
+		for (auto object : objects)
+		{
+			auto sharedObject = object.lock();
+			auto rigidObject = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(sharedObject->physicsBody);
+
+			if (rigidObject)
+			{
+				sharedObject->renderObject->setModelMatrix(rigidObject->transform->getAsMatrix());
+			}
 		}
 
 		drawFrame();

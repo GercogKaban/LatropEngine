@@ -2,7 +2,7 @@
 
 #include <functional>
 #include <LRenderer.h>
-#include <collision/Collider.h>
+#include <dynamics/DynamicsWorld.h>
 
 class LObject
 {
@@ -13,9 +13,10 @@ public:
 	LObject() = default;
 	~LObject() = default;
 
-protected:
-
+	std::shared_ptr<LatropPhysics::CollisionBody> physicsBody;
 	std::shared_ptr<LG::LPrimitiveMesh> renderObject;
+
+protected:
 
 DEBUG_CODE(
 	std::shared_ptr<LG::LPrimitiveMesh> debugRenderObject;)
@@ -90,6 +91,10 @@ public:
 		return std::chrono::duration<float>(currentFrameTime - previousFrameTime).count();
 	}
 
+	// renderer
+	LatropPhysics::DynamicsWorld physicsWorld;
+	std::vector<std::weak_ptr<LObject>> objects;
+
 protected:
 
 	void executeTickables();
@@ -153,12 +158,13 @@ class ObjectBuilder
 {
 public:
 
-	template<typename GameObject, typename RenderObject = LG::LDummy, typename DebugRenderObject = LG::LDummy>
+	template<typename GameObject, typename PhysicsObject = LG::LDummy, typename RenderObject = LG::LDummy, typename DebugRenderObject = LG::LDummy>
 	[[nodiscard]] static std::shared_ptr<GameObject> construct()
 	{
 		DEBUG_CODE(bIsConstructing = true;)
 
 		std::shared_ptr<GameObject> object = std::shared_ptr<GameObject>(new GameObject());
+		LEngine::get()->objects.push_back(object);
 
 		if constexpr (std::is_base_of<LTickable, GameObject>::value)
 		{
@@ -168,6 +174,18 @@ public:
 		if constexpr (!std::is_base_of<RenderObject, LG::LDummy>::value)
 		{
 			object->renderObject = RenderObjectBuilder::construct<RenderObject>();
+		}
+
+
+		if constexpr (!std::is_base_of<PhysicsObject, LG::LDummy>::value)
+		{
+			object->physicsBody = std::shared_ptr<PhysicsObject>(new PhysicsObject());
+			auto body = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsBody);
+			if (body) {
+				LEngine::get()->physicsWorld.addRigidBody(body.get());
+			} else {
+				LEngine::get()->physicsWorld.addCollisionBody(object->physicsBody.get());
+			}
 		}
 
 		DEBUG_CODE(
