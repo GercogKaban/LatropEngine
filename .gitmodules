@@ -1,3 +1,6 @@
 [submodule "LizardGraphics-2.0"]
 	path = LizardGraphics-2.0
 	url = https://github.com/GercogKaban/LizardGraphics-2.0
+[submodule "LatropPhysics"]
+	path = LatropPhysics
+	url = git@github.com:TwoDollarsEsq/LatropPhysics.git
