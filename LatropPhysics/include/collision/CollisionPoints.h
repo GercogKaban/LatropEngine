@@ -1,9 +1,12 @@
 #pragma once
+
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 namespace LatropPhysics 
 {
+
+struct CollisionBody;
 
 struct CollisionPoints 
 {
@@ -20,6 +23,13 @@ struct CollisionPoints
     float depth;
 
     bool hasCollision;
+};
+
+struct Collision
+{
+    CollisionBody* bodyA;
+    CollisionBody* bodyB;
+    CollisionPoints points;
 };
 
 } // namespace LatropPhysics

@@ -33,6 +33,11 @@ namespace collisionDetectors
         const AABBCollider* a, const Transform* transformA,
         const AABBCollider* b, const Transform* transformB
     );
+
+    CollisionPoints findAABBPlaneCollisionPoints(
+        const AABBCollider* a, const Transform* transformA,
+        const AABBCollider* b, const Transform* transformB
+    );
 }
 
 } // namespace LatropPhysics

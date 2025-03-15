@@ -1,4 +1,5 @@
 #pragma once
+
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "collision/CollisionBody.h"
@@ -8,8 +9,9 @@ namespace LatropPhysics
 
 struct RigidBody: CollisionBody
 {
-private:
+// private:
     glm::vec3 m_velocity;
+    glm::vec3 m_force;
     float m_mass;
     
 public:
