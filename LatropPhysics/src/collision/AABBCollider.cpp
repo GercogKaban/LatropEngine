@@ -11,6 +11,16 @@ CollisionPoints AABBCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
+CollisionPoints AABBCollider::testCollision(
+    const Transform* transform,
+    const AABBCollider* other,
+    const Transform* otherTransform
+) const {
+    return collisionDetectors::findAABBAABBCollisionPoints(
+        this, transform, other, otherTransform
+    );
+}
+
 // CollisionPoints AABBCollider::testCollision(
 //     const Transform* transform,
 //     const SphereCollider* other,

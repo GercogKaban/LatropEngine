@@ -26,6 +26,12 @@ public:
         const Collider* other,
         const Transform* otherTransform
     ) const override;
+
+    virtual CollisionPoints testCollision(
+        const Transform* transform,
+        const AABBCollider* other,
+        const Transform* otherTransform
+    ) const override;
     
     // virtual CollisionPoints testCollision(
     //     const Transform* transform,
