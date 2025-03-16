@@ -26,8 +26,8 @@ void BasicSolver::solve(std::vector<Collision>& collisions, float deltaTime)
         if (nSpd >= 0)
             continue;
 
-        float e = 1.0f;//(aBody ? aBody->Restitution : 1.0f)
-                 //* (bBody ? bBody->Restitution : 1.0f);
+        float e = (aBody ? aBody->m_restitution : 1.0f)
+                * (bBody ? bBody->m_restitution : 1.0f);
 
         float j = -(1.0f + e) * nSpd / (aInvMass + bInvMass);
 
@@ -54,10 +54,10 @@ void BasicSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 
         float fVel = glm::dot(rVel, tangent);
 
-        float aSF = /*aBody ? aBody->StaticFriction  : */0.0f;
-        float bSF = /*bBody ? bBody->StaticFriction  : */0.0f;
-        float aDF = /*aBody ? aBody->DynamicFriction : */0.0f;
-        float bDF = /*bBody ? bBody->DynamicFriction : */0.0f;
+        float aSF = aBody ? aBody->m_staticFriction  : 0.0f;
+        float bSF = bBody ? bBody->m_staticFriction  : 0.0f;
+        float aDF = aBody ? aBody->m_dynamicFriction : 0.0f;
+        float bDF = bBody ? bBody->m_dynamicFriction : 0.0f;
         float mu  = (float)glm::vec2(aSF, bSF).length();
 
         float f  = -fVel / (aInvMass + bInvMass);

@@ -15,16 +15,16 @@ public:
 
     /// @brief Static friction is the friction between two objects that are not 
     /// moving relative to each other.
-    // float m_staticFriction;
+    float m_staticFriction = 0;
 
     /// @brief Dynamic friction is the friction between two objects that are 
     /// moving relative to each other.
-    // float m_dynamicFriction;
+    float m_dynamicFriction = 0;
 
     /// @brief The coefficient of restitution is a measure of how much kinetic 
     /// energy is conserved in a collision.
     /// It is the elasticity or 'bounciness' of collision.
-    // float m_restitution;
+    float m_restitution = 1;
 
 // private:
     glm::vec3 m_velocity;
