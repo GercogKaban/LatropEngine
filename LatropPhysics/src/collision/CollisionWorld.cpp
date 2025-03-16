@@ -54,9 +54,12 @@ void CollisionWorld::resolveCollisions(float deltaTime)
 
             if(body == other) break;
 
-            if(!body->collider || !other->collider) continue;
+            if(body->collider.expired() || other->collider.expired()) continue;
 
-            CollisionPoints points = body->collider->testCollision(&body->transform, other->collider, &other->transform);
+            auto bodyCollider = body->collider.lock();
+            auto otherCollider = other->collider.lock();
+
+            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
 
             if (points.hasCollision)
             {
