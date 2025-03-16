@@ -4,6 +4,7 @@
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <functional>
+#include <memory>
 
 namespace LatropPhysics 
 {
@@ -14,10 +15,10 @@ struct CollisionBody
 
 // protected:
 
-    Collider* collider = nullptr;
+    std::weak_ptr<Collider> collider;
     Transform transform;
 
-    bool isTrigger;
+    bool isTrigger = false;
     
     std::function<void(Collision, float)> m_onCollision;
 };

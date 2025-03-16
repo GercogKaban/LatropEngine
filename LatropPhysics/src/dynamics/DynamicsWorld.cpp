@@ -13,10 +13,11 @@ void DynamicsWorld::applyGravity()
             // for now continue
             continue;
         }
-        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body.lock().get());
-        if (!rigidBody) continue;
-        
-        rigidBody->m_force = rigidBody->m_gravity * rigidBody->m_mass;
+   
+        if (std::shared_ptr<RigidBody> castedRigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
+        {
+            castedRigidBody->m_force = castedRigidBody->m_gravity * castedRigidBody->m_mass;
+        }
     }
 }
 
