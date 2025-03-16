@@ -1,6 +1,7 @@
 #include "LEngine.h"
 #include <glfw3.h>
-#include <dynamics/BasicSolver.h>
+#include <dynamics/ImpulseSolver.h>
+#include <dynamics/PositionSolver.h>
 
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
@@ -126,7 +127,8 @@ LEngine::LEngine(const LWindow& window)
 	:LRenderer(window)
 {
 	thisPtr = this;
-	physicsWorld.addSolver(new LatropPhysics::BasicSolver());
+	physicsWorld.addSolver(new LatropPhysics::ImpulseSolver());
+	physicsWorld.addSolver(new LatropPhysics::PositionSolver());
 }
 
 void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
@@ -154,7 +156,13 @@ void LEngine::loop()
 			updateProjView();
 		}
 
-		physicsWorld.integrate(getDelta());
+		auto miniDelta = getDelta() / 8;
+		for (int i = 0; i < 8; i++)
+		{
+			physicsWorld.integrate(miniDelta);
+		}
+
+		// physicsWorld.integrate(getDelta());
 
 		for (auto object : objects)
 		{
