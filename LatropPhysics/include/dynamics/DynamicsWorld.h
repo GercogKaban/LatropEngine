@@ -10,9 +10,12 @@ namespace LatropPhysics
 struct DynamicsWorld: CollisionWorld
 {
 public:
-    inline void addRigidBody(RigidBody* body) {
-        if (body->m_takesGravity) {
-            body->m_gravity = m_gravity;
+
+    void addRigidBody(std::weak_ptr<RigidBody> body) 
+    {
+        if (body.lock().get()->m_takesGravity) 
+        {
+            body.lock().get()->m_gravity = m_gravity;
         }
 
         addCollisionBody(body);

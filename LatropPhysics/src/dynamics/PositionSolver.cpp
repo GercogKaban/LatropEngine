@@ -18,8 +18,8 @@ void PositionSolver::solve(std::vector<Collision>& collisions, float deltaTime)
         float correctionMagnitude = glm::max(manifold.points.depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
         glm::vec3 correction = correctionMagnitude * manifold.points.normal;
 
-        if (aBody) aBody->transform->position -= aInvMass * correction;
-        if (bBody) bBody->transform->position += bInvMass * correction;
+        if (aBody) aBody->transform.position -= aInvMass * correction;
+        if (bBody) bBody->transform.position += bInvMass * correction;
     }
 
     // for (Manifold& manifold : manifolds) {

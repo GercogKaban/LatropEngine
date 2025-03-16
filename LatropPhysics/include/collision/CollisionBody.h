@@ -10,12 +10,12 @@ namespace LatropPhysics
 
 struct CollisionBody
 {
-public:
     virtual ~CollisionBody() = default;
 
 // protected:
-    Collider* collider;
-    Transform* transform;
+
+    Collider* collider = nullptr;
+    Transform transform;
 
     bool isTrigger;
     
