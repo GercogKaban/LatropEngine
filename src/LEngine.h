@@ -107,7 +107,7 @@ class ObjectBuilder
 {
 public:
 
-	template<typename GameObject, typename PhysicsComponent = LG::LDummy, typename RenderComponent = LG::LDummy, typename DebugRenderComponent = LG::LDummy>
+	template<typename GameObject, typename DebugRenderComponent = LG::LDummy>
 	[[nodiscard]] static std::weak_ptr<GameObject> construct()
 	{
 		DEBUG_CODE(bIsConstructing = true;)
@@ -120,23 +120,16 @@ public:
 			LEngine::get()->addTickablePrimitive(object);
 		}
 
-		if constexpr (!std::is_base_of<RenderComponent, LG::LDummy>::value)
-		{
-			object->renderComponent = RenderComponentBuilder::construct<RenderComponent>();
-		}
+		// if constexpr (!std::is_base_of<RenderComponent, LG::LDummy>::value)
+		// {
+			// object->renderComponent = RenderComponentBuilder::construct<RenderComponent>();
+		// }
 
-		if constexpr (!std::is_base_of<PhysicsComponent, LG::LDummy>::value)
-		{
-			object->physicsComponent = std::shared_ptr<PhysicsComponent>(new PhysicsComponent());
-			if (auto body = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsComponent))
-			{
-				LEngine::get()->physicsWorld.addRigidBody(body);
-			} 
-			else 
-			{
-				LEngine::get()->physicsWorld.addCollisionBody(object->physicsComponent);
-			}
-		}
+		// auto renderPrimitive = dynamic_cast<LG::LGraphicsComponent*>(object.get());
+		std::shared_ptr<LG::LGraphicsComponent> renderPrimitive = std::dynamic_pointer_cast<LG::LGraphicsComponent>(object);
+		RenderComponentBuilder::adjustImpl(renderPrimitive);
+		// LEngine::get()->addPrimitve(object);
+		LEngine::get()->physicsWorld.addRigidBody(object);
 
 		DEBUG_CODE(
 		if constexpr (std::is_base_of<LG::LGraphicsComponent, DebugRenderComponent>::value)

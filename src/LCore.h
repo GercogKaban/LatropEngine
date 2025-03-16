@@ -1,20 +1,26 @@
 #pragma once
 
 #include <LRenderer.h>
-#include <collision/CollisionBody.h>
+#include <dynamics/RigidBody.h>
 
 // represents a physical object with visualization
-class LActor
+class LActor: public LG::LGraphicsComponent, public LatropPhysics::RigidBody
 {
 public:
 
 	friend class ObjectBuilder;
 
-	LActor() = default;
+	LActor(bool takesGrabity) : LG::LGraphicsComponent(), LatropPhysics::RigidBody() 
+	{
+		m_takesGravity = takesGrabity;
+	}
+	
 	~LActor() = default;
 
-	std::shared_ptr<LatropPhysics::CollisionBody> physicsComponent;
-	std::shared_ptr<LG::LGraphicsComponent> renderComponent;
+	const glm::mat4x4 getModelMatrix() const override
+	{
+		return transform.getAsMatrix();
+	}
 
 protected:
 

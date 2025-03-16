@@ -8,7 +8,7 @@ LEngine* LEngine::thisPtr = nullptr;
 
 DEBUG_CODE(bool ObjectBuilder::bIsConstructing = false;)
 
-PlayerCharacter::PlayerCharacter()
+PlayerCharacter::PlayerCharacter() : LActor(false)
 {
 	thisPtr = this;
 	renderer = LRenderer::get();
@@ -157,16 +157,6 @@ void LEngine::loop()
 		}
 
 		// physicsWorld.integrate(getDelta());
-
-		for (auto object : objects)
-		{
-			auto rigidObject = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsComponent);
-
-			if (rigidObject)
-			{
-				//object->renderComponent->setModelMatrix(rigidObject->transform->getAsMatrix());
-			}
-		}
 
 		drawFrame();
 		fps++;
