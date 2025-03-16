@@ -54,7 +54,7 @@ void CollisionWorld::resolveCollisions(float deltaTime)
 
             if(body == other) break;
 
-            if(body->collider.expired() || !other->collider.expired()) continue;
+            if(body->collider.expired() || other->collider.expired()) continue;
 
             auto bodyCollider = body->collider.lock();
             auto otherCollider = other->collider.lock();
