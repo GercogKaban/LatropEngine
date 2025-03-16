@@ -12,6 +12,8 @@ struct AABBCollider;
 
 struct Collider 
 {
+    virtual ~Collider() = default;
+
     virtual CollisionPoints testCollision(
         const Transform* transform,
         const Collider* other,
