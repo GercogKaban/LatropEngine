@@ -9,7 +9,9 @@ namespace LatropPhysics
 
 struct RigidBody: CollisionBody
 {   
-    glm::vec3 m_gravity;
+    RigidBody(bool takesGravity) : m_takesGravity(takesGravity) {};
+
+    glm::vec3 m_gravity = glm::vec3(0);
     bool m_takesGravity;
 
     /// @brief Static friction is the friction between two objects that are not 
@@ -26,9 +28,9 @@ struct RigidBody: CollisionBody
     float m_restitution = 1;
 
 // private:
-    glm::vec3 m_velocity;
-    glm::vec3 m_force;
-    float m_mass;
+    glm::vec3 m_velocity = glm::vec3(0);
+    glm::vec3 m_force = glm::vec3(0);
+    float m_mass = 1;
 };
 
 } // namespace LatropPhysics
