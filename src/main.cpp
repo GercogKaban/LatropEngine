@@ -35,11 +35,6 @@ int main()
 	bodyB->m_mass = 0.95;
 	bodyB->m_restitution = 2;
 	bodyB->transform.position = glm::vec3(0.5f, 10.0f, 0.0f);
-	bodyB->collider = new LatropPhysics::AABBCollider(
-		{ -0.5f, -0.5f, -0.5f },
-		{ 0.5f, 0.5f, 0.5f }
-	);
-
 	bodyB->collider = &cubeAABBCollider;
 	
 	engine.loop();
