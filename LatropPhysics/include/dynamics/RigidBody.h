@@ -9,7 +9,6 @@ namespace LatropPhysics
 
 struct RigidBody: CollisionBody
 {   
-public:
     glm::vec3 m_gravity;
     bool m_takesGravity;
 

@@ -5,9 +5,15 @@ using namespace LatropPhysics;
 
 void DynamicsWorld::applyGravity()
 {
-    for (CollisionBody* body : m_bodies)
+    for (std::weak_ptr<CollisionBody> body : m_bodies)
     {
-        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body);
+        if (body.expired())
+        {
+            // should be removed
+            // for now continue
+            continue;
+        }
+        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body.lock().get());
         if (!rigidBody) continue;
         
         rigidBody->m_force = rigidBody->m_gravity * rigidBody->m_mass;
@@ -16,21 +22,21 @@ void DynamicsWorld::applyGravity()
 
 void DynamicsWorld::moveBodies(float deltaTime)
 {
-    for (CollisionBody* body : m_bodies)
+    for (std::weak_ptr<CollisionBody> body : m_bodies)
     {
-        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body);
+        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body.lock().get());
         if (!rigidBody) continue;
         
         glm::vec3 velocity = rigidBody->m_velocity
                            + rigidBody->m_force / rigidBody->m_mass 
                            * deltaTime;
 
-        glm::vec3 position = rigidBody->transform->position
+        glm::vec3 position = rigidBody->transform.position
                            + rigidBody->m_velocity 
                            * deltaTime;
 
         rigidBody->m_velocity = velocity;
-        rigidBody->transform->position = position;
+        rigidBody->transform.position = position;
 
         rigidBody->m_force = glm::vec3(0.0f);
     }

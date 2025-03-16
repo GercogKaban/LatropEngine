@@ -3,20 +3,16 @@
 
 using namespace LatropPhysics;
 
-void CollisionWorld::solveCollisions(
-    std::vector<Collision>& collisions,
-    float deltaTime
-) {
-    for(Solver* solver : m_solvers)
+void CollisionWorld::solveCollisions(std::vector<Collision>& collisions, float deltaTime)
+{
+    for(const std::unique_ptr<Solver>& solver : m_solvers)
     {
-        solver->solve(collisions, deltaTime);
+        solver.get()->solve(collisions, deltaTime);
     }
 }
 
-void CollisionWorld::sendCollisionEvents(
-    std::vector<Collision>& collisions,
-    float deltaTime
-) {
+void CollisionWorld::sendCollisionEvents(std::vector<Collision>& collisions, float deltaTime) 
+{
     for(Collision& collision : collisions)
     {
         m_onCollision(collision, deltaTime);
@@ -34,23 +30,44 @@ void CollisionWorld::resolveCollisions(float deltaTime)
     std::vector<Collision> collisions;
     std::vector<Collision> triggers;
 
-    for(CollisionBody* body : m_bodies)
+    for(std::weak_ptr<CollisionBody> bodyWeakPtr : m_bodies)
     {
-        for(CollisionBody* other : m_bodies)
+        if (bodyWeakPtr.expired())
         {
+            // remove it 
+            // for now continue
+            continue;
+        }
+
+        auto body = bodyWeakPtr.lock().get();
+
+        for(std::weak_ptr<CollisionBody> otherWeakPtr : m_bodies)
+        {
+            if (otherWeakPtr.expired())
+            {
+                // remove it 
+                // for now continue
+                continue;
+            }
+
+            auto other = otherWeakPtr.lock().get();
+
             if(body == other) break;
 
             if(!body->collider || !other->collider) continue;
 
-            CollisionPoints points = body->collider->testCollision(
-                body->transform, other->collider, other->transform
-            );
+            CollisionPoints points = body->collider->testCollision(&body->transform, other->collider, &other->transform);
 
             if (points.hasCollision)
             {
-                bool isTrigger = body->isTrigger || other->isTrigger;
-                if(isTrigger) triggers  .push_back({ body, other, points });
-                else          collisions.push_back({ body, other, points });
+                if (bool isTrigger = body->isTrigger || other->isTrigger)
+                {
+                    triggers.push_back({ body, other, points});
+                }
+                else
+                {
+                    collisions.push_back({ body, other, points });
+                }
             }
         }
     }

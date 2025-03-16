@@ -5,7 +5,8 @@ using namespace LatropPhysics;
 
 void BasicSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 {
-    for (Collision& manifold : collisions) {
+    for (Collision& manifold : collisions) 
+    {
         // Replaces non dynamic objects with default values.
 
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);

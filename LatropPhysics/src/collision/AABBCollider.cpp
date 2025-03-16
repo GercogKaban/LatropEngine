@@ -1,6 +1,11 @@
 #include "collision/AABBCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 
+namespace LatropPhysics
+{
+    CubeAABBCollider cubeCollider;
+}
+
 using namespace LatropPhysics;
 
 CollisionPoints AABBCollider::testCollision(
