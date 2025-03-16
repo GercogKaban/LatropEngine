@@ -6,22 +6,15 @@
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
 
-DEBUG_CODE(
-	bool ObjectBuilder::bIsConstructing = false;
-)
+DEBUG_CODE(bool ObjectBuilder::bIsConstructing = false;)
 
 PlayerCharacter::PlayerCharacter()
 {
-	location = glm::vec3(0.0f, 0.0f, 2.0f);
-
 	thisPtr = this;
 	renderer = LRenderer::get();
 
 	glfwSetKeyCallback(renderer->getWindow(), handleInput);
 	glfwSetCursorPosCallback(renderer->getWindow(), mouseInput);
-
-	locationWasUpdated = std::bind(&PlayerCharacter::updateCamera, this, std::placeholders::_1);
-	locationWasUpdated(location);
 }
 
 void PlayerCharacter::tick(float delta)
@@ -52,7 +45,8 @@ void PlayerCharacter::tick(float delta)
 
 	if (inputs != glm::vec3(0.0f))
 	{
-		addInput(inputs);
+		location += inputs;
+		updateCamera(location);
 	}
 }
 
@@ -127,8 +121,8 @@ LEngine::LEngine(const LWindow& window)
 	:LRenderer(window)
 {
 	thisPtr = this;
-	physicsWorld.addSolver(new LatropPhysics::ImpulseSolver());
-	physicsWorld.addSolver(new LatropPhysics::PositionSolver());
+	physicsWorld.addSolver(std::make_unique<LatropPhysics::ImpulseSolver>());
+	physicsWorld.addSolver(std::make_unique<LatropPhysics::PositionSolver>());
 }
 
 void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
@@ -166,12 +160,11 @@ void LEngine::loop()
 
 		for (auto object : objects)
 		{
-			auto sharedObject = object.lock();
-			auto rigidObject = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(sharedObject->physicsBody);
+			auto rigidObject = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsComponent);
 
 			if (rigidObject)
 			{
-				sharedObject->renderObject->setModelMatrix(rigidObject->transform->getAsMatrix());
+				//object->renderComponent->setModelMatrix(rigidObject->transform->getAsMatrix());
 			}
 		}
 
