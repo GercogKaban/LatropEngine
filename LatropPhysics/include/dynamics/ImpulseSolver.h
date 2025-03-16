@@ -5,7 +5,7 @@
 namespace LatropPhysics
 {
 
-struct BasicSolver : Solver
+struct ImpulseSolver : Solver
 {
     void solve(std::vector<Collision>& collisions, float deltaTime) override;
 };

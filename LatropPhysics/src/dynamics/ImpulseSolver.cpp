@@ -1,9 +1,9 @@
-#include "dynamics/BasicSolver.h"
+#include "dynamics/ImpulseSolver.h"
 #include "dynamics/RigidBody.h"
 
 using namespace LatropPhysics;
 
-void BasicSolver::solve(std::vector<Collision>& collisions, float deltaTime)
+void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 {
     for (Collision& manifold : collisions) {
         // Replaces non dynamic objects with default values.
