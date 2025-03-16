@@ -61,7 +61,7 @@ class PlayerCharacter : public LActor, public LTickable
 
 public:
 
-	PlayerCharacter();
+	PlayerCharacter(LG::LGFullGraphicsComponent *renderComponent, LatropPhysics::RigidBody *physicsComponent);
 	virtual void tick(float delta) override;
 
 	float getSpeed() const
@@ -108,11 +108,11 @@ class ObjectBuilder
 public:
 
 	template<typename GameObject, typename DebugRenderComponent = LG::LDummy>
-	[[nodiscard]] static std::weak_ptr<GameObject> construct()
+	[[nodiscard]] static std::weak_ptr<GameObject> construct(GameObject* source)
 	{
 		DEBUG_CODE(bIsConstructing = true;)
 
-		std::shared_ptr<GameObject> object = std::shared_ptr<GameObject>(new GameObject());
+		std::shared_ptr<GameObject> object = std::shared_ptr<GameObject>(source);
 		LEngine::get()->objects.push_back(object);
 
 		if constexpr (std::is_base_of<LTickable, GameObject>::value)
@@ -120,16 +120,12 @@ public:
 			LEngine::get()->addTickablePrimitive(object);
 		}
 
-		// if constexpr (!std::is_base_of<RenderComponent, LG::LDummy>::value)
-		// {
-			// object->renderComponent = RenderComponentBuilder::construct<RenderComponent>();
-		// }
+		// Render
+		RenderComponentBuilder::adjustImpl(object->renderComponent);
+		LRenderer::get()->addPrimitve(object->renderComponent);
 
-		// auto renderPrimitive = dynamic_cast<LG::LGraphicsComponent*>(object.get());
-		std::shared_ptr<LG::LGraphicsComponent> renderPrimitive = std::dynamic_pointer_cast<LG::LGraphicsComponent>(object);
-		RenderComponentBuilder::adjustImpl(renderPrimitive);
-		// LEngine::get()->addPrimitve(object);
-		LEngine::get()->physicsWorld.addRigidBody(object);
+		// Physics
+		LEngine::get()->physicsWorld.addRigidBody(object->physicsComponent);
 
 		DEBUG_CODE(
 		if constexpr (std::is_base_of<LG::LGraphicsComponent, DebugRenderComponent>::value)

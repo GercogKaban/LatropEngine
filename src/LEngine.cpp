@@ -8,7 +8,8 @@ LEngine* LEngine::thisPtr = nullptr;
 
 DEBUG_CODE(bool ObjectBuilder::bIsConstructing = false;)
 
-PlayerCharacter::PlayerCharacter() : LActor(false)
+PlayerCharacter::PlayerCharacter(LG::LGFullGraphicsComponent *renderComponent, 
+	LatropPhysics::RigidBody *physicsComponent) : LActor(renderComponent, physicsComponent)
 {
 	thisPtr = this;
 	renderer = LRenderer::get();

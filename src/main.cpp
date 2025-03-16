@@ -20,10 +20,21 @@ int main()
 
 	LEngine engine(wnd);
 
-	auto character = ObjectBuilder::construct<PlayerCharacter>();
-	// auto testcube = ObjectBuilder::construct<StaticCube, LG::LDummy, LG::LCube>();
+	auto character = ObjectBuilder::construct<PlayerCharacter>(new PlayerCharacter(
+		new LG::LCube(),
+		new LatropPhysics::RigidBody(false)
+	));
 
-	// auto cubeC = 
+	auto cubeA = ObjectBuilder::construct<LActor>(new LActor(
+		new LG::LCube(),
+		new LatropPhysics::RigidBody(false)
+	));
+	auto bodyA = cubeA.lock()->physicsComponent;
+	bodyA->transform.position = glm::vec3(-0.0f, 0.0f, 0.0f);
+	bodyA->collider = &cubeAABBCollider;
+
+	// auto character = ObjectBuilder::construct<PlayerCharacter>(new PlayerCharacter());
+	// auto testcube = ObjectBuilder::construct<StaticCube, LG::LDummy, LG::LCube>();
 
 	// auto cubeA = ObjectBuilder::construct<StaticCube, LatropPhysics::CollisionBody, LG::LCube>();
 	// // auto bodyA = std::dynamic_pointer_cast<LatropPhysics::CollisionBody>(cubeA.lock()->physicsComponent);

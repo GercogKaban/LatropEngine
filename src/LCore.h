@@ -4,26 +4,29 @@
 #include <dynamics/RigidBody.h>
 
 // represents a physical object with visualization
-class LActor: public LG::LGraphicsComponent, public LatropPhysics::RigidBody
+class LActor
 {
 public:
 
 	friend class ObjectBuilder;
 
-	LActor(bool takesGrabity) : LG::LGraphicsComponent(), LatropPhysics::RigidBody() 
+	LActor(
+		LG::LGFullGraphicsComponent *renderComponent,
+		LatropPhysics::RigidBody *physicsComponent
+	) : renderComponent(renderComponent), physicsComponent(physicsComponent) 
 	{
-		m_takesGravity = takesGrabity;
+		renderComponent->getModelMatrix = [physicsComponent](){ 
+			return physicsComponent->transform.getAsMatrix(); 
+		};
 	}
-	
+
 	~LActor() = default;
 
-	const glm::mat4x4 getModelMatrix() const override
-	{
-		return transform.getAsMatrix();
-	}
+	std::shared_ptr<LG::LGFullGraphicsComponent> renderComponent;
+	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent;
 
 protected:
 
-	DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
+	DEBUG_CODE(std::shared_ptr<LG::LGFullGraphicsComponent> debugRenderComponent;)
 };
 
