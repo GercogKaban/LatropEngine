@@ -10,23 +10,25 @@ public:
 
 	friend class ObjectBuilder;
 
-	LActor(
-		LG::LGFullGraphicsComponent *renderComponent,
-		LatropPhysics::RigidBody *physicsComponent
-	) : renderComponent(renderComponent), physicsComponent(physicsComponent) 
+	LActor(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent):
+		graphicsComponent(graphicsComponent), physicsComponent(physicsComponent)
 	{
-		renderComponent->getModelMatrix = [physicsComponent](){ 
-			return physicsComponent->transform.getAsMatrix(); 
-		};
+		if (graphicsComponent)
+		{
+			graphicsComponent->getModelMatrix = [physicsComponent]()
+			{
+				return physicsComponent->transform.getAsMatrix();
+			};
+		}
 	}
 
-	~LActor() = default;
+	virtual ~LActor() = default;
 
-	std::shared_ptr<LG::LGFullGraphicsComponent> renderComponent;
+	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent;
 	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent;
 
 protected:
 
-	DEBUG_CODE(std::shared_ptr<LG::LGFullGraphicsComponent> debugRenderComponent;)
+	DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
 };
 

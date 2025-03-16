@@ -8,7 +8,7 @@ class StaticCube : public LActor
 };
 
 // MARK: - Shared Colliders
-LatropPhysics::AABBCollider cubeAABBCollider = LatropPhysics::CubeAABBCollider();
+auto cubeAABBCollider = std::make_shared<LatropPhysics::AABBCollider>(LatropPhysics::CubeAABBCollider());
 
 
 int main()
@@ -20,18 +20,21 @@ int main()
 
 	LEngine engine(wnd);
 
-	auto character = ObjectBuilder::construct<PlayerCharacter>(new PlayerCharacter(
-		new LG::LCube(),
-		new LatropPhysics::RigidBody(false)
-	));
+	auto character = ObjectBuilder::construct(std::make_shared<PlayerCharacter>(nullptr, std::make_shared<LatropPhysics::RigidBody>(false)));
+	auto characterPhyscis = character.lock()->physicsComponent;
+	characterPhyscis->collider = cubeAABBCollider;
 
-	auto cubeA = ObjectBuilder::construct<LActor>(new LActor(
-		new LG::LCube(),
-		new LatropPhysics::RigidBody(false)
-	));
+	auto cubeA = ObjectBuilder::construct(std::make_shared<LActor>(std::make_shared<LG::LCube>(), std::make_shared<LatropPhysics::RigidBody>(false)));
 	auto bodyA = cubeA.lock()->physicsComponent;
-	bodyA->transform.position = glm::vec3(-0.0f, 0.0f, 0.0f);
-	bodyA->collider = &cubeAABBCollider;
+	bodyA->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+	bodyA->collider = cubeAABBCollider;
+
+	auto cubeB = ObjectBuilder::construct(std::make_shared<LActor>(std::make_shared<LG::LCube>(), std::make_shared<LatropPhysics::RigidBody>(true)));
+	auto bodyB = cubeB.lock()->physicsComponent;
+	bodyB->transform.position = glm::vec3(0.5f, 10.0f, 0.0f);
+	bodyB->collider = cubeAABBCollider;
+	bodyB->m_restitution = 2;
+	bodyB->m_mass = 0.95;
 
 	// auto character = ObjectBuilder::construct<PlayerCharacter>(new PlayerCharacter());
 	// auto testcube = ObjectBuilder::construct<StaticCube, LG::LDummy, LG::LCube>();

@@ -6,10 +6,8 @@
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
 
-DEBUG_CODE(bool ObjectBuilder::bIsConstructing = false;)
-
-PlayerCharacter::PlayerCharacter(LG::LGFullGraphicsComponent *renderComponent, 
-	LatropPhysics::RigidBody *physicsComponent) : LActor(renderComponent, physicsComponent)
+PlayerCharacter::PlayerCharacter(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent) 
+	: LActor(graphicsComponent, physicsComponent)
 {
 	thisPtr = this;
 	renderer = LRenderer::get();

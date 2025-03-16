@@ -61,7 +61,7 @@ class PlayerCharacter : public LActor, public LTickable
 
 public:
 
-	PlayerCharacter(LG::LGFullGraphicsComponent *renderComponent, LatropPhysics::RigidBody *physicsComponent);
+	PlayerCharacter(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent);
 	virtual void tick(float delta) override;
 
 	float getSpeed() const
@@ -107,35 +107,35 @@ class ObjectBuilder
 {
 public:
 
-	template<typename GameObject, typename DebugRenderComponent = LG::LDummy>
-	[[nodiscard]] static std::weak_ptr<GameObject> construct(GameObject* source)
+	template<typename DebugRenderComponent = LG::LDummy>
+	[[nodiscard]] static std::weak_ptr<LActor> construct(std::shared_ptr<LActor> object)
 	{
-		DEBUG_CODE(bIsConstructing = true;)
-
-		std::shared_ptr<GameObject> object = std::shared_ptr<GameObject>(source);
 		LEngine::get()->objects.push_back(object);
 
-		if constexpr (std::is_base_of<LTickable, GameObject>::value)
+		if (auto tickable = std::dynamic_pointer_cast<LTickable>(object))
 		{
-			LEngine::get()->addTickablePrimitive(object);
+			LEngine::get()->addTickablePrimitive(tickable);
 		}
 
 		// Render
-		RenderComponentBuilder::adjustImpl(object->renderComponent);
-		LRenderer::get()->addPrimitve(object->renderComponent);
+
+		if (object->graphicsComponent)
+		{
+			RenderComponentBuilder::adjustImpl(object->graphicsComponent);
+			LRenderer::get()->addPrimitve(object->graphicsComponent);
+		}
 
 		// Physics
-		LEngine::get()->physicsWorld.addRigidBody(object->physicsComponent);
-
-		DEBUG_CODE(
-		if constexpr (std::is_base_of<LG::LGraphicsComponent, DebugRenderComponent>::value)
+		if (object->physicsComponent)
 		{
-			object->debugrenderComponent = RenderComponentBuilder::constructDebug<DebugRenderComponent>();
-		})
+			LEngine::get()->physicsWorld.addRigidBody(object->physicsComponent);
+		}
 
-		DEBUG_CODE(bIsConstructing = false;)
-
-		LEngine::get()->objects.push_back(object);
+		//DEBUG_CODE(
+		//if constexpr (std::is_base_of<LG::LGraphicsComponent, DebugRenderComponent>::value)
+		//{
+		//	object->debugrenderComponent = RenderComponentBuilder::constructDebug<DebugRenderComponent>();
+		//})
 
 		return object;
 	}
@@ -148,15 +148,7 @@ protected:
 
 	}
 
-	DEBUG_CODE(
-		static bool isConstructing() { return bIsConstructing; }
-	)
-
 protected:
 
 	static std::unordered_map<std::string, int32> objectsCounter;
-
-	DEBUG_CODE(
-		static bool bIsConstructing;
-	)
 };
