@@ -1,28 +1,12 @@
 #pragma once
 
 #include <functional>
-#include <LRenderer.h>
 #include <dynamics/DynamicsWorld.h>
+#include <LRenderer.h>
 
-class LObject
-{
-public:
+#include "LCore.h"
 
-	friend class ObjectBuilder;
-
-	LObject() = default;
-	~LObject() = default;
-
-	std::shared_ptr<LatropPhysics::CollisionBody> physicsBody;
-	std::shared_ptr<LG::LPrimitiveMesh> renderObject;
-
-protected:
-
-DEBUG_CODE(
-	std::shared_ptr<LG::LPrimitiveMesh> debugRenderObject;)
-};
-
-class LTickable : public LObject
+class LTickable
 {
 public:
 
@@ -30,43 +14,6 @@ public:
 	~LTickable() = default;
 
 	virtual void tick(float delta) = 0;
-};
-
-class PhysicsObject
-{
-public:
-
-	// should be fired when physics was updated
-	// doesn't look optimal but it's fine for now
-	std::function<void(const glm::vec3&)> locationWasUpdated;
-
-	void addInput(const glm::vec3& input)
-	{
-		location = location + input;
-		if (locationWasUpdated)
-		{
-			locationWasUpdated(location);
-		}
-	}
-
-protected:
-
-	glm::vec3 location = glm::vec3(0.0f);
-};
-
-class PhysicsEngine
-{
-	void loop()
-	{
-		// for_each(PhysicsObject* object) -> updatePhysics()
-	}
-
-	void updatePhysics(PhysicsObject* object)
-	{
-		glm::vec3 newLocation;
-		// ...
-		object->locationWasUpdated(newLocation);
-	}
 };
 
 class LEngine : public LRenderer
@@ -93,7 +40,7 @@ public:
 
 	// renderer
 	LatropPhysics::DynamicsWorld physicsWorld;
-	std::vector<std::weak_ptr<LObject>> objects;
+	std::vector<std::shared_ptr<LActor>> objects;
 
 protected:
 
@@ -109,7 +56,7 @@ protected:
 	static LEngine* thisPtr;
 };
 
-class PlayerCharacter : public PhysicsObject, public LTickable
+class PlayerCharacter : public LActor, public LTickable
 {
 
 public:
@@ -152,14 +99,16 @@ protected:
 
 	float centerX = 1920 / 2;
 	float centerY = 1080 / 2;
+
+	glm::vec3 location = glm::vec3(0.0f, 0.0f, 3.0f);
 };
 
 class ObjectBuilder
 {
 public:
 
-	template<typename GameObject, typename PhysicsObject = LG::LDummy, typename RenderObject = LG::LDummy, typename DebugRenderObject = LG::LDummy>
-	[[nodiscard]] static std::shared_ptr<GameObject> construct()
+	template<typename GameObject, typename PhysicsComponent = LG::LDummy, typename RenderComponent = LG::LDummy, typename DebugRenderComponent = LG::LDummy>
+	[[nodiscard]] static std::weak_ptr<GameObject> construct()
 	{
 		DEBUG_CODE(bIsConstructing = true;)
 
@@ -171,30 +120,33 @@ public:
 			LEngine::get()->addTickablePrimitive(object);
 		}
 
-		if constexpr (!std::is_base_of<RenderObject, LG::LDummy>::value)
+		if constexpr (!std::is_base_of<RenderComponent, LG::LDummy>::value)
 		{
-			object->renderObject = RenderObjectBuilder::construct<RenderObject>();
+			object->renderComponent = RenderComponentBuilder::construct<RenderComponent>();
 		}
 
-
-		if constexpr (!std::is_base_of<PhysicsObject, LG::LDummy>::value)
+		if constexpr (!std::is_base_of<PhysicsComponent, LG::LDummy>::value)
 		{
-			object->physicsBody = std::shared_ptr<PhysicsObject>(new PhysicsObject());
-			auto body = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsBody);
-			if (body) {
-				LEngine::get()->physicsWorld.addRigidBody(body.get());
-			} else {
-				LEngine::get()->physicsWorld.addCollisionBody(object->physicsBody.get());
+			object->physicsComponent = std::shared_ptr<PhysicsComponent>(new PhysicsComponent());
+			if (auto body = std::dynamic_pointer_cast<LatropPhysics::RigidBody>(object->physicsComponent))
+			{
+				LEngine::get()->physicsWorld.addRigidBody(body);
+			} 
+			else 
+			{
+				LEngine::get()->physicsWorld.addCollisionBody(object->physicsComponent);
 			}
 		}
 
 		DEBUG_CODE(
-		if constexpr (std::is_base_of<LG::LPrimitiveMesh, DebugRenderObject>::value)
+		if constexpr (std::is_base_of<LG::LGraphicsComponent, DebugRenderComponent>::value)
 		{
-			object->debugRenderObject = RenderObjectBuilder::constructDebug<DebugRenderObject>();
+			object->debugrenderComponent = RenderComponentBuilder::constructDebug<DebugRenderComponent>();
 		})
 
 		DEBUG_CODE(bIsConstructing = false;)
+
+		LEngine::get()->objects.push_back(object);
 
 		return object;
 	}
