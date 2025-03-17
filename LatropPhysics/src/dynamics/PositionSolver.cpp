@@ -22,14 +22,14 @@ void PositionSolver::solve(std::vector<Collision>& collisions, float deltaTime)
         if (bBody) bBody->transform.position += bInvMass * correction;
     }
 
-    // for (Manifold& manifold : manifolds) {
-    //     CollisionObject* aBody = manifold.ObjA;
-    //     CollisionObject* bBody = manifold.ObjB;
+    // for (Collision& manifold : collisions) {
+    //     RigidBody* aBody = manifold.bodyA;
+    //     RigidBody* bBody = manifold.bodyB;
 
-    //     scalar aStatic = (scalar)(int)aBody->IsStatic;
-    //     scalar bStatic = (scalar)(int)bBody->IsStatic;
+    //     float aStatic = (float)(int)!aBody->m_isSimulated;
+    //     float bStatic = (float)(int)!bBody->m_isSimulated;
 
-    //     iw::_vec<d3> resolution = manifold.Normal 
+    //     glm::vec3 resolution = manifold.Normal 
     //         * manifold.Depth 
     //         / iw::max<scalar>(1, aStatic + bStatic);
 

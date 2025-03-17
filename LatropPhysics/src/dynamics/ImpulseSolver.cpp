@@ -34,11 +34,11 @@ void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 
         glm::vec3 impluse = j * manifold.points.normal;
 
-        if (aBody/* ? aBody->IsSimulated : false*/) {
+        if (aBody ? aBody->m_isSimulated : false) {
             aVel -= impluse * aInvMass;
         }
 
-        if (bBody/* ? bBody->IsSimulated : false*/) {
+        if (bBody ? bBody->m_isSimulated : false) {
             bVel += impluse * bInvMass;
         }
 
@@ -73,11 +73,11 @@ void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
             friction = -j * tangent * mu;
         }
 
-        if (aBody/* aBody->IsSimulated : false*/) {
+        if (aBody ? aBody->m_isSimulated : false) {
             aBody->m_velocity = aVel - friction * aInvMass;
         }
 
-        if (bBody/* ? bBody->IsSimulated : false*/) {
+        if (bBody ? bBody->m_isSimulated : false) {
             bBody->m_velocity = bVel + friction * bInvMass;
         }
     }

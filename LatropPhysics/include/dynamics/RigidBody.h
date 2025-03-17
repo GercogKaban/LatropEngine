@@ -8,13 +8,18 @@ namespace LatropPhysics
 {
     struct RigidBody : CollisionBody
     {
-        RigidBody(bool takesGravity) : m_takesGravity(takesGravity)
+        RigidBody(bool isSimulated = true, bool takesGravity = false) : m_isSimulated(isSimulated), m_takesGravity(takesGravity)
         {
             
         };
 
         glm::vec3 m_gravity = glm::vec3(0);
+
+        /// @brief If the rigid body takes gravity from the world.
         bool m_takesGravity;
+
+        /// @brief If the rigit body is simulated and moves, or only affects others.
+        bool m_isSimulated;
 
         /// @brief Static friction is the friction between two objects that are not 
         /// moving relative to each other.
