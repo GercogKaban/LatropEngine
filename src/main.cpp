@@ -20,10 +20,10 @@ int main()
 
 	LEngine engine(wnd);
 
-	auto character = ObjectBuilder::construct(std::make_shared<PlayerCharacter>(nullptr, nullptr/*std::make_shared<LatropPhysics::RigidBody>(true)*/));
-	// auto characterPhyscis = character.lock()->physicsComponent;
-	// characterPhyscis->transform.position = glm::vec3(0.0f, 0.0f, 10.0f);
-	// characterPhyscis->collider = cubeAABBCollider;
+	auto character = ObjectBuilder::construct(std::make_shared<PlayerCharacter>(nullptr, std::make_shared<LatropPhysics::RigidBody>(true)));
+	auto characterPhyscis = character.lock()->physicsComponent;
+	characterPhyscis->transform.position = glm::vec3(0.0f, 0.0f, 10.0f);
+	characterPhyscis->collider = cubeAABBCollider;
 
 	auto cubeA = ObjectBuilder::construct(std::make_shared<LActor>(std::make_shared<LG::LCube>(), std::make_shared<LatropPhysics::RigidBody>(false)));
 	auto bodyA = cubeA.lock()->physicsComponent;

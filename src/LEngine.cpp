@@ -114,6 +114,10 @@ void PlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
 {
 	renderer->setCameraPosition(newLocation);
+	if (physicsComponent)
+	{
+		physicsComponent->transform.position = newLocation;
+	}
 }
 
 LEngine::LEngine(const LWindow& window)
