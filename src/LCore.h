@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LRenderer.h>
+#include <Primitives.h>
 #include <dynamics/RigidBody.h>
 
 // represents a physical object with visualization
@@ -10,8 +10,9 @@ public:
 
 	friend class ObjectBuilder;
 
-	LActor(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent):
-		graphicsComponent(graphicsComponent), physicsComponent(physicsComponent)
+	LActor(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent)
+		: graphicsComponent(graphicsComponent), 
+		  physicsComponent(physicsComponent)
 	{
 		if (graphicsComponent)
 		{
@@ -29,6 +30,6 @@ public:
 
 protected:
 
-	DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
+	// DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
 };
 

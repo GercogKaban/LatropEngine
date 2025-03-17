@@ -6,8 +6,10 @@
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
 
-PlayerCharacter::PlayerCharacter(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent) 
-	: LActor(graphicsComponent, physicsComponent)
+PlayerCharacter::PlayerCharacter(
+	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, 
+	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent
+) : LActor(graphicsComponent, physicsComponent)
 {
 	thisPtr = this;
 	renderer = LRenderer::get();
@@ -98,10 +100,12 @@ void PlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 			pitch = -89.0f;
 		}
 
-		glm::vec3 front;
-		front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-		front.y = sin(glm::radians(pitch));
-		front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+		glm::vec3 front
+		{
+			cos(glm::radians(pitch)) * cos(glm::radians(yaw)),
+			sin(glm::radians(pitch)),
+			cos(glm::radians(pitch)) * sin(glm::radians(yaw))
+		};
 
 		LRenderer::get()->setCameraFront(glm::normalize(front));
 
@@ -153,13 +157,11 @@ void LEngine::loop()
 			updateProjView();
 		}
 
-		auto miniDelta = getDelta() / 8;
+		auto miniDelta = getDelta() / 8.0f;
 		for (int i = 0; i < 8; i++)
 		{
 			physicsWorld.integrate(miniDelta);
 		}
-
-		// physicsWorld.integrate(getDelta());
 
 		drawFrame();
 		fps++;

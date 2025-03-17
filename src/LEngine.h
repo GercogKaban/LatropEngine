@@ -11,7 +11,7 @@ class LTickable
 public:
 
 	LTickable() = default;
-	~LTickable() = default;
+	virtual ~LTickable() = default;
 
 	virtual void tick(float delta) = 0;
 };
@@ -139,16 +139,4 @@ public:
 
 		return object;
 	}
-
-protected:
-
-	template<typename GameObject>
-	static void destruct(GameObject* object)
-	{
-
-	}
-
-protected:
-
-	static std::unordered_map<std::string, int32> objectsCounter;
 };
