@@ -3,7 +3,7 @@
 
 using namespace LatropPhysics;
 
-void CollisionWorld::solveCollisions(std::vector<Collision>& collisions, float deltaTime)
+void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, float deltaTime)
 {
     for(const std::unique_ptr<Solver>& solver : m_solvers)
     {
@@ -11,17 +11,14 @@ void CollisionWorld::solveCollisions(std::vector<Collision>& collisions, float d
     }
 }
 
-void CollisionWorld::sendCollisionEvents(std::vector<Collision>& collisions, float deltaTime) 
+void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime) 
 {
-    for(Collision& collision : collisions)
+    for(const Collision& collision : collisions)
     {
         m_onCollision(collision, deltaTime);
 
-        auto& callbackA = collision.bodyA->m_onCollision;
-        auto& callbackB = collision.bodyB->m_onCollision;
-
-        if (callbackA) callbackA(collision, deltaTime);
-        if (callbackB) callbackB(collision, deltaTime);
+        collision.bodyA->m_onCollision(collision, deltaTime);
+        collision.bodyB->m_onCollision(collision, deltaTime);
     }
 }
 
@@ -77,6 +74,6 @@ void CollisionWorld::resolveCollisions(float deltaTime)
 
     solveCollisions(collisions, deltaTime);
 
-    // sendCollisionEvents(collisions, deltaTime);
-    // sendCollisionEvents(triggers, deltaTime);
+    sendCollisionEvents(collisions, deltaTime);
+    sendCollisionEvents(triggers, deltaTime);
 }

@@ -4,10 +4,8 @@
 
 namespace LatropPhysics
 {
-
-struct ImpulseSolver : Solver
-{
-    void solve(std::vector<Collision>& collisions, float deltaTime) override;
-};
-
+    struct ImpulseSolver : Solver
+    {
+        void solve(const std::vector<Collision>& collisions, float deltaTime) override;
+    };
 } // namespace LatropPhysics

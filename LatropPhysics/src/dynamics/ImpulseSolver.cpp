@@ -3,9 +3,9 @@
 
 using namespace LatropPhysics;
 
-void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
+void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
 {
-    for (Collision& manifold : collisions) 
+    for (const Collision& manifold : collisions) 
     {
         // Replaces non dynamic objects with default values.
 
@@ -34,11 +34,13 @@ void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 
         glm::vec3 impluse = j * manifold.points.normal;
 
-        if (aBody ? aBody->m_isSimulated : false) {
+        if (aBody ? aBody->m_isSimulated : false) 
+        {
             aVel -= impluse * aInvMass;
         }
 
-        if (bBody ? bBody->m_isSimulated : false) {
+        if (bBody ? bBody->m_isSimulated : false) 
+        {
             bVel += impluse * bInvMass;
         }
 
@@ -49,7 +51,8 @@ void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
 
         glm::vec3 tangent = rVel - nSpd * manifold.points.normal;
 
-        if (glm::length(tangent) > 0.0001f) { // safe normalize
+        if (glm::length(tangent) > 0.0001f) 
+        { // safe normalize
             tangent = glm::normalize(tangent);
         }
 
@@ -64,20 +67,23 @@ void ImpulseSolver::solve(std::vector<Collision>& collisions, float deltaTime)
         float f  = -fVel / (aInvMass + bInvMass);
 
         glm::vec3 friction;
-        if (abs(f) < j * mu) {
+        if (abs(f) < j * mu) 
+        {
             friction = f * tangent;
         }
-
-        else {
+        else 
+        {
             mu = glm::length(glm::vec2(aDF, bDF));
             friction = -j * tangent * mu;
         }
 
-        if (aBody ? aBody->m_isSimulated : false) {
+        if (aBody ? aBody->m_isSimulated : false) 
+        {
             aBody->m_velocity = aVel - friction * aInvMass;
         }
 
-        if (bBody ? bBody->m_isSimulated : false) {
+        if (bBody ? bBody->m_isSimulated : false) 
+        {
             bBody->m_velocity = bVel + friction * bInvMass;
         }
     }

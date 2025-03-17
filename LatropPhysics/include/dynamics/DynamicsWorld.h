@@ -6,28 +6,24 @@
 
 namespace LatropPhysics 
 {
-
-struct DynamicsWorld: CollisionWorld
-{
-public:
-
-    void addRigidBody(std::weak_ptr<RigidBody> body) 
+    struct DynamicsWorld: CollisionWorld
     {
-        if (body.lock().get()->m_takesGravity) 
+        void addRigidBody(std::weak_ptr<RigidBody> body) 
         {
-            body.lock().get()->m_gravity = m_gravity;
+            if (body.lock().get()->m_takesGravity) 
+            {
+                body.lock().get()->m_gravity = m_gravity;
+            }
+
+            addCollisionBody(body);
         }
 
-        addCollisionBody(body);
-    }
+        void integrate(float deltaTime);
+    // protected:
+        glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
 
-    void integrate(float deltaTime);
-// protected:
-    glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
-
-private:
-    void applyGravity();
-    void moveBodies(float deltaTime);
-};
-
+    private:
+        void applyGravity();
+        void moveBodies(float deltaTime);
+    };
 } // namespace LatropPhysics

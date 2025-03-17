@@ -6,20 +6,19 @@
 namespace LatropPhysics 
 {
     /// @brief The AABB class represents an Axis Aligned Bounding Box that can be 
-/// used as a collider in a physics engine.
+    /// used as a collider in a physics engine.
     struct AABBCollider : Collider
     {
-    public:
         /**
          * Creates an AABB in a usable state.
          *
          * @param minExtents The corner of the AABB with the smallest coordinates.
          * @param maxExtents The corner of the AABB with the largest coordinates.
          */
-        AABBCollider(const glm::vec3& minExtents, const glm::vec3& maxExtents) :
-            minExtents(minExtents),
-            maxExtents(maxExtents) {
-        }
+        AABBCollider(const glm::vec3& minExtents, const glm::vec3& maxExtents) 
+            : minExtents(minExtents),
+              maxExtents(maxExtents) 
+            {}
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
@@ -50,11 +49,11 @@ namespace LatropPhysics
 
         /// @brief The corner of the AABB with the largest coordinates.
         const glm::vec3 maxExtents;
-    };
 
-    struct CubeAABBCollider : AABBCollider
-    {
-        CubeAABBCollider()
-            : AABBCollider({ -0.5f, -0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f }) {}
+        // MARK: - Common Shapes
+        static AABBCollider makeCube() 
+        {
+            return AABBCollider({ -0.5f, -0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f });
+        }
     };
 } // namespace LatropPhysics

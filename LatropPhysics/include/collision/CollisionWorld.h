@@ -8,64 +8,64 @@
 
 namespace LatropPhysics 
 {
-
-struct CollisionWorld
-{
-public:
-
-    void addCollisionBody(std::weak_ptr<CollisionBody> body) 
+    struct CollisionWorld
     {
-        m_bodies.push_back(body);
-    }
+        CollisionWorld(std::function<void(const Collision&, float)> onCollision = [](auto a, auto b) {}) 
+            : m_onCollision(onCollision)  
+            {}
 
-    void removeCollisionBody(std::weak_ptr<CollisionBody> body)
-    {
-        if (auto sharedBody = body.lock()) // Convert to shared_ptr
+        void addCollisionBody(std::weak_ptr<CollisionBody> body) 
         {
-            auto it = std::find_if(m_bodies.begin(), m_bodies.end(),
-                [&sharedBody](const std::weak_ptr<CollisionBody>& b)
-                {
-                    return !b.expired() && b.lock() == sharedBody;
-                });
+            m_bodies.emplace_back(body);
+        }
 
-            if (it != m_bodies.end())
+        void removeCollisionBody(std::weak_ptr<CollisionBody> body)
+        {
+            if (auto sharedBody = body.lock()) // Convert to shared_ptr
             {
-                m_bodies.erase(it);
+                auto it = std::find_if(m_bodies.begin(), m_bodies.end(),
+                    [&sharedBody](const std::weak_ptr<CollisionBody>& b)
+                    {
+                        return !b.expired() && b.lock() == sharedBody;
+                    });
+
+                if (it != m_bodies.end())
+                {
+                    m_bodies.erase(it);
+                }
             }
         }
-    }
 
-    void addSolver(std::unique_ptr<Solver>&& solver) 
-    {
-        m_solvers.push_back(std::move(solver));
-    }
-
-    void removeSolver(const std::unique_ptr<Solver>& solver)
-    {
-        auto it = std::find_if(m_solvers.begin(), m_solvers.end(),
-            [&solver](const std::unique_ptr<Solver>& s)
-            {
-                return s.get() == solver.get();
-            });
-
-        if (it != m_solvers.end())
+        void addSolver(std::unique_ptr<Solver>&& solver) 
         {
-            m_solvers.erase(it);
+            m_solvers.emplace_back(std::move(solver));
         }
-    }
 
-    void resolveCollisions(float deltaTime);
+        void removeSolver(const std::unique_ptr<Solver>& solver)
+        {
+            auto it = std::find_if(m_solvers.begin(), m_solvers.end(),
+                [&solver](const std::unique_ptr<Solver>& s)
+                {
+                    return s.get() == solver.get();
+                });
 
-protected:
+            if (it != m_solvers.end())
+            {
+                m_solvers.erase(it);
+            }
+        }
 
-    std::vector<std::weak_ptr<CollisionBody>> m_bodies;
-    std::vector<std::unique_ptr<Solver>> m_solvers;
+        void resolveCollisions(float deltaTime);
 
-    std::function<void(Collision, float)> m_onCollision;
+    protected:
 
-private:
-    void solveCollisions(std::vector<Collision>& collisions, float deltaTime);
-    void sendCollisionEvents(std::vector<Collision>& collisions, float deltaTime); 
-};
+        std::vector<std::weak_ptr<CollisionBody>> m_bodies;
+        std::vector<std::unique_ptr<Solver>> m_solvers;
 
+        std::function<void(const Collision&, float)> m_onCollision;
+
+    private:
+        void solveCollisions(const std::vector<Collision>& collisions, float deltaTime);
+        void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
+    };
 } // namespace LatropPhysics

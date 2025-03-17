@@ -2,6 +2,7 @@
 #include "collision/SphereCollider.h"
 #include "collision/PlaneCollider.h"
 #include "collision/AABBCollider.h"
+#include "shared/Transform.h"
 
 using namespace LatropPhysics;
 
@@ -57,7 +58,7 @@ CollisionPoints collisionDetectors::findAABBAABBCollisionPoints(
     const AABBCollider* a, const Transform* transformA,
     const AABBCollider* b, const Transform* transformB
 ) {
-    CollisionPoints points = {};
+    CollisionPoints points;
     points.hasCollision = false;
 
     // Transform min and max extents to world space for both AABBs

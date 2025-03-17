@@ -1,5 +1,6 @@
 #include "collision/PlaneCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
+#include "shared/Transform.h"
 
 using namespace LatropPhysics;
 

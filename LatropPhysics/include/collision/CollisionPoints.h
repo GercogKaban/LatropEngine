@@ -1,35 +1,42 @@
 #pragma once
 
 #include <glm/vec3.hpp>
-#include <glm/gtc/quaternion.hpp>
 
 namespace LatropPhysics 
 {
+    struct CollisionBody;
 
-struct CollisionBody;
+    struct CollisionPoints 
+    {
+        // CollisionPoints(glm::vec3 start, glm::vec3 end, glm::vec3 normal, float depth, bool hasCollision)
+        //     : start(start), end(end), normal(normal), depth(depth), hasCollision(hasCollision)
+        //     {}
 
-struct CollisionPoints 
-{
-    /// @brief The furthest point of `start` into `end`.
-    glm::vec3 start;
+        /// @brief The furthest point of `start` into `end`.
+        glm::vec3 start = glm::vec3(0.0f);
 
-    /// @brief The furthest point of `end` into `start`.
-    glm::vec3 end;
+        /// @brief The furthest point of `end` into `start`.
+        glm::vec3 end = glm::vec3(0.0f);
 
-    /// @brief `end` - `start`, normalized.
-    glm::vec3 normal;
+        /// @brief `end` - `start`, normalized.
+        glm::vec3 normal = glm::vec3(0.0f);
 
-    /// @brief Length of `end` - `start`.
-    float depth;
+        /// @brief Length of `end` - `start`.
+        float depth = 0.0f;
 
-    bool hasCollision;
-};
+        bool hasCollision = false;
+    };
 
-struct Collision
-{
-    CollisionBody* bodyA;
-    CollisionBody* bodyB;
-    CollisionPoints points;
-};
+    struct Collision
+    {
+        Collision(CollisionBody* bodyA, CollisionBody* bodyB, const CollisionPoints& points)
+            : bodyA(bodyA), 
+              bodyB(bodyB), 
+              points(points)
+            {}
 
+        CollisionPoints points;
+        CollisionBody* bodyA;
+        CollisionBody* bodyB;
+    };
 } // namespace LatropPhysics

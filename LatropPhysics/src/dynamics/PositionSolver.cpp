@@ -3,9 +3,10 @@
 
 using namespace LatropPhysics;
 
-void PositionSolver::solve(std::vector<Collision>& collisions, float deltaTime)
+void PositionSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
 {
-    for (Collision& manifold : collisions) {
+    for (const Collision& manifold : collisions) 
+    {
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
         

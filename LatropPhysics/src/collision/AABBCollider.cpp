@@ -1,10 +1,6 @@
 #include "collision/AABBCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
-
-namespace LatropPhysics
-{
-    CubeAABBCollider cubeCollider;
-}
+#include "shared/Transform.h"
 
 using namespace LatropPhysics;
 

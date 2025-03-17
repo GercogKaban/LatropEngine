@@ -1,5 +1,4 @@
 #include "dynamics/DynamicsWorld.h"
-#include <glm/vec3.hpp>
 
 using namespace LatropPhysics;
 
@@ -13,7 +12,7 @@ void DynamicsWorld::applyGravity()
             // for now continue
             continue;
         }
-   
+
         if (std::shared_ptr<RigidBody> castedRigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
         {
             castedRigidBody->m_force = castedRigidBody->m_gravity * castedRigidBody->m_mass;
@@ -25,19 +24,16 @@ void DynamicsWorld::moveBodies(float deltaTime)
 {
     for (std::weak_ptr<CollisionBody> body : m_bodies)
     {
-        RigidBody* rigidBody = dynamic_cast<RigidBody*>(body.lock().get());
-        if (!rigidBody) continue;
+        auto element = std::dynamic_pointer_cast<RigidBody>(body.lock());
+        if (!element) continue;
         
-        glm::vec3 velocity = rigidBody->m_velocity
-                           + rigidBody->m_force / rigidBody->m_mass 
-                           * deltaTime;
+        auto rigidBody = element.get();
 
-        glm::vec3 position = rigidBody->transform.position
-                           + rigidBody->m_velocity 
-                           * deltaTime;
+        glm::vec3 oldVelocity = rigidBody->m_velocity;
+        glm::vec3 oldPosition = rigidBody->transform.position;
 
-        rigidBody->m_velocity = velocity;
-        rigidBody->transform.position = position;
+        rigidBody->m_velocity = oldVelocity + rigidBody->m_force / rigidBody->m_mass * deltaTime;
+        rigidBody->transform.position = oldPosition + oldVelocity * deltaTime;
 
         rigidBody->m_force = glm::vec3(0.0f);
     }

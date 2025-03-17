@@ -3,7 +3,7 @@
 
 using namespace LatropPhysics;
 
-void SmoothPositionSolver::solve(std::vector<Collision>& collisions, float deltaTime)
+void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> deltas;
 
