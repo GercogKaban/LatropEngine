@@ -4,6 +4,7 @@
 #include "collision/CollisionBody.h"
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 namespace LatropPhysics 
 {
