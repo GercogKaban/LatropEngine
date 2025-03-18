@@ -30,21 +30,25 @@ void PlayerCharacter::tick(float delta)
 	glm::vec3 cameraFront = renderer->getCameraFront();
 	glm::vec3 cameraUp = renderer->getCameraUp();
 
+	// Project the front vector onto the horizontal plane (Y = 0)
+	glm::vec3 horizontalFront = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));
+	glm::vec3 right = glm::normalize(glm::cross(horizontalFront, cameraUp));
+
 	if (isKeyPressed(GLFW_KEY_W))
 	{
-		inputs += cameraFront * getSpeed() * delta;
+		inputs += horizontalFront * getSpeed() * delta;
 	}
 	if (isKeyPressed(GLFW_KEY_S))
 	{
-		inputs -= cameraFront * getSpeed() * delta;
+		inputs -= horizontalFront * getSpeed() * delta;
 	}
 	if (isKeyPressed(GLFW_KEY_A))
 	{
-		inputs -= glm::normalize(glm::cross(cameraFront, cameraUp)) * speed * delta;
+		inputs -= right * getSpeed() * delta;
 	}
 	if (isKeyPressed(GLFW_KEY_D))
 	{
-		inputs += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed * delta;
+		inputs += right * getSpeed() * delta;
 	}
 
 	inputs.y = 0.0f;
