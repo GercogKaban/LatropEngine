@@ -135,7 +135,11 @@ void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
 
 void PlayerCharacter::jump()
 {
-	physicsComponent->m_velocity.y += 5;
+    // Consider the player grounded if the vertical velocity is close to zero
+    if (std::abs(physicsComponent->m_velocity.y) < 0.65f)
+    {
+        physicsComponent->m_velocity.y += 5;
+    }
 }
 
 LEngine::LEngine(const LWindow& window)
