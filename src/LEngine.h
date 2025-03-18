@@ -86,6 +86,7 @@ protected:
 	static void mouseInput(class GLFWwindow* window, double xpos, double ypos);
 
 	void updateCamera(const glm::vec3& newLocation);
+	void jump();
 
 	std::unordered_map<int32, bool> pressedKeys;
 

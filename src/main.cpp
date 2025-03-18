@@ -25,7 +25,7 @@ int main()
 	auto bodyFloor = floor.lock()->physicsComponent;
 	bodyFloor->transform.position = glm::vec3(0.0f, -2.0f, 0.0f);
 	bodyFloor->transform.scale = glm::vec3(20, 1.0f, 20);
-	bodyFloor->m_restitution = 0;
+	bodyFloor->m_restitution = 1;
 	bodyFloor->m_mass = 100000;
 
 	auto cubeA = ObjectBuilder::construct(std::make_shared<LActor>(

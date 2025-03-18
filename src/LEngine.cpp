@@ -72,6 +72,10 @@ void PlayerCharacter::handleInput(GLFWwindow* window, int key, int scancode, int
 		if (action == GLFW_PRESS || action == GLFW_REPEAT)
 		{
 			playerCharacter->pressedKeys[key] = GLFW_PRESS;
+			if (key == GLFW_KEY_SPACE)
+			{
+				playerCharacter->jump();
+			}
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -123,6 +127,11 @@ void PlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
 {
 	renderer->setCameraPosition(newLocation);
+}
+
+void PlayerCharacter::jump()
+{
+	physicsComponent->m_velocity.y += 10;
 }
 
 LEngine::LEngine(const LWindow& window)
