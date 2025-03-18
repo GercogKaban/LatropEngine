@@ -99,8 +99,6 @@ protected:
 
 	float centerX = 1920 / 2;
 	float centerY = 1080 / 2;
-
-	glm::vec3 location = glm::vec3(0.0f, 0.0f, 3.0f);
 };
 
 class ObjectBuilder

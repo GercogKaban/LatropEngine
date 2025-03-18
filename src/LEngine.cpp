@@ -16,6 +16,7 @@ PlayerCharacter::PlayerCharacter(
 
 	glfwSetKeyCallback(renderer->getWindow(), handleInput);
 	glfwSetCursorPosCallback(renderer->getWindow(), mouseInput);
+	updateCamera(physicsComponent->transform.position);
 }
 
 void PlayerCharacter::tick(float delta)
@@ -46,8 +47,8 @@ void PlayerCharacter::tick(float delta)
 
 	if (inputs != glm::vec3(0.0f))
 	{
-		location += inputs;
-		updateCamera(location);
+		physicsComponent->transform.position += inputs;
+		updateCamera(physicsComponent->transform.position);
 	}
 }
 
@@ -118,10 +119,6 @@ void PlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
 {
 	renderer->setCameraPosition(newLocation);
-	if (physicsComponent)
-	{
-		physicsComponent->transform.position = newLocation;
-	}
 }
 
 LEngine::LEngine(const LWindow& window)
