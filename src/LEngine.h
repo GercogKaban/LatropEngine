@@ -92,7 +92,7 @@ protected:
 
 	class LRenderer* renderer = nullptr;
 	static PlayerCharacter* thisPtr;
-	float speed = 1.0f;
+	float speed = 1.25f;
 
 	// should be in camera class
 	bool bFirstMouse = true;

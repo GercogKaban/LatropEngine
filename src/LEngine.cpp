@@ -47,7 +47,7 @@ void PlayerCharacter::tick(float delta)
 		inputs += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed * delta;
 	}
 
-	//inputs.y = 0.0f;
+	inputs.y = 0.0f;
 
 	if (inputs != glm::vec3(0.0f))
 	{
@@ -131,7 +131,7 @@ void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
 
 void PlayerCharacter::jump()
 {
-	physicsComponent->m_velocity.y += 10;
+	physicsComponent->m_velocity.y += 5;
 }
 
 LEngine::LEngine(const LWindow& window)

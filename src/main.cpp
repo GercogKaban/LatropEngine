@@ -14,7 +14,7 @@ int main()
 
 	auto character = ObjectBuilder::construct(std::make_shared<PlayerCharacter>(
 		nullptr, 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, true), glm::vec3(0.0f, 10.0f, 5.0f))
+		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, true), glm::vec3(0.0f, 2.0f, 2.0f))
 	);
 	auto characterPhyscis = character.lock()->physicsComponent;
 
@@ -23,37 +23,37 @@ int main()
 		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false))
 	);
 	auto bodyFloor = floor.lock()->physicsComponent;
-	bodyFloor->transform.position = glm::vec3(0.0f, -2.0f, 0.0f);
+	bodyFloor->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 	bodyFloor->transform.scale = glm::vec3(20, 1.0f, 20);
-	bodyFloor->m_restitution = 1;
+	bodyFloor->m_restitution = 0.0;
 	bodyFloor->m_mass = 100000;
 
 	auto cubeA = ObjectBuilder::construct(std::make_shared<LActor>(
 		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, false))
+		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false))
 	);
 	auto bodyA = cubeA.lock()->physicsComponent;
-	bodyA->transform.position = glm::vec3(0.0f, 6.0f, 0.0f);
-	bodyA->m_restitution = 1;
+	bodyA->transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
+	bodyA->m_restitution = 0;
 	bodyA->m_mass = 1;
 
 	auto cubeB = ObjectBuilder::construct(std::make_shared<LActor>(
 		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, false))
+		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false))
 	);
 	auto bodyB = cubeB.lock()->physicsComponent;
-	bodyB->transform.position = glm::vec3(0.0f, 20.0f, 0.0f);
-	bodyB->m_restitution = 1;
+	bodyB->transform.position = glm::vec3(1.0f, 2.0f, 0.0f);
+	bodyB->m_restitution = 0.0;
 	bodyB->m_mass = 1;
 
 	auto cubeC = ObjectBuilder::construct(std::make_shared<LActor>(
 		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, true))
+		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false))
 	);
 	auto bodyC = cubeC.lock()->physicsComponent;
-	bodyC->transform.position = glm::vec3(5.0f, 0.0f, 0.0f);
-	bodyC->m_restitution = 0.5;
-	bodyC->m_mass = 0.95;
+	bodyC->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
+	bodyC->m_restitution = 0.0;
+	bodyC->m_mass = 1;
 	
 	engine.loop();
 }
