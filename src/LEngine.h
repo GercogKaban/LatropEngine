@@ -61,7 +61,11 @@ class PlayerCharacter : public LActor, public LTickable
 
 public:
 
-	PlayerCharacter(std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, std::shared_ptr<LatropPhysics::RigidBody> physicsComponent);
+	PlayerCharacter(
+		std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, 
+		std::shared_ptr<LatropPhysics::RigidBody> physicsComponent,
+		const glm::vec3& startPosition);
+
 	virtual void tick(float delta) override;
 
 	float getSpeed() const

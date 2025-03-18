@@ -8,11 +8,15 @@ LEngine* LEngine::thisPtr = nullptr;
 
 PlayerCharacter::PlayerCharacter(
 	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, 
-	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent
-) : LActor(graphicsComponent, physicsComponent)
+	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent,
+	const glm::vec3& startPosition
+)
+	: LActor(graphicsComponent, physicsComponent)
 {
 	thisPtr = this;
 	renderer = LRenderer::get();
+
+	physicsComponent->transform.position = startPosition;
 
 	glfwSetKeyCallback(renderer->getWindow(), handleInput);
 	glfwSetCursorPosCallback(renderer->getWindow(), mouseInput);
@@ -43,13 +47,13 @@ void PlayerCharacter::tick(float delta)
 		inputs += glm::normalize(glm::cross(cameraFront, cameraUp)) * speed * delta;
 	}
 
-	inputs.y = 0.0f;
+	//inputs.y = 0.0f;
 
 	if (inputs != glm::vec3(0.0f))
 	{
 		physicsComponent->transform.position += inputs;
-		updateCamera(physicsComponent->transform.position);
 	}
+	updateCamera(physicsComponent->transform.position);
 }
 
 bool PlayerCharacter::isKeyPressed(int32 keyCode) const
