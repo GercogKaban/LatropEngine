@@ -1,11 +1,9 @@
 #include "dynamics/DynamicsWorld.h"
-#include "../../_deps/tracy-src/public/tracy/Tracy.hpp"
 
 using namespace LatropPhysics;
 
 void DynamicsWorld::applyGravity()
 {
-    ZoneScoped;
     for (std::weak_ptr<CollisionBody> body : m_bodies)
     {
         if (body.expired())
@@ -24,7 +22,6 @@ void DynamicsWorld::applyGravity()
 
 void DynamicsWorld::moveBodies(float deltaTime)
 {
-    ZoneScoped;
     for (std::weak_ptr<CollisionBody> body : m_bodies)
     {
         auto element = std::dynamic_pointer_cast<RigidBody>(body.lock());

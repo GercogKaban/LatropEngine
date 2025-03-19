@@ -1,6 +1,5 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
-#include "../../_deps/tracy-src/public/tracy/Tracy.hpp"
 
 using namespace LatropPhysics;
 
@@ -25,8 +24,6 @@ void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collision
 
 void CollisionWorld::resolveCollisions(float deltaTime)
  {
-    ZoneScoped;
-
     std::vector<Collision> collisions;
     std::vector<Collision> triggers;
 

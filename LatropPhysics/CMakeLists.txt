@@ -58,5 +58,3 @@ if(ENABLE_TESTING)
 
     gtest_discover_tests(LatropPhysicsTests)
 endif()
-
-add_compile_definitions(TRACY_ENABLE)
