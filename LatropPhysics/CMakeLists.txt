@@ -34,7 +34,11 @@ target_compile_features(LatropPhysics PRIVATE cxx_std_17)
 
 # MARK: - Testing
 # Option to enable or disable tests
-option(ENABLE_TESTING "Enable building tests" ON)
+if(WIN32)
+    # Do nothing because Windows can't do tests(apparently)
+else()
+    option(ENABLE_TESTING "Enable building tests" ON)
+endif()
 
 if(ENABLE_TESTING)
     # Find Google Test package

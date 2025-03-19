@@ -3,6 +3,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include "collision/AABBCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
+#include "shared/Transform.h"
 
 using namespace LatropPhysics;
 using namespace collisionDetectors;
