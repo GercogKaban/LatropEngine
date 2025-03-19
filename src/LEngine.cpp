@@ -2,6 +2,7 @@
 #include <glfw3.h>
 #include <dynamics/ImpulseSolver.h>
 #include <dynamics/PositionSolver.h>
+#include "../_deps/tracy-src/public/tracy/Tracy.hpp"
 
 PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
@@ -159,6 +160,7 @@ void LEngine::loop()
 {
 	while (window && !glfwWindowShouldClose(window))
 	{
+		FrameMark;
 		updateDelta();
 		fpsTimer += getDelta();
 		if (fpsTimer >= 1.0f)
@@ -175,13 +177,19 @@ void LEngine::loop()
 			updateProjView();
 		}
 
-		auto miniDelta = getDelta() / 8.0f;
-		for (int i = 0; i < 8; i++)
 		{
-			physicsWorld.integrate(miniDelta);
+			ZoneScopedN("Physics iterations");
+			auto miniDelta = getDelta() / 8.0f;
+			for (int i = 0; i < 8; i++)
+			{
+				physicsWorld.integrate(miniDelta);
+			}
 		}
 
-		drawFrame();
+		{
+			ZoneScopedN("Draw");
+			drawFrame();
+		}
 		fps++;
 	}
 	vkDeviceWaitIdle(logicalDevice);
@@ -189,6 +197,7 @@ void LEngine::loop()
 
 void LEngine::executeTickables()
 {
+	ZoneScoped;
 	for (auto it = tickables.begin(); it != tickables.end(); ++it)
 	{
 		if (!it->expired())

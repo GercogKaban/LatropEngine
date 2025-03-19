@@ -313,3 +313,6 @@ android-ndk-r25b
 *.plist
 *.pbxproj
 .vscode/settings.json
+
+TracyTargets.cmake
+_deps/
