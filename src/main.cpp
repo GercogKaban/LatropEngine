@@ -98,6 +98,19 @@ void createStairs(int x, int y, int maxLength = 3)
     }
 }
 
+void createBouncyPuddle()
+{
+	auto puddle = ObjectBuilder::construct(std::make_shared<LActor>(
+		std::make_shared<LG::LCube>(), 
+		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false)
+	));
+	auto puddleBody = puddle.lock()->physicsComponent;
+	puddleBody->transform.position = glm::vec3(7.0f, 0.015f, 7.0f);
+	puddleBody->transform.scale = glm::vec3(5, 1.0f, 5);
+	puddleBody->m_restitution = 1;
+	puddleBody->m_mass = 100000;
+}
+
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
@@ -109,6 +122,7 @@ int main()
 	createPlayer();
 	createFloor();
 	createStairs(10, 10);
+	createBouncyPuddle();
 	
 	// MARK: RunLoop
 	engine.loop();
