@@ -88,7 +88,7 @@ void createStairs(int height, int maxLength = 3)
         {-1, 0}   // left
     };
 
-    for (int i = -maxLength; i < height - maxLength; ++i)
+    for (int i = 0; i < height; ++i)
     {
 		auto step = ObjectBuilder::construct<LActor>().lock();
 		step->loadComponent<LG::LCube>();
@@ -96,7 +96,7 @@ void createStairs(int height, int maxLength = 3)
 			{
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;
-				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i * 0.01, (float)position.y * 0.85f);
+				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i, (float)position.y * 0.85f);
 				physicsComponent->m_restitution = 0.0f;
 			});
 
@@ -136,7 +136,7 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	createStairs(1102, 40);
+	createStairs(100);
 	createBouncyPuddle();
 	
 	// MARK: RunLoop
