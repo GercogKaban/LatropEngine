@@ -128,6 +128,47 @@ void createBouncyPuddle()
 		});
 }
 
+void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
+{
+    int directionIndex = 0;
+    int stepCount = 0;
+    int currentLength = 0;
+    glm::ivec2 position(0, 0); // Starting position
+
+    // Movement directions: forward, right, backward, left
+    glm::ivec2 directions[4] = 
+	{
+        {0, 1},   // forward (up)
+        {1, 0},   // right
+        {0, -1},  // backward (down)
+        {-1, 0}   // left
+    };
+
+    for (int i = -maxLength; i < height - maxLength; ++i)
+    {
+		auto step = ObjectBuilder::construct<LActor>().lock();
+		step->loadComponent<LG::LCube>();
+		step->loadComponent<LatropPhysics::RigidBody>([position, i, YStep](LatropPhysics::RigidBody* physicsComponent)
+			{
+				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->m_isSimulated = false;
+				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i * YStep, (float)position.y * 0.85f);
+				physicsComponent->m_restitution = 0.0f;
+			});
+
+        // Move to the next position
+        position += directions[directionIndex];
+        ++currentLength;
+
+        // Change direction if reached max length
+        if (currentLength >= maxLength)
+        {
+            currentLength = 0;
+            directionIndex = (directionIndex + 1) % 4;  // Cycle through 0-3
+        }
+    }
+}
+
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
@@ -136,7 +177,8 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	createStairs(100);
+	// createStairs(100);
+	createStairsStressTest(60000, 40, 0.001f);
 	createBouncyPuddle();
 	
 	// MARK: RunLoop
