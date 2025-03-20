@@ -1,5 +1,6 @@
 #include <LWindow.h>
 #include "LEngine.h"
+#include "LPlayerCharacter.h"
 #include <collision/AABBCollider.h>
 
 // MARK: - Shared Colliders
@@ -7,55 +8,68 @@ auto cubeAABBCollider = std::make_shared<LatropPhysics::AABBCollider>(LatropPhys
 
 void createPlayer() 
 {
-	auto character = ObjectBuilder::construct(std::make_shared<PlayerCharacter>(
-		nullptr, 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, true, true), glm::vec3(2.0f, 2.0f, 2.0f))
-	);
-	auto characterPhyscis = character.lock()->physicsComponent;
-	characterPhyscis->transform.scale = glm::vec3(0.55, 1.0f, 0.55f);
+	auto playerCharacter = ObjectBuilder::construct<LPlayerCharacter>().lock();
+	playerCharacter->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->m_takesGravity = true;
+			physicsComponent->m_isSimulated = true;
+
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
+			physicsComponent->transform.scale = glm::vec3(0.55, 1.0f, 0.55f);
+		});
 }
 
 void createFloor() 
 {
-	auto floor = ObjectBuilder::construct(std::make_shared<LActor>(
-		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false)
-	));
-	auto bodyFloor = floor.lock()->physicsComponent;
-	bodyFloor->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
-	bodyFloor->transform.scale = glm::vec3(20, 1.0f, 20);
-	bodyFloor->m_restitution = 0.0;
-	bodyFloor->m_mass = 100000;
+	auto floor = ObjectBuilder::construct<LActor>().lock();
+	floor->loadComponent<LG::LCube>();
+	floor->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->m_isSimulated = false;
+			physicsComponent->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+			physicsComponent->transform.scale = glm::vec3(20, 1.0f, 20);
+			physicsComponent->m_restitution = 0.0;
+			physicsComponent->m_mass = 100000;
+		});
 }
 
 void createOriginalSample()
 {
-	auto cubeA = ObjectBuilder::construct(std::make_shared<LActor>(
-		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false)
-	));
-	auto bodyA = cubeA.lock()->physicsComponent;
-	bodyA->transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
-	bodyA->m_restitution = 0;
-	bodyA->m_mass = 1;
 
-	auto cubeB = ObjectBuilder::construct(std::make_shared<LActor>(
-		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false)
-	));
-	auto bodyB = cubeB.lock()->physicsComponent;
-	bodyB->transform.position = glm::vec3(1.0f, 2.0f, 0.0f);
-	bodyB->m_restitution = 0.0;
-	bodyB->m_mass = 1;
+	auto cubeA = ObjectBuilder::construct<LActor>().lock();
+	cubeA->loadComponent<LG::LCube>();
+	cubeA->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->m_isSimulated = false;
+			physicsComponent->transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
+			physicsComponent->m_restitution = 0;
+			physicsComponent->m_mass = 1;
+		});
 
-	auto cubeC = ObjectBuilder::construct(std::make_shared<LActor>(
-		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false)
-	));
-	auto bodyC = cubeC.lock()->physicsComponent;
-	bodyC->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
-	bodyC->m_restitution = 0.0;
-	bodyC->m_mass = 1;
+	auto cubeB = ObjectBuilder::construct<LActor>().lock();
+	cubeB->loadComponent<LG::LCube>();
+	cubeB->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->m_isSimulated = false;
+			physicsComponent->transform.position = glm::vec3(1.0f, 2.0f, 0.0f);
+			physicsComponent->m_restitution = 0.0f;
+			physicsComponent->m_mass = 1.0f;
+		});
+
+	auto cubeC = ObjectBuilder::construct<LActor>().lock();
+	cubeC->loadComponent<LG::LCube>();
+	cubeC->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->m_isSimulated = false;
+			physicsComponent->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
+			physicsComponent->m_restitution = 0.0f;
+			physicsComponent->m_mass = 1.0f;
+		});
 }
 
 void createStairs(int x, int y, int maxLength = 3)
@@ -66,7 +80,8 @@ void createStairs(int x, int y, int maxLength = 3)
     glm::ivec2 position(0, 0); // Starting position
 
     // Movement directions: forward, right, backward, left
-    glm::ivec2 directions[4] = {
+    glm::ivec2 directions[4] = 
+	{
         {0, 1},   // forward (up)
         {1, 0},   // right
         {0, -1},  // backward (down)
@@ -75,15 +90,15 @@ void createStairs(int x, int y, int maxLength = 3)
 
     for (int i = 0; i < x * y; ++i)
     {
-        auto step = ObjectBuilder::construct(std::make_shared<LActor>(
-            std::make_shared<LG::LCube>(), 
-            std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false, false)
-		));
-        auto stepBody = step.lock()->physicsComponent;
-
-        // Set position
-        stepBody->transform.position = glm::vec3((float)position.x * 0.85, (float)i, (float)position.y * 0.85);
-        stepBody->m_restitution = 0.0;
+		auto step = ObjectBuilder::construct<LActor>().lock();
+		step->loadComponent<LG::LCube>();
+		step->loadComponent<LatropPhysics::RigidBody>([position, i](LatropPhysics::RigidBody* physicsComponent)
+			{
+				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->m_isSimulated = false;
+				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i, (float)position.y * 0.85f);
+				physicsComponent->m_restitution = 0.0f;
+			});
 
         // Move to the next position
         position += directions[directionIndex];
@@ -100,23 +115,23 @@ void createStairs(int x, int y, int maxLength = 3)
 
 void createBouncyPuddle()
 {
-	auto puddle = ObjectBuilder::construct(std::make_shared<LActor>(
-		std::make_shared<LG::LCube>(), 
-		std::make_shared<LatropPhysics::RigidBody>(cubeAABBCollider, false)
-	));
-	auto puddleBody = puddle.lock()->physicsComponent;
-	puddleBody->transform.position = glm::vec3(7.0f, 0.015f, 7.0f);
-	puddleBody->transform.scale = glm::vec3(5, 1.0f, 5);
-	puddleBody->m_restitution = 1;
-	puddleBody->m_mass = 100000;
+	auto puddle = ObjectBuilder::construct<LActor>().lock();
+	puddle->loadComponent<LG::LCube>();
+	puddle->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+		{
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->m_isSimulated = false;
+			physicsComponent->transform.position = glm::vec3(7.0f, 0.015f, 7.0f);
+			physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
+			physicsComponent->m_restitution = 1.0f;
+			physicsComponent->m_mass = 100000.0f;
+		});
 }
 
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
-	LWindow wnd(wndSpecs);
-
-	LEngine engine(wnd);
+	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
 	// MARK: Samples
 	createPlayer();

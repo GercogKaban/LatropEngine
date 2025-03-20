@@ -4,151 +4,31 @@
 #include <dynamics/PositionSolver.h>
 #include "../_deps/tracy-src/public/tracy/Tracy.hpp"
 
-PlayerCharacter* PlayerCharacter::thisPtr = nullptr;
 LEngine* LEngine::thisPtr = nullptr;
 
-PlayerCharacter::PlayerCharacter(
-	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent, 
-	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent,
-	const glm::vec3& startPosition
-)
-	: LActor(graphicsComponent, physicsComponent)
-{
-	thisPtr = this;
-	renderer = LRenderer::get();
-
-	physicsComponent->transform.position = startPosition;
-
-	glfwSetKeyCallback(renderer->getWindow(), handleInput);
-	glfwSetCursorPosCallback(renderer->getWindow(), mouseInput);
-	updateCamera(physicsComponent->transform.position);
-}
-
-void PlayerCharacter::tick(float delta)
-{
-	glm::vec3 inputs = glm::vec3(0.0f);
-
-	glm::vec3 cameraFront = renderer->getCameraFront();
-	glm::vec3 cameraUp = renderer->getCameraUp();
-
-	// Project the front vector onto the horizontal plane (Y = 0)
-	glm::vec3 horizontalFront = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));
-	glm::vec3 right = glm::normalize(glm::cross(horizontalFront, cameraUp));
-
-	if (isKeyPressed(GLFW_KEY_W))
-	{
-		inputs += horizontalFront * getSpeed() * delta;
-	}
-	if (isKeyPressed(GLFW_KEY_S))
-	{
-		inputs -= horizontalFront * getSpeed() * delta;
-	}
-	if (isKeyPressed(GLFW_KEY_A))
-	{
-		inputs -= right * getSpeed() * delta;
-	}
-	if (isKeyPressed(GLFW_KEY_D))
-	{
-		inputs += right * getSpeed() * delta;
-	}
-
-	inputs.y = 0.0f;
-
-	if (inputs != glm::vec3(0.0f))
-	{
-		physicsComponent->transform.position += inputs;
-	}
-	updateCamera(physicsComponent->transform.position);
-}
-
-bool PlayerCharacter::isKeyPressed(int32 keyCode) const
-{
-	if (auto key = pressedKeys.find(keyCode); key != pressedKeys.end())
-	{
-		return key->second == GLFW_PRESS;
-	}
-	return false;
-}
-
-void PlayerCharacter::handleInput(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (PlayerCharacter* playerCharacter = PlayerCharacter::get())
-	{
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-		{
-			playerCharacter->pressedKeys[key] = GLFW_PRESS;
-			if (key == GLFW_KEY_SPACE)
-			{
-				playerCharacter->jump();
-			}
-		}
-		else if (action == GLFW_RELEASE)
-		{
-			playerCharacter->pressedKeys[key] = GLFW_RELEASE;
-		}
-	}
-}
-
-void PlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
-{
-	if (PlayerCharacter* playerCharacter = PlayerCharacter::get())
-	{
-		float xoffset = xpos - playerCharacter->lastX;
-		float yoffset = ypos - playerCharacter->lastY;
-
-		xoffset *= playerCharacter->sensitivity;
-		yoffset *= playerCharacter->sensitivity;
-		
-		playerCharacter->yaw += xoffset;
-		playerCharacter->pitch -= yoffset;
-
-		auto pitch = playerCharacter->pitch;
-		auto yaw = playerCharacter->yaw;
-
-		if (pitch > 89.0f)
-		{
-			pitch = 89.0f;
-		}
-		if (pitch < -89.0f)
-		{
-			pitch = -89.0f;
-		}
-
-		glm::vec3 front
-		{
-			cos(glm::radians(pitch)) * cos(glm::radians(yaw)),
-			sin(glm::radians(pitch)),
-			cos(glm::radians(pitch)) * sin(glm::radians(yaw))
-		};
-
-		LRenderer::get()->setCameraFront(glm::normalize(front));
-
-		glfwSetCursorPos(window, playerCharacter->centerX, playerCharacter->centerY);
-		playerCharacter->lastX = playerCharacter->centerX;
-		playerCharacter->lastY = playerCharacter->centerY;
-	}
-}
-
-void PlayerCharacter::updateCamera(const glm::vec3& newLocation)
-{
-	renderer->setCameraPosition(newLocation);
-}
-
-void PlayerCharacter::jump()
-{
-    // Consider the player grounded if the vertical velocity is close to threshold
-    if (std::abs(physicsComponent->m_velocity.y) < 0.65f)
-    {
-        physicsComponent->m_velocity.y += 5;
-    }
-}
-
-LEngine::LEngine(const LWindow& window)
-	:LRenderer(window)
+LEngine::LEngine(std::unique_ptr<LWindow> window)
+	:window(std::move(window))
 {
 	thisPtr = this;
 	physicsWorld.addSolver(std::make_unique<LatropPhysics::ImpulseSolver>());
 	physicsWorld.addSolver(std::make_unique<LatropPhysics::PositionSolver>());
+}
+
+void LEngine::beginPlay()
+{
+	for (auto object : objects)
+	{
+		object->beginPlay();
+	}
+}
+
+void LEngine::endPlay()
+{
+	for (auto object : objects)
+	{
+		object->endPlay();
+	}
+	objects.clear();
 }
 
 void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
@@ -158,7 +38,11 @@ void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
 
 void LEngine::loop()
 {
-	while (window && !glfwWindowShouldClose(window))
+	renderer = std::make_unique<LRenderer>(window);
+
+	beginPlay();
+
+	while (renderer->window && !glfwWindowShouldClose(renderer->window))
 	{
 		FrameMark;
 		updateDelta();
@@ -172,9 +56,9 @@ void LEngine::loop()
 		executeTickables();
 		glfwPollEvents();
 
-		if (bNeedToUpdateProjView)
+		if (renderer->bNeedToUpdateProjView)
 		{
-			updateProjView();
+			renderer->updateProjView();
 		}
 
 		{
@@ -188,11 +72,12 @@ void LEngine::loop()
 
 		{
 			ZoneScopedN("Draw");
-			drawFrame();
+			renderer->drawFrame();
 		}
 		fps++;
 	}
-	vkDeviceWaitIdle(logicalDevice);
+	vkDeviceWaitIdle(renderer->logicalDevice);
+	endPlay();
 }
 
 void LEngine::executeTickables()
