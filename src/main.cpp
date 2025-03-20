@@ -72,7 +72,7 @@ void createOriginalSample()
 		});
 }
 
-void createStairs(int x, int y, int maxLength = 3)
+void createStairs(int height, int maxLength = 3)
 {
     int directionIndex = 0;
     int stepCount = 0;
@@ -88,7 +88,7 @@ void createStairs(int x, int y, int maxLength = 3)
         {-1, 0}   // left
     };
 
-    for (int i = 0; i < x * y; ++i)
+    for (int i = 0; i < height; ++i)
     {
 		auto step = ObjectBuilder::construct<LActor>().lock();
 		step->loadComponent<LG::LCube>();
@@ -136,7 +136,7 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	createStairs(10, 10);
+	createStairs(100);
 	createBouncyPuddle();
 	
 	// MARK: RunLoop
