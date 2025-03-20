@@ -4,6 +4,3 @@
 [submodule "LatropPhysics"]
 	path = LatropPhysics
 	url = https://github.com/TwoDollarsEsq/LatropPhysics
-[submodule "tracy-profiler"]
-	path = tracy-profiler
-	url = https://github.com/wolfpld/tracy
