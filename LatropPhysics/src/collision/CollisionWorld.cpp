@@ -5,6 +5,7 @@ using namespace LatropPhysics;
 
 void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
 {
+    // Step 1: All Static VS All Movable
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
     {
         if (bodyWeakPtr.expired())
@@ -16,7 +17,55 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
 
         auto body = bodyWeakPtr.lock().get();
 
-        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : m_bodies)
+        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
+        {
+            if (otherWeakPtr.expired())
+            {
+                // remove it 
+                // for now continue
+                continue;
+            }
+
+            auto other = otherWeakPtr.lock().get();
+
+            if(body == other) break;
+
+            if (!(body->m_isSimulated || other->m_isSimulated)) continue;
+
+            if(body->collider.expired() || other->collider.expired()) continue;
+
+            auto bodyCollider = body->collider.lock();
+            auto otherCollider = other->collider.lock();
+
+            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
+
+            if (points.hasCollision)
+            {
+                if (bool isTrigger = body->isTrigger || other->isTrigger)
+                {
+                    triggers.push_back({ body, other, points});
+                }
+                else
+                {
+                    collisions.push_back({ body, other, points });
+                }
+            }
+        }
+    }
+
+    // Step 2: All Movable VS All Movable
+    for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : movableBodies)
+    {
+        if (bodyWeakPtr.expired())
+        {
+            // remove it 
+            // for now continue
+            continue;
+        }
+
+        auto body = bodyWeakPtr.lock().get();
+
+        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
         {
             if (otherWeakPtr.expired())
             {

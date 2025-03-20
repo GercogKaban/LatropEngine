@@ -10,12 +10,19 @@ namespace LatropPhysics
     {
         void addRigidBody(std::weak_ptr<RigidBody> body) 
         {
-            if (body.lock().get()->m_takesGravity) 
+            if (body.lock()->m_takesGravity) 
             {
-                body.lock().get()->m_gravity = m_gravity;
+                body.lock()->m_gravity = m_gravity;    
             }
 
-            addCollisionBody(body);
+            if (body.lock()->m_isSimulated)
+            {
+                movableBodies.push_back(body);
+            }
+            else
+            {
+                addCollisionBody(body);
+            }
         }
 
         virtual void integrate(float deltaTime);

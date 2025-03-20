@@ -61,6 +61,7 @@ namespace LatropPhysics
 
     protected:
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
+        std::vector<std::weak_ptr<CollisionBody>> movableBodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;
 
         std::function<void(const Collision&, float)> m_onCollision;

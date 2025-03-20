@@ -4,7 +4,7 @@ using namespace LatropPhysics;
 
 void DynamicsWorld::applyGravity()
 {
-    for (const std::weak_ptr<CollisionBody>& body : m_bodies)
+    for (const std::weak_ptr<CollisionBody>& body : movableBodies)
     {
         if (std::shared_ptr<RigidBody> rigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
         {
@@ -22,7 +22,7 @@ void DynamicsWorld::applyGravity()
 
 void DynamicsWorld::moveBodies(float deltaTime)
 {
-    for (const std::weak_ptr<CollisionBody>& body : m_bodies)
+    for (const std::weak_ptr<CollisionBody>& body : movableBodies)
     {
         auto element = std::dynamic_pointer_cast<RigidBody>(body.lock());
         if (!element) continue;
