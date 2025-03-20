@@ -6,7 +6,7 @@
 
 namespace LatropPhysics 
 {
-    struct DynamicsWorld: CollisionWorld
+    struct DynamicsWorld : CollisionWorld
     {
         void addRigidBody(std::weak_ptr<RigidBody> body) 
         {

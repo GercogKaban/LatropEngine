@@ -11,25 +11,16 @@ namespace LatropPhysics
 {
     struct CollisionBody
     {
-        CollisionBody(
-            std::weak_ptr<Collider> collider,
-            Transform transform = Transform(), 
-            bool isTrigger = false, 
-            std::function<void(const Collision&, float)> onCollision = [](auto a, auto b) {}
-        ) : collider(collider), 
-            transform(transform), 
-            isTrigger(isTrigger), 
-            m_onCollision(onCollision)
-        {}
+        CollisionBody(){}
 
         virtual ~CollisionBody() = default;
 
     // protected:
 
-        Transform transform;
-        std::function<void(Collision, float)> m_onCollision;
+        Transform transform {};
+        std::function<void(Collision, float)> m_onCollision = [](auto a, auto b) {};
         std::weak_ptr<Collider> collider;
 
-        bool isTrigger;
+        bool isTrigger = false;
     };
 } // namespace LatropPhysics
