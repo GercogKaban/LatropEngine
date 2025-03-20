@@ -2,6 +2,7 @@
 
 #include "Solver.h"
 #include "collision/CollisionBody.h"
+#include "dynamics/RigidBody.h"
 #include <vector>
 #include <memory>
 #include <algorithm>
@@ -61,7 +62,7 @@ namespace LatropPhysics
 
     protected:
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
-        std::vector<std::weak_ptr<CollisionBody>> movableBodies;
+        std::vector<std::weak_ptr<RigidBody>> movableBodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;
 
         std::function<void(const Collision&, float)> m_onCollision;

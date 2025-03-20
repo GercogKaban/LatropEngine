@@ -4,9 +4,9 @@ using namespace LatropPhysics;
 
 void DynamicsWorld::applyGravity()
 {
-    for (const std::weak_ptr<CollisionBody>& body : movableBodies)
+    for (const std::weak_ptr<RigidBody>& body : movableBodies)
     {
-        if (std::shared_ptr<RigidBody> rigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
+        if (std::shared_ptr<RigidBody> rigidBody = body.lock())
         {
             if (rigidBody->m_isSimulated)
             {
@@ -22,20 +22,18 @@ void DynamicsWorld::applyGravity()
 
 void DynamicsWorld::moveBodies(float deltaTime)
 {
-    for (const std::weak_ptr<CollisionBody>& body : movableBodies)
+    for (const std::weak_ptr<RigidBody>& body : movableBodies)
     {
-        auto element = std::dynamic_pointer_cast<RigidBody>(body.lock());
-        if (!element) continue;
-        
-        auto rigidBody = element.get();
+        if (std::shared_ptr<RigidBody> rigidBody = body.lock())
+        {
+            glm::vec3 oldVelocity = rigidBody->m_velocity;
+            glm::vec3 oldPosition = rigidBody->transform.position;
 
-        glm::vec3 oldVelocity = rigidBody->m_velocity;
-        glm::vec3 oldPosition = rigidBody->transform.position;
+            rigidBody->m_velocity = oldVelocity + rigidBody->m_force / rigidBody->m_mass * deltaTime;
+            rigidBody->transform.position = oldPosition + oldVelocity * deltaTime;
 
-        rigidBody->m_velocity = oldVelocity + rigidBody->m_force / rigidBody->m_mass * deltaTime;
-        rigidBody->transform.position = oldPosition + oldVelocity * deltaTime;
-
-        rigidBody->m_force = glm::vec3(0.0f);
+            rigidBody->m_force = glm::vec3(0.0f);
+        }
     }
 }
 
