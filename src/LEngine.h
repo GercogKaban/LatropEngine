@@ -6,6 +6,7 @@
 
 #include "LActor.h"
 #include "LTickable.h"
+#include "TraceableDynamicsWorld.h"
 
 class LEngine
 {
@@ -33,7 +34,7 @@ public:
 	}
 
 	// renderer
-	LatropPhysics::DynamicsWorld physicsWorld;
+	LatropPhysics::TraceableDynamicsWorld physicsWorld;
 	std::vector<std::shared_ptr<LActor>> objects;
 
 protected:

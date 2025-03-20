@@ -13,17 +13,9 @@ find_package(Vulkan REQUIRED)
 
 add_subdirectory(LizardGraphics-2.0)
 add_subdirectory(LatropPhysics)
+add_subdirectory(tracy-profiler)
 
 add_executable(LatropGame ${SOURCE_FILES})
-
-FetchContent_Declare (
-tracy
-GIT_REPOSITORY https://github.com/wolfpld/tracy
-GIT_TAG master
-GIT_SHALLOW TRUE
-GIT_PROGRESS TRUE
-)
-FetchContent_MakeAvailable (tracy)
 
 add_compile_definitions(TRACY_ENABLE)
 
