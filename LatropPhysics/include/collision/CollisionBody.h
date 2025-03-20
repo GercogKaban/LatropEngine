@@ -22,5 +22,8 @@ namespace LatropPhysics
         std::weak_ptr<Collider> collider;
 
         bool isTrigger = false;
+
+        /// @brief If the body is simulated and moves, or only affects others.
+        bool m_isSimulated = true;
     };
 } // namespace LatropPhysics

@@ -29,8 +29,5 @@ namespace LatropPhysics
 
         /// @brief If the rigid body takes gravity from the world.
         bool m_takesGravity = false;
-
-        /// @brief If the rigit body is simulated and moves, or only affects others.
-        bool m_isSimulated = true;
     };
 } 
