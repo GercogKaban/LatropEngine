@@ -18,12 +18,10 @@ namespace LatropPhysics
             addCollisionBody(body);
         }
 
-        void integrate(float deltaTime);
+        virtual void integrate(float deltaTime);
+        virtual void applyGravity();
+        virtual void moveBodies(float deltaTime);
     // protected:
         glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
-
-    private:
-        void applyGravity();
-        void moveBodies(float deltaTime);
     };
 } // namespace LatropPhysics

@@ -55,10 +55,9 @@ namespace LatropPhysics
             }
         }
 
-        void resolveCollisions(float deltaTime);
+        virtual void resolveCollisions(float deltaTime);
 
     protected:
-
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;
 
