@@ -56,6 +56,8 @@ namespace LatropPhysics
         }
 
         virtual void resolveCollisions(float deltaTime);
+        virtual void detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers);
+        virtual void solveCollisions(const std::vector<Collision>& collisions, float deltaTime);
 
     protected:
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
@@ -64,7 +66,6 @@ namespace LatropPhysics
         std::function<void(const Collision&, float)> m_onCollision;
 
     private:
-        void solveCollisions(const std::vector<Collision>& collisions, float deltaTime);
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
     };
 } // namespace LatropPhysics

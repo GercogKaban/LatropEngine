@@ -3,30 +3,8 @@
 
 using namespace LatropPhysics;
 
-void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, float deltaTime)
+void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
 {
-    for(const std::unique_ptr<Solver>& solver : m_solvers)
-    {
-        solver.get()->solve(collisions, deltaTime);
-    }
-}
-
-void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime) 
-{
-    for(const Collision& collision : collisions)
-    {
-        m_onCollision(collision, deltaTime);
-
-        collision.bodyA->m_onCollision(collision, deltaTime);
-        collision.bodyB->m_onCollision(collision, deltaTime);
-    }
-}
-
-void CollisionWorld::resolveCollisions(float deltaTime)
- {
-    std::vector<Collision> collisions;
-    std::vector<Collision> triggers;
-
     for(std::weak_ptr<CollisionBody> bodyWeakPtr : m_bodies)
     {
         if (bodyWeakPtr.expired())
@@ -73,7 +51,33 @@ void CollisionWorld::resolveCollisions(float deltaTime)
             }
         }
     }
+}
 
+void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, float deltaTime)
+{
+    for(const std::unique_ptr<Solver>& solver : m_solvers)
+    {
+        solver.get()->solve(collisions, deltaTime);
+    }
+}
+
+void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime) 
+{
+    for(const Collision& collision : collisions)
+    {
+        m_onCollision(collision, deltaTime);
+
+        collision.bodyA->m_onCollision(collision, deltaTime);
+        collision.bodyB->m_onCollision(collision, deltaTime);
+    }
+}
+
+void CollisionWorld::resolveCollisions(float deltaTime)
+ {
+    std::vector<Collision> collisions;
+    std::vector<Collision> triggers;
+
+    detectCollisions(collisions, triggers);
     solveCollisions(collisions, deltaTime);
 
     sendCollisionEvents(collisions, deltaTime);
