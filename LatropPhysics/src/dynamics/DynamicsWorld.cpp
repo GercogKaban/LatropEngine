@@ -4,25 +4,25 @@ using namespace LatropPhysics;
 
 void DynamicsWorld::applyGravity()
 {
-    for (std::weak_ptr<CollisionBody> body : m_bodies)
+    for (const std::weak_ptr<CollisionBody>& body : m_bodies)
     {
-        if (body.expired())
+        if (std::shared_ptr<RigidBody> rigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
         {
-            // should be removed
-            // for now continue
-            continue;
-        }
-
-        if (std::shared_ptr<RigidBody> castedRigidBody = std::dynamic_pointer_cast<RigidBody>(body.lock()))
-        {
-            castedRigidBody->m_force = castedRigidBody->m_gravity * castedRigidBody->m_mass;
+            if (rigidBody->m_isSimulated)
+            {
+                rigidBody->m_force = rigidBody->m_gravity * rigidBody->m_mass;
+            }
+            else
+            {
+                // TODO: Remove the expired body?
+            }
         }
     }
 }
 
 void DynamicsWorld::moveBodies(float deltaTime)
 {
-    for (std::weak_ptr<CollisionBody> body : m_bodies)
+    for (const std::weak_ptr<CollisionBody>& body : m_bodies)
     {
         auto element = std::dynamic_pointer_cast<RigidBody>(body.lock());
         if (!element) continue;

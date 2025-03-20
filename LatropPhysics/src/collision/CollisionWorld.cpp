@@ -5,7 +5,7 @@ using namespace LatropPhysics;
 
 void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
 {
-    for(std::weak_ptr<CollisionBody> bodyWeakPtr : m_bodies)
+    for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
     {
         if (bodyWeakPtr.expired())
         {
@@ -16,7 +16,7 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
 
         auto body = bodyWeakPtr.lock().get();
 
-        for(std::weak_ptr<CollisionBody> otherWeakPtr : m_bodies)
+        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : m_bodies)
         {
             if (otherWeakPtr.expired())
             {
