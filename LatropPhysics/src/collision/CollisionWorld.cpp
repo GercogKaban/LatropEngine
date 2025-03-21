@@ -8,34 +8,23 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
     // Step 1: All Static VS All Movable
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
     {
-        if (bodyWeakPtr.expired())
-        {
-            // remove it 
-            // for now continue
-            continue;
-        }
-
-        auto body = bodyWeakPtr.lock().get();
+        auto bodyLocked = bodyWeakPtr.lock();
+        if (!bodyLocked) continue;
+        auto body = bodyLocked.get();
 
         for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
         {
-            if (otherWeakPtr.expired())
-            {
-                // remove it 
-                // for now continue
-                continue;
-            }
-
-            auto other = otherWeakPtr.lock().get();
+            auto otherLocked = otherWeakPtr.lock();
+            if (!otherLocked) continue;
+            auto other = otherLocked.get();
 
             if(body == other) break;
 
             if (!(body->m_isSimulated || other->m_isSimulated)) continue;
 
-            if(body->collider.expired() || other->collider.expired()) continue;
-
             auto bodyCollider = body->collider.lock();
             auto otherCollider = other->collider.lock();
+            if (!bodyCollider || !otherCollider) continue;
 
             CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
 
@@ -56,34 +45,23 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
     // Step 2: All Movable VS All Movable
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : movableBodies)
     {
-        if (bodyWeakPtr.expired())
-        {
-            // remove it 
-            // for now continue
-            continue;
-        }
-
-        auto body = bodyWeakPtr.lock().get();
+        auto bodyLocked = bodyWeakPtr.lock();
+        if (!bodyLocked) continue;
+        auto body = bodyLocked.get();
 
         for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
         {
-            if (otherWeakPtr.expired())
-            {
-                // remove it 
-                // for now continue
-                continue;
-            }
-
-            auto other = otherWeakPtr.lock().get();
+            auto otherLocked = otherWeakPtr.lock();
+            if (!otherLocked) continue;
+            auto other = otherLocked.get();
 
             if(body == other) break;
 
             if (!(body->m_isSimulated || other->m_isSimulated)) continue;
 
-            if(body->collider.expired() || other->collider.expired()) continue;
-
             auto bodyCollider = body->collider.lock();
             auto otherCollider = other->collider.lock();
+            if (!bodyCollider || !otherCollider) continue;
 
             CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
 
