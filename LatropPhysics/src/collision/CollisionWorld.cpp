@@ -3,81 +3,57 @@
 
 using namespace LatropPhysics;
 
+template <typename A, typename B>
+inline void detectInvidualCollisionsIn(
+    const std::vector<A>& lhs,
+    const std::vector<B>& rhs,
+    std::vector<Collision>& collisions, 
+    std::vector<Collision>& triggers
+) {
+    for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : lhs)
+    {
+        auto bodyLocked = bodyWeakPtr.lock();
+        if (!bodyLocked) continue;
+        auto body = bodyLocked.get();
+
+        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : rhs)
+        {
+            auto otherLocked = otherWeakPtr.lock();
+            if (!otherLocked) continue;
+            auto other = otherLocked.get();
+
+            if(body == other) break;
+
+            if (!(body->m_isSimulated || other->m_isSimulated)) continue;
+
+            auto bodyCollider = body->collider.lock();
+            auto otherCollider = other->collider.lock();
+            if (!bodyCollider || !otherCollider) continue;
+
+            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
+
+            if (points.hasCollision)
+            {
+                if (bool isTrigger = body->isTrigger || other->isTrigger)
+                {
+                    triggers.push_back({ body, other, points});
+                }
+                else
+                {
+                    collisions.push_back({ body, other, points });
+                }
+            }
+        }
+    }
+}
+
 void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
 {
     // Step 1: All Static VS All Movable
-    for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
-    {
-        auto bodyLocked = bodyWeakPtr.lock();
-        if (!bodyLocked) continue;
-        auto body = bodyLocked.get();
-
-        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
-        {
-            auto otherLocked = otherWeakPtr.lock();
-            if (!otherLocked) continue;
-            auto other = otherLocked.get();
-
-            if(body == other) break;
-
-            if (!(body->m_isSimulated || other->m_isSimulated)) continue;
-
-            auto bodyCollider = body->collider.lock();
-            auto otherCollider = other->collider.lock();
-            if (!bodyCollider || !otherCollider) continue;
-
-            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
-
-            if (points.hasCollision)
-            {
-                if (bool isTrigger = body->isTrigger || other->isTrigger)
-                {
-                    triggers.push_back({ body, other, points});
-                }
-                else
-                {
-                    collisions.push_back({ body, other, points });
-                }
-            }
-        }
-    }
+    detectInvidualCollisionsIn(m_bodies, movableBodies, collisions, triggers);
 
     // Step 2: All Movable VS All Movable
-    for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : movableBodies)
-    {
-        auto bodyLocked = bodyWeakPtr.lock();
-        if (!bodyLocked) continue;
-        auto body = bodyLocked.get();
-
-        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : movableBodies)
-        {
-            auto otherLocked = otherWeakPtr.lock();
-            if (!otherLocked) continue;
-            auto other = otherLocked.get();
-
-            if(body == other) break;
-
-            if (!(body->m_isSimulated || other->m_isSimulated)) continue;
-
-            auto bodyCollider = body->collider.lock();
-            auto otherCollider = other->collider.lock();
-            if (!bodyCollider || !otherCollider) continue;
-
-            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
-
-            if (points.hasCollision)
-            {
-                if (bool isTrigger = body->isTrigger || other->isTrigger)
-                {
-                    triggers.push_back({ body, other, points});
-                }
-                else
-                {
-                    collisions.push_back({ body, other, points });
-                }
-            }
-        }
-    }
+    detectInvidualCollisionsIn(movableBodies, movableBodies, collisions, triggers);
 }
 
 void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, float deltaTime)
