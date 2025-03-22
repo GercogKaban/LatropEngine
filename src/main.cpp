@@ -19,7 +19,7 @@ void createPlayer()
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
 			physicsComponent->transform.scale = glm::vec3(0.55, 1.0f, 0.55f);
 			physicsComponent->m_onCollision = [weakPlayer](LP::Collision collision, float depth) {
-				if (collision.points.normal.y > 0 && depth > 0.00209)
+				if (collision.points.normal.y > 0)
 				{
 					auto playerCharacter = weakPlayer.lock();
 					playerCharacter->resetJump();
