@@ -30,7 +30,6 @@ void createFloor()
 			physicsComponent->m_isSimulated = false;
 			physicsComponent->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 			physicsComponent->transform.scale = glm::vec3(20, 1.0f, 20);
-			physicsComponent->m_restitution = 0.0;
 			physicsComponent->m_mass = 100000;
 		});
 }
@@ -45,7 +44,6 @@ void createOriginalSample()
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
 			physicsComponent->transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
-			physicsComponent->m_restitution = 0;
 			physicsComponent->m_mass = 1;
 		});
 
@@ -56,7 +54,6 @@ void createOriginalSample()
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
 			physicsComponent->transform.position = glm::vec3(1.0f, 2.0f, 0.0f);
-			physicsComponent->m_restitution = 0.0f;
 			physicsComponent->m_mass = 1.0f;
 		});
 
@@ -67,7 +64,6 @@ void createOriginalSample()
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
 			physicsComponent->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
-			physicsComponent->m_restitution = 0.0f;
 			physicsComponent->m_mass = 1.0f;
 		});
 }
@@ -97,7 +93,6 @@ void createStairs(int height, int maxLength = 3)
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;
 				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i, (float)position.y * 0.85f);
-				physicsComponent->m_restitution = 0.0f;
 			});
 
         // Move to the next position
@@ -113,7 +108,7 @@ void createStairs(int height, int maxLength = 3)
     }
 }
 
-void createBouncyPuddle()
+void createPerfectlyBouncyPuddle()
 {
 	auto puddle = ObjectBuilder::construct<LActor>().lock();
 	puddle->loadComponent<LG::LCube>();
@@ -121,9 +116,11 @@ void createBouncyPuddle()
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
-			physicsComponent->transform.position = glm::vec3(7.0f, 0.015f, 7.0f);
+			physicsComponent->transform.position = glm::vec3(7.0f, 0.5f, 7.0f);
 			physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
-			physicsComponent->m_restitution = 1.0f;
+			// Must be adjusted to accomodate the material of the object that wishes to bounce:
+			// bouncyPuddle.restituion = 1 / object.restituion
+			physicsComponent->material.restitution = 2.5; 
 			physicsComponent->m_mass = 100000.0f;
 		});
 }
@@ -153,7 +150,6 @@ void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;
 				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i * YStep, (float)position.y * 0.85f);
-				physicsComponent->m_restitution = 0.0f;
 			});
 
         // Move to the next position
@@ -177,9 +173,9 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	// createStairs(100);
-	createStairsStressTest(60000, 40, 0.001f);
-	createBouncyPuddle();
+	createStairs(100);
+	// createStairsStressTest(60000, 40, 0.001f);
+	createPerfectlyBouncyPuddle();
 	
 	// MARK: RunLoop
 	engine.loop();
