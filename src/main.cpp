@@ -4,12 +4,12 @@
 #include <collision/AABBCollider.h>
 
 // MARK: - Shared Colliders
-auto cubeAABBCollider = std::make_shared<LatropPhysics::AABBCollider>(LatropPhysics::AABBCollider::makeCube());
+auto cubeAABBCollider = std::make_shared<LP::AABBCollider>(LP::AABBCollider::makeCube());
 
 void createPlayer() 
 {
 	auto playerCharacter = ObjectBuilder::construct<LPlayerCharacter>().lock();
-	playerCharacter->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	playerCharacter->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->m_takesGravity = true;
 			physicsComponent->m_isSimulated = true;
@@ -24,7 +24,7 @@ void createFloor()
 {
 	auto floor = ObjectBuilder::construct<LActor>().lock();
 	floor->loadComponent<LG::LCube>();
-	floor->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	floor->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
@@ -40,7 +40,7 @@ void createOriginalSample()
 
 	auto cubeA = ObjectBuilder::construct<LActor>().lock();
 	cubeA->loadComponent<LG::LCube>();
-	cubeA->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	cubeA->loadComponent< LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
@@ -51,7 +51,7 @@ void createOriginalSample()
 
 	auto cubeB = ObjectBuilder::construct<LActor>().lock();
 	cubeB->loadComponent<LG::LCube>();
-	cubeB->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	cubeB->loadComponent< LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
@@ -62,7 +62,7 @@ void createOriginalSample()
 
 	auto cubeC = ObjectBuilder::construct<LActor>().lock();
 	cubeC->loadComponent<LG::LCube>();
-	cubeC->loadComponent< LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	cubeC->loadComponent< LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
@@ -92,7 +92,7 @@ void createStairs(int height, int maxLength = 3)
     {
 		auto step = ObjectBuilder::construct<LActor>().lock();
 		step->loadComponent<LG::LCube>();
-		step->loadComponent<LatropPhysics::RigidBody>([position, i](LatropPhysics::RigidBody* physicsComponent)
+		step->loadComponent<LP::RigidBody>([position, i](LP::RigidBody* physicsComponent)
 			{
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;
@@ -117,7 +117,7 @@ void createBouncyPuddle()
 {
 	auto puddle = ObjectBuilder::construct<LActor>().lock();
 	puddle->loadComponent<LG::LCube>();
-	puddle->loadComponent<LatropPhysics::RigidBody>([](LatropPhysics::RigidBody* physicsComponent)
+	puddle->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
@@ -148,7 +148,7 @@ void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
     {
 		auto step = ObjectBuilder::construct<LActor>().lock();
 		step->loadComponent<LG::LCube>();
-		step->loadComponent<LatropPhysics::RigidBody>([position, i, YStep](LatropPhysics::RigidBody* physicsComponent)
+		step->loadComponent<LP::RigidBody>([position, i, YStep](LP::RigidBody* physicsComponent)
 			{
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;

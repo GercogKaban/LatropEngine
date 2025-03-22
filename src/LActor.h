@@ -28,7 +28,7 @@ public:
 		}
 
 		// physics component
-		else if constexpr (std::is_base_of<LatropPhysics::CollisionBody, Component>::value)
+		else if constexpr (std::is_base_of<LP::CollisionBody, Component>::value)
 		{
 			auto physicsComponentReal = std::make_shared<Component>();
 			physicsComponent = physicsComponentReal;
@@ -39,7 +39,7 @@ public:
 	virtual ~LActor() = default;
 
 	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent;
-	std::shared_ptr<LatropPhysics::RigidBody> physicsComponent;
+	std::shared_ptr<LP::RigidBody> physicsComponent;
 
 protected:
 

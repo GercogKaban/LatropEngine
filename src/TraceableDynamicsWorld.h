@@ -1,7 +1,7 @@
 #include <dynamics/DynamicsWorld.h>
 #include <tracy/Tracy.hpp>
 
-namespace LatropPhysics
+namespace LP
 {
     struct TraceableDynamicsWorld final : DynamicsWorld 
     {

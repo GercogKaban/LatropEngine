@@ -10,8 +10,8 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 	:window(std::move(window))
 {
 	thisPtr = this;
-	physicsWorld.addSolver(std::make_unique<LatropPhysics::ImpulseSolver>());
-	physicsWorld.addSolver(std::make_unique<LatropPhysics::PositionSolver>());
+	physicsWorld.addSolver(std::make_unique<LP::ImpulseSolver>());
+	physicsWorld.addSolver(std::make_unique<LP::PositionSolver>());
 }
 
 void LEngine::beginPlay()

@@ -34,7 +34,7 @@ public:
 	}
 
 	// renderer
-	LatropPhysics::TraceableDynamicsWorld physicsWorld;
+	LP::TraceableDynamicsWorld physicsWorld;
 	std::vector<std::shared_ptr<LActor>> objects;
 
 protected:
@@ -80,7 +80,7 @@ public:
 			RenderComponentBuilder::adjustImpl(component);
 		}
 
-		else if constexpr (std::is_base_of<LatropPhysics::CollisionBody, Component>::value)
+		else if constexpr (std::is_base_of<LP::CollisionBody, Component>::value)
 		{
 			LEngine::get()->physicsWorld.addRigidBody(component);
 		}
