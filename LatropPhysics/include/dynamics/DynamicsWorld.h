@@ -10,11 +10,6 @@ namespace LP
     {
         void addRigidBody(std::weak_ptr<RigidBody> body) 
         {
-            if (body.lock()->m_takesGravity) 
-            {
-                body.lock()->m_gravity = m_gravity;    
-            }
-
             if (body.lock()->m_isSimulated)
             {
                 movableBodies.push_back(body);

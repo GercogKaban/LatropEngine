@@ -10,7 +10,6 @@ namespace LP
     {
         RigidBody(){}
 
-        glm::vec3 m_gravity = glm::vec3(0.0f);
         glm::vec3 m_velocity = glm::vec3(0.0f);
         glm::vec3 m_force = glm::vec3(0.0f);
 

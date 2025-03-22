@@ -8,9 +8,9 @@ void DynamicsWorld::applyGravity()
     {
         if (std::shared_ptr<RigidBody> rigidBody = body.lock())
         {
-            if (rigidBody->m_isSimulated)
+            if (rigidBody->m_isSimulated && rigidBody->m_takesGravity)
             {
-                rigidBody->m_force = rigidBody->m_gravity * rigidBody->m_mass;
+                rigidBody->m_force = m_gravity * rigidBody->m_mass;
             }
             else
             {
