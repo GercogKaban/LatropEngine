@@ -1,7 +1,7 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 template <typename A, typename B>
 inline void detectInvidualCollisionsIn(

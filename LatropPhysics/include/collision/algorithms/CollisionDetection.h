@@ -1,6 +1,6 @@
 #pragma once
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct SphereCollider;
     struct PlaneCollider;
@@ -38,4 +38,4 @@ namespace LatropPhysics
             const AABBCollider* b, const Transform* transformB
         );
     }
-} // namespace LatropPhysics
+} // namespace LP

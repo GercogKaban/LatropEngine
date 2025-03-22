@@ -4,7 +4,7 @@
 #include "collision/AABBCollider.h"
 #include "shared/Transform.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 // MARK: - Sphere
 CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(

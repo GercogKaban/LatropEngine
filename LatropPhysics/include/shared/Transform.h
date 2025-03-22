@@ -4,7 +4,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct Transform 
     {
@@ -35,4 +35,4 @@ namespace LatropPhysics
             return mat;
         }
     };
-} // namespace LatropPhysics
+} // namespace LP

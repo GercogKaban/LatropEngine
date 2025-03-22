@@ -2,10 +2,10 @@
 
 #include "collision/Solver.h"
 
-namespace LatropPhysics
+namespace LP
 {
     struct SmoothPositionSolver : Solver
     {
         void solve(const std::vector<Collision>& collisions, float deltaTime) override;
     };
-} // namespace LatropPhysics
+} // namespace LP

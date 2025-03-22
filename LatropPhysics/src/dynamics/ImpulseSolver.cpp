@@ -1,7 +1,7 @@
 #include "dynamics/ImpulseSolver.h"
 #include "dynamics/RigidBody.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
 {

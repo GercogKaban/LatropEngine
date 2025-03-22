@@ -2,7 +2,7 @@
 
 #include <glm/vec3.hpp>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct CollisionBody;
 
@@ -39,4 +39,4 @@ namespace LatropPhysics
         CollisionBody* bodyA;
         CollisionBody* bodyB;
     };
-} // namespace LatropPhysics
+} // namespace LP

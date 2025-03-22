@@ -2,7 +2,7 @@
 #include "collision/algorithms/CollisionDetection.h"
 #include "shared/Transform.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 CollisionPoints AABBCollider::testCollision(
     const Transform* transform,

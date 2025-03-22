@@ -2,7 +2,7 @@
 
 #include "Collider.h"
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct PlaneCollider: Collider 
     {
@@ -32,4 +32,4 @@ namespace LatropPhysics
             const Transform* otherTransform
         ) const override;
     };
-} // namespace LatropPhysics
+} // namespace LP

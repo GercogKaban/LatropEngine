@@ -7,7 +7,7 @@
 #include <memory>
 #include <algorithm>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct CollisionWorld
     {
@@ -70,4 +70,4 @@ namespace LatropPhysics
     private:
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
     };
-} // namespace LatropPhysics
+} // namespace LP

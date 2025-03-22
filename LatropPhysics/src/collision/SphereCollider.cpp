@@ -1,7 +1,7 @@
 #include "collision/SphereCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,

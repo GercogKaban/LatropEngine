@@ -1,7 +1,7 @@
 #include "dynamics/PositionSolver.h"
 #include "dynamics/RigidBody.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 void PositionSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
 {

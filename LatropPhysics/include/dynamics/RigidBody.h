@@ -3,7 +3,7 @@
 #include <glm/vec3.hpp>
 #include "collision/CollisionBody.h"
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct RigidBody : CollisionBody
     {

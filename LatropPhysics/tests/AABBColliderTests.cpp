@@ -5,7 +5,7 @@
 #include "collision/algorithms/CollisionDetection.h"
 #include "shared/Transform.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 using namespace collisionDetectors;
 
 // MARK: 1 Test Case: No collision (separate AABBs)

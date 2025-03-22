@@ -7,7 +7,7 @@
 #include <functional>
 #include <memory>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct CollisionBody
     {
@@ -26,4 +26,4 @@ namespace LatropPhysics
         /// @brief If the body is simulated and moves, or only affects others.
         bool m_isSimulated = true;
     };
-} // namespace LatropPhysics
+} // namespace LP

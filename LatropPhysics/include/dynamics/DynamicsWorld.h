@@ -4,7 +4,7 @@
 #include "RigidBody.h"
 #include <glm/vec3.hpp>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct DynamicsWorld : CollisionWorld
     {
@@ -31,4 +31,4 @@ namespace LatropPhysics
     // protected:
         glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
     };
-} // namespace LatropPhysics
+} // namespace LP

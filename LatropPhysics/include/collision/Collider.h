@@ -2,7 +2,7 @@
 
 #include "CollisionPoints.h"
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct SphereCollider;
     struct PlaneCollider;
@@ -37,4 +37,4 @@ namespace LatropPhysics
             const Transform* otherTransform
         ) const = 0;
     };
-} // namespace LatropPhysics
+} // namespace LP

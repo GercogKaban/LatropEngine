@@ -1,6 +1,6 @@
 #include "dynamics/DynamicsWorld.h"
 
-using namespace LatropPhysics;
+using namespace LP;
 
 void DynamicsWorld::applyGravity()
 {

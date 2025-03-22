@@ -3,7 +3,7 @@
 #include "Collider.h"
 #include <glm/vec3.hpp>
 
-namespace LatropPhysics 
+namespace LP 
 {
     /// @brief The AABB class represents an Axis Aligned Bounding Box that can be 
     /// used as a collider in a physics engine.
@@ -56,4 +56,4 @@ namespace LatropPhysics
             return AABBCollider({ -0.5f, -0.5f, -0.5f }, { 0.5f, 0.5f, 0.5f });
         }
     };
-} // namespace LatropPhysics
+} // namespace LP

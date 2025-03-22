@@ -3,7 +3,7 @@
 #include "collision/CollisionPoints.h"
 #include <vector>
 
-namespace LatropPhysics 
+namespace LP 
 {
     struct Solver 
     {
@@ -11,4 +11,4 @@ namespace LatropPhysics
 
         virtual void solve(const std::vector<Collision>& collisions, float deltaTime) = 0;
     };
-} // namespace LatropPhysics
+} // namespace LP

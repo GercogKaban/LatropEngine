@@ -2,10 +2,10 @@
 
 #include "collision/Solver.h"
 
-namespace LatropPhysics
+namespace LP
 {
     struct ImpulseSolver : Solver
     {
         void solve(const std::vector<Collision>& collisions, float deltaTime) override;
     };
-} // namespace LatropPhysics
+} // namespace LP
