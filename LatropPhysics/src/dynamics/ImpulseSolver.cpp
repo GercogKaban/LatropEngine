@@ -27,8 +27,8 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         if (nSpd >= 0)
             continue;
 
-        float e = (aBody ? aBody->m_restitution : 1.0f)
-                * (bBody ? bBody->m_restitution : 1.0f);
+        float e = (aBody ? aBody->material.restitution : 1.0f)
+                * (bBody ? bBody->material.restitution : 1.0f);
 
         float j = -(1.0f + e) * nSpd / (aInvMass + bInvMass);
 
@@ -58,10 +58,10 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
 
         float fVel = glm::dot(rVel, tangent);
 
-        float aSF = aBody ? aBody->m_staticFriction  : 0.0f;
-        float bSF = bBody ? bBody->m_staticFriction  : 0.0f;
-        float aDF = aBody ? aBody->m_dynamicFriction : 0.0f;
-        float bDF = bBody ? bBody->m_dynamicFriction : 0.0f;
+        float aSF = aBody ? aBody->material.staticFriction  : 0.0f;
+        float bSF = bBody ? bBody->material.staticFriction  : 0.0f;
+        float aDF = aBody ? aBody->material.dynamicFriction : 0.0f;
+        float bDF = bBody ? bBody->material.dynamicFriction : 0.0f;
         float mu  = (float)glm::vec2(aSF, bSF).length();
 
         float f  = -fVel / (aInvMass + bInvMass);
