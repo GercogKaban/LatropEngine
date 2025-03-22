@@ -9,39 +9,44 @@ LPlayerCharacter::LPlayerCharacter(const glm::vec3& startPosition)
 	thisPtr = this;
 }
 
+float LPlayerCharacter::getSpeed() const
+{
+	return isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 3.0f : 1.4f;
+}
+
 void LPlayerCharacter::tick(float delta)
 {
-	glm::vec3 inputs = glm::vec3(0.0f);
+	glm::vec3 velocity = glm::vec3(0.0f);
 
 	glm::vec3 cameraFront = renderer->getCameraFront();
 	glm::vec3 cameraUp = renderer->getCameraUp();
 
 	// Project the front vector onto the horizontal plane (Y = 0)
-	glm::vec3 horizontalFront = glm::normalize(glm::vec3(cameraFront.x, 0.0f, cameraFront.z));
-	glm::vec3 right = glm::normalize(glm::cross(horizontalFront, cameraUp));
+	glm::vec3 horizontalFront = glm::vec3(cameraFront.x, 0.0f, cameraFront.z);
+	glm::vec3 right = glm::cross(horizontalFront, cameraUp);
+	right.y = 0.0f;
 
 	if (isKeyPressed(GLFW_KEY_W))
 	{
-		inputs += horizontalFront * getSpeed() * delta;
+		velocity += horizontalFront;
 	}
 	if (isKeyPressed(GLFW_KEY_S))
 	{
-		inputs -= horizontalFront * getSpeed() * delta;
+		velocity -= horizontalFront;
 	}
 	if (isKeyPressed(GLFW_KEY_A))
 	{
-		inputs -= right * getSpeed() * delta;
+		velocity -= right;
 	}
 	if (isKeyPressed(GLFW_KEY_D))
 	{
-		inputs += right * getSpeed() * delta;
+		velocity += right;
 	}
 
-	inputs.y = 0.0f;
-
-	if (inputs != glm::vec3(0.0f))
+	if (glm::length(velocity) > 0.0f)
 	{
-		physicsComponent->transform.position += inputs;
+		velocity = glm::normalize(velocity) * getSpeed();
+		physicsComponent->transform.position += velocity * delta;
 	}
 	updateCamera(physicsComponent->transform.position);
 }

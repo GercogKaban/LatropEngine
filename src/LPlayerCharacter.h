@@ -17,10 +17,7 @@ public:
 
 	virtual void tick(float delta) override;
 
-	float getSpeed() const
-	{
-		return speed;
-	}
+	float getSpeed() const;
 
 	static LPlayerCharacter* get()
 	{
@@ -43,7 +40,6 @@ protected:
 
 	class LRenderer* renderer = nullptr;
 	static LPlayerCharacter* thisPtr;
-	float speed = 1.25f;
 
 	// should be in camera class
 	bool bFirstMouse = true;
