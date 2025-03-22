@@ -10,17 +10,27 @@
 
 class LEngine
 {
+	friend class ObjectBuilder;
+
 public:
 
 	LEngine(std::unique_ptr <LWindow> window);
 	static LEngine* get() { return thisPtr; }
 
-	void beginPlay();
-	void endPlay();
-
-	void addTickablePrimitive(std::weak_ptr<LTickable> ptr);
+	bool isGameStarted() const { return bGameStarted; }
 
 	void loop();
+
+	float getDelta() const
+	{
+		return std::chrono::duration<float>(currentFrameTime - previousFrameTime).count();
+	}
+
+protected:
+
+	void beginPlay();
+	void endPlay();
+	void initObjects();
 
 	void updateDelta()
 	{
@@ -28,22 +38,18 @@ public:
 		currentFrameTime = std::chrono::high_resolution_clock::now();
 	}
 
-	float getDelta() const
-	{
-		return std::chrono::duration<float>(currentFrameTime - previousFrameTime).count();
-	}
-
-	// renderer
-	LP::TraceableDynamicsWorld physicsWorld;
-	std::vector<std::shared_ptr<LActor>> objects;
-
-protected:
-
+	void addTickablePrimitive(std::weak_ptr<LTickable> ptr);
 	void executeTickables();
+	void addObjectToInit(std::shared_ptr<LActor> objectToInit);
 
 	static LEngine* thisPtr;
 	std::unique_ptr<LRenderer> renderer;
 	std::unique_ptr<LWindow> window;
+
+	LP::TraceableDynamicsWorld physicsWorld;
+
+	std::vector<std::shared_ptr<LActor>> objects;
+	std::vector<std::shared_ptr<LActor>> objectsToInit;
 
 	std::vector<std::weak_ptr<LTickable>> tickables;
 
@@ -52,6 +58,8 @@ protected:
 
 	float fpsTimer = 0.0f;
 	uint32 fps = 0;
+
+	bool bGameStarted = false;
 };
 
 class ObjectBuilder
@@ -62,11 +70,10 @@ public:
 	[[nodiscard]] static std::weak_ptr<Actor> construct()
 	{
 		auto object = std::make_shared<Actor>();
-		LEngine::get()->objects.push_back(object);
 
-		if (auto tickable = std::dynamic_pointer_cast<LTickable>(object))
-		{
-			LEngine::get()->addTickablePrimitive(tickable);
+		if (LEngine* engine = LEngine::get())
+		{	
+			engine->objectsToInit.push_back(object);
 		}
 
 		return object;

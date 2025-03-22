@@ -16,10 +16,7 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 
 void LEngine::beginPlay()
 {
-	for (auto object : objects)
-	{
-		object->beginPlay();
-	}
+	bGameStarted = true;
 }
 
 void LEngine::endPlay()
@@ -31,6 +28,22 @@ void LEngine::endPlay()
 	objects.clear();
 }
 
+void LEngine::initObjects()
+{
+	ZoneScopedN("Pass: Init objects");
+	objects.reserve(objects.size() + objectsToInit.size());
+	for (auto object : objectsToInit)
+	{
+		object->beginPlay();
+		objects.push_back(object);
+		if (auto tickable = std::dynamic_pointer_cast<LTickable>(object))
+		{
+			addTickablePrimitive(tickable);
+		}
+	}
+	objectsToInit.clear();
+}
+
 void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
 {
 	tickables.push_back(ptr);
@@ -38,7 +51,7 @@ void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
 
 void LEngine::loop()
 {
-	renderer = std::make_unique<LRenderer>(window);
+	renderer = std::make_unique<LRenderer>(window, LActor::getComponentCounter());
 
 	beginPlay();
 
@@ -52,12 +65,11 @@ void LEngine::loop()
 			fpsTimer = 0.0f;
 			fps = 0;
 		}
+
+		initObjects();
 		
 		glfwPollEvents();
-		{
-			ZoneScopedNC("Pass: Tickables", 0xFF88CC00);
-			executeTickables();
-		}
+		executeTickables();
 
 		if (renderer->bNeedToUpdateProjView)
 		{
@@ -85,6 +97,7 @@ void LEngine::loop()
 
 void LEngine::executeTickables()
 {
+	ZoneScopedNC("Pass: Tickables", 0xFF88CC00);
 	for (auto it = tickables.begin(); it != tickables.end(); ++it)
 	{
 		if (!it->expired())
@@ -96,4 +109,9 @@ void LEngine::executeTickables()
 			it = tickables.erase(it);
 		}
 	}
+}
+
+void LEngine::addObjectToInit(std::shared_ptr<LActor> objectToInit)
+{
+	objectsToInit.push_back(objectToInit);
 }

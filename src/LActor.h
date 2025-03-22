@@ -2,14 +2,12 @@
 
 #include <Primitives.h>
 #include <dynamics/RigidBody.h>
-
-// represents a physical object with visualization
+#include <map>
 
 class LActor
 {
 public:
 
-	friend class ObjectBuilder;
 	friend class LEngine;
 
 	LActor()
@@ -17,7 +15,7 @@ public:
 	}
 
 	template <typename Component>
-	void loadComponent(std::function<void(Component*)>&& initLogics = [](Component*){})
+	LActor& loadComponent(std::function<void(Component*)>&& initLogics = [](Component*){})
 	{
 		// graphics component
 		if constexpr (std::is_base_of<LG::LGraphicsComponent, Component>::value)
@@ -25,6 +23,8 @@ public:
 			auto graphicsComponentReal = std::make_shared<Component>();
 			graphicsComponent = graphicsComponentReal;
 			initGraphicsComponent = [initLogics, graphicsComponentReal]() {initLogics(graphicsComponentReal.get()); };
+
+			componentCounter[graphicsComponentReal->getTypeName()]++;
 		}
 
 		// physics component
@@ -34,9 +34,12 @@ public:
 			physicsComponent = physicsComponentReal;
 			initPhysicsComponent = [initLogics, physicsComponentReal](){initLogics(physicsComponentReal.get()); };
 		}
+		return *this;
 	}
 
 	virtual ~LActor() = default;
+
+	static const auto& getComponentCounter() { return componentCounter;}
 
 	std::shared_ptr<LG::LGraphicsComponent> graphicsComponent;
 	std::shared_ptr<LP::RigidBody> physicsComponent;
@@ -48,6 +51,8 @@ protected:
 
 	std::function<void()> initGraphicsComponent;
 	std::function<void()> initPhysicsComponent;
+
+	static std::map<std::string, uint32> componentCounter;
 
 	// DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
 };
