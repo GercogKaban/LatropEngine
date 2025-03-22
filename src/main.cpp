@@ -8,8 +8,9 @@ auto cubeAABBCollider = std::make_shared<LP::AABBCollider>(LP::AABBCollider::mak
 
 void createPlayer() 
 {
-	auto playerCharacter = ObjectBuilder::construct<LPlayerCharacter>().lock();
-	playerCharacter->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
+	auto weakPlayer = ObjectBuilder::construct<LPlayerCharacter>();
+	auto playerCharacter = weakPlayer.lock();
+	playerCharacter->loadComponent<LP::RigidBody>([weakPlayer](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->m_takesGravity = true;
 			physicsComponent->m_isSimulated = true;
@@ -17,6 +18,13 @@ void createPlayer()
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
 			physicsComponent->transform.scale = glm::vec3(0.55, 1.0f, 0.55f);
+			physicsComponent->m_onCollision = [weakPlayer](LP::Collision collision, float) {
+				if (collision.points.normal.y > 0)
+				{
+					auto playerCharacter = weakPlayer.lock();
+					playerCharacter->resetJump();
+				}
+			};
 		});
 }
 

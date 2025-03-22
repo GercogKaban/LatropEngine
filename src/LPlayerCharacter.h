@@ -16,6 +16,7 @@ public:
 	LPlayerCharacter(const glm::vec3& startPosition);
 
 	virtual void tick(float delta) override;
+	void resetJump() { jumpsCounter = 0; }
 
 	float getSpeed() const;
 
@@ -51,4 +52,8 @@ protected:
 
 	float centerX = 1920 / 2;
 	float centerY = 1080 / 2;
+
+private:
+	static const int maxJumpsCount = 2;
+	int jumpsCounter = maxJumpsCount;
 };

@@ -26,22 +26,10 @@ void LPlayerCharacter::tick(float delta)
 	glm::vec3 right = glm::cross(horizontalFront, cameraUp);
 	right.y = 0.0f;
 
-	if (isKeyPressed(GLFW_KEY_W))
-	{
-		velocity += horizontalFront;
-	}
-	if (isKeyPressed(GLFW_KEY_S))
-	{
-		velocity -= horizontalFront;
-	}
-	if (isKeyPressed(GLFW_KEY_A))
-	{
-		velocity -= right;
-	}
-	if (isKeyPressed(GLFW_KEY_D))
-	{
-		velocity += right;
-	}
+	if (isKeyPressed(GLFW_KEY_W)) velocity += horizontalFront;
+	if (isKeyPressed(GLFW_KEY_S)) velocity -= horizontalFront;
+	if (isKeyPressed(GLFW_KEY_A)) velocity -= right;
+	if (isKeyPressed(GLFW_KEY_D)) velocity += right;
 
 	if (glm::length(velocity) > 0.0f)
 	{
@@ -139,8 +127,9 @@ void LPlayerCharacter::updateCamera(const glm::vec3& newLocation)
 void LPlayerCharacter::jump()
 {
 	// Consider the player grounded if the vertical velocity is close to threshold
-	if (std::abs(physicsComponent->m_velocity.y) < 0.65f)
+	if (jumpsCounter < maxJumpsCount)
 	{
+		jumpsCounter += 1;
 		physicsComponent->m_velocity.y += 5;
 	}
 }
