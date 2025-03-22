@@ -129,6 +129,13 @@ void LPlayerCharacter::jump()
 	if (jumpsCounter < maxJumpsCount)
 	{
 		jumpsCounter += 1;
-		physicsComponent->m_velocity.y = 5;
+		if (physicsComponent->m_velocity.y < 0)
+		{
+			physicsComponent->m_velocity.y = 5;
+		}
+		else 
+		{
+			physicsComponent->m_velocity.y += 5;
+		}
 	}
 }
