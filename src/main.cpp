@@ -190,9 +190,9 @@ int main()
 
 	// MARK: Samples
 	createPlayer();
-	createFloor(5);
+	createFloor();
 	// createOriginalSample(true);
-	// createStairs(100);
+	createStairs(100);
 	// createStairsStressTest(60000, 40, 0.001f);
 	// createPerfectlyBouncyPuddle();
 	

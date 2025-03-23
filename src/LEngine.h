@@ -57,7 +57,7 @@ protected:
 	std::chrono::high_resolution_clock::time_point previousFrameTime = std::chrono::high_resolution_clock::now();
 
 	const float physicsIterationsCount = 128.0;
-	const float physicsCellSize = 1.5f;
+	const float physicsCellSize = 2.0f;
 	bool requiresPhysicsGridUpdate = true;
 
 	float fpsTimer = 0.0f;
