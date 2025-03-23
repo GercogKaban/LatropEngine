@@ -42,7 +42,7 @@ void LEngine::initObjects()
 		}
 	}
 
-	physicsWorld.updateSpacialPartitioningOfStaticBodies(10.0f);
+	physicsWorld.updateSpacialPartitioningOfStaticBodies(physicsCellSize);
 	objectsToInit.clear();
 }
 
