@@ -21,13 +21,7 @@ namespace LP
               maxExtents(maxExtents) 
             {}
 
-        virtual AABB getAABB(Transform * transform) const override
-        { 
-            glm::vec3 aMin = /*transform->position + */minExtents * transform->scale;
-            glm::vec3 aMax = /*transform->position + */maxExtents * transform->scale;
-
-            return { aMin, aMax };
-        };
+        virtual AABB getAABB(const Transform * transform) const override;
 
         virtual CollisionPoints testCollision(
             const Transform* transform,

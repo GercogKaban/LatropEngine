@@ -8,21 +8,13 @@ namespace LP
     struct PlaneCollider;
     struct AABBCollider;
     struct Transform;
-
-    struct AABB
-    {
-        glm::vec3 minExtents;
-        glm::vec3 maxExtents;
-    };
+    struct AABB;
 
     struct Collider 
     {
         virtual ~Collider() = default;
 
-        virtual AABB getAABB(Transform * transform) const
-        { 
-            return AABB { glm::vec3(0), glm::vec3(0)};
-        };
+        virtual AABB getAABB(const Transform * transform) const = 0;
 
         virtual CollisionPoints testCollision(
             const Transform* transform,

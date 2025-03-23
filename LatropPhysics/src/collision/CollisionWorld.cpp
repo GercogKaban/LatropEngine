@@ -1,6 +1,7 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
 #include "collision/AABBCollider.h"
+#include "shared/AABB.h"
 
 using namespace LP;
 
@@ -66,25 +67,61 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
                     if (x == 0 && z == 0) continue;
 
                     auto newPosition = body->transform.position;
-                    newPosition.x += (float)x * cellSize;
-                    newPosition.z += (float)z * cellSize;                    
+                    newPosition.x = (float)x * cellSize;
+                    newPosition.z = (float)z * cellSize;                    
 
                     int hash = computeCellKey(newPosition, m_cellSize);
                     spatialHash[hash].push_back(bodyWeakPtr);
                 }
             }
         }
-        // else 
-        // {
-        //     int hash = computeCellKey(body->transform.position, m_cellSize);
-        //     spatialHash[hash].push_back(bodyWeakPtr);
-        // }
     }
 
     m_bodies.clear();
 }
 
 // MARK: Collision Handling
+
+template <typename A, typename B>
+inline void detectInvidualCollisionsOf(
+    const B& other,
+    const std::vector<A>& elements,
+    std::vector<Collision>& collisions,
+    std::vector<Collision>& triggers
+) {
+    for (const std::weak_ptr<CollisionBody> &otherWeakPtr : elements)
+    {
+        auto otherLocked = otherWeakPtr.lock();
+        if (!otherLocked)
+            continue;
+        auto body = otherLocked.get();
+
+        if (body == other)
+            break;
+
+        if (!(body->m_isSimulated || other->m_isSimulated))
+            continue;
+
+        auto bodyCollider = body->collider.lock();
+        auto otherCollider = other->collider.lock();
+        if (!bodyCollider || !otherCollider)
+            continue;
+
+        CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
+
+        if (points.hasCollision)
+        {
+            if (bool isTrigger = body->isTrigger || other->isTrigger)
+            {
+                triggers.push_back({body, other, points});
+            }
+            else
+            {
+                collisions.push_back({body, other, points});
+            }
+        }
+    }
+}
 
 template <typename A, typename B>
 inline void detectInvidualCollisionsIn(
@@ -99,34 +136,7 @@ inline void detectInvidualCollisionsIn(
         if (!bodyLocked) continue;
         auto body = bodyLocked.get();
 
-        for(const std::weak_ptr<CollisionBody>& otherWeakPtr : rhs)
-        {
-            auto otherLocked = otherWeakPtr.lock();
-            if (!otherLocked) continue;
-            auto other = otherLocked.get();
-
-            if(body == other) break;
-
-            if (!(body->m_isSimulated || other->m_isSimulated)) continue;
-
-            auto bodyCollider = body->collider.lock();
-            auto otherCollider = other->collider.lock();
-            if (!bodyCollider || !otherCollider) continue;
-
-            CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
-
-            if (points.hasCollision)
-            {
-                if (bool isTrigger = body->isTrigger || other->isTrigger)
-                {
-                    triggers.push_back({ body, other, points});
-                }
-                else
-                {
-                    collisions.push_back({ body, other, points });
-                }
-            }
-        }
+        detectInvidualCollisionsOf(body, rhs, collisions, triggers);
     }
 }
 
@@ -144,7 +154,7 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
         auto cell = spatialHash[hash];
 
         // TODO: Extract inner loop from this function
-        detectInvidualCollisionsIn(cell, movableBodies, collisions, triggers);
+        detectInvidualCollisionsOf(body, cell, collisions, triggers);
     }
 
     // Step 2: All Movable VS All Movable
