@@ -29,16 +29,16 @@ void createPlayer()
 		});
 }
 
-void createFloor() 
+void createFloor(float scale = 20.0f) 
 {
 	auto floor = ObjectBuilder::construct<LActor>().lock();
 	floor->loadComponent<LG::LCube>();
-	floor->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
+	floor->loadComponent<LP::RigidBody>([scale](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->m_isSimulated = false;
 			physicsComponent->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
-			physicsComponent->transform.scale = glm::vec3(20, 1.0f, 20);
+			physicsComponent->transform.scale = glm::vec3(scale, 1.0f, scale);
 			physicsComponent->m_mass = 100000;
 			physicsComponent->material = LP::Material::Ice;
 		});
@@ -190,11 +190,11 @@ int main()
 
 	// MARK: Samples
 	createPlayer();
-	createFloor();
+	createFloor(5);
 	// createOriginalSample(true);
 	// createStairs(100);
-	createStairsStressTest(60000, 40, 0.001f);
-	createPerfectlyBouncyPuddle();
+	// createStairsStressTest(60000, 40, 0.001f);
+	// createPerfectlyBouncyPuddle();
 	
 	// MARK: RunLoop
 	engine.loop();
