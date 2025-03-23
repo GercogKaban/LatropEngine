@@ -1,5 +1,6 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
+#include "collision/AABBCollider.h"
 
 using namespace LP;
 
@@ -24,6 +25,60 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 
         int hash = computeCellKey(body->transform.position, m_cellSize);
         spatialHash[hash].push_back(bodyWeakPtr);
+
+        if (auto collider = body->collider.lock())
+        {
+            AABB aabb = collider->getAABB(&body->transform);
+
+            int xMaxOffsets = 0;
+            int zMaxOffsets = 0;
+            int xMinOffsets = 0;
+            int zMinOffsets = 0;
+
+            if (aabb.maxExtents.x > cellSize)
+            {
+                int offsets = ceil(aabb.maxExtents.x / cellSize);
+                xMaxOffsets = offsets;
+            }
+
+            if (aabb.maxExtents.z > cellSize)
+            {
+                int offsets = ceil(aabb.maxExtents.z / cellSize);
+                zMaxOffsets = offsets;
+            }
+
+            if (abs(aabb.minExtents.x) > cellSize)
+            {
+                int offsets = floor(aabb.minExtents.x / cellSize);
+                xMinOffsets = offsets;
+            }
+
+            if (abs(aabb.minExtents.z) > cellSize)
+            {
+                int offsets = floor(aabb.minExtents.z / cellSize);
+                zMinOffsets = offsets;
+            }
+            
+            for (int x = xMinOffsets; x < xMaxOffsets; ++x)
+            {
+                for (int z = zMinOffsets; z < zMaxOffsets; ++z)
+                {
+                    if (x == 0 && z == 0) continue;
+
+                    auto newPosition = body->transform.position;
+                    newPosition.x += (float)x * cellSize;
+                    newPosition.z += (float)z * cellSize;                    
+
+                    int hash = computeCellKey(newPosition, m_cellSize);
+                    spatialHash[hash].push_back(bodyWeakPtr);
+                }
+            }
+        }
+        // else 
+        // {
+        //     int hash = computeCellKey(body->transform.position, m_cellSize);
+        //     spatialHash[hash].push_back(bodyWeakPtr);
+        // }
     }
 
     m_bodies.clear();

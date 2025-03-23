@@ -2,6 +2,7 @@
 
 #include "Collider.h"
 #include <glm/vec3.hpp>
+#include "shared/Transform.h"
 
 namespace LP 
 {
@@ -19,6 +20,14 @@ namespace LP
             : minExtents(minExtents),
               maxExtents(maxExtents) 
             {}
+
+        virtual AABB getAABB(Transform * transform) const override
+        { 
+            glm::vec3 aMin = /*transform->position + */minExtents * transform->scale;
+            glm::vec3 aMax = /*transform->position + */maxExtents * transform->scale;
+
+            return { aMin, aMax };
+        };
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
