@@ -10,8 +10,15 @@ int computeCellKey(const glm::vec3& position, float cellSize) {
     int x = static_cast<int>(position.x / cellSize);
     int y = static_cast<int>(position.y / cellSize);
     int z = static_cast<int>(position.z / cellSize);
-    return (x * 73856093) ^ (y * 19349663) ^ (z * 83492791);
-};
+
+    // Use larger prime numbers and spread the bits
+    x = (x * 73856093) ^ (x >> 16);
+    y = (y * 19349663) ^ (y >> 16);
+    z = (z * 83492791) ^ (z >> 16);
+
+    // Combine the hashed components with bit mixing
+    return x ^ (y << 1) ^ (z << 2);
+}
 
 void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 {
@@ -24,56 +31,39 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
         if (!bodyLocked) continue;
         auto body = bodyLocked.get();
 
-        int hash = computeCellKey(body->transform.position, m_cellSize);
-        spatialHash[hash].push_back(bodyWeakPtr);
-
         if (auto collider = body->collider.lock())
         {
             AABB aabb = collider->getAABB(&body->transform);
 
-            int xMaxOffsets = 0;
-            int zMaxOffsets = 0;
-            int xMinOffsets = 0;
-            int zMinOffsets = 0;
-
-            if (aabb.maxExtents.x > cellSize)
-            {
-                int offsets = ceil(aabb.maxExtents.x / cellSize);
-                xMaxOffsets = offsets;
-            }
-
-            if (aabb.maxExtents.z > cellSize)
-            {
-                int offsets = ceil(aabb.maxExtents.z / cellSize);
-                zMaxOffsets = offsets;
-            }
-
-            if (abs(aabb.minExtents.x) > cellSize)
-            {
-                int offsets = floor(aabb.minExtents.x / cellSize);
-                xMinOffsets = offsets;
-            }
-
-            if (abs(aabb.minExtents.z) > cellSize)
-            {
-                int offsets = floor(aabb.minExtents.z / cellSize);
-                zMinOffsets = offsets;
-            }
+            int xMaxOffsets = ceil(aabb.maxExtents.x / cellSize);
+            int yMaxOffsets = ceil(aabb.maxExtents.y / cellSize);
+            int zMaxOffsets = ceil(aabb.maxExtents.z / cellSize);
+            int xMinOffsets = floor(aabb.minExtents.x / cellSize);
+            int yMinOffsets = floor(aabb.minExtents.y / cellSize);
+            int zMinOffsets = floor(aabb.minExtents.z / cellSize);
             
             for (int x = xMinOffsets; x < xMaxOffsets; ++x)
             {
-                for (int z = zMinOffsets; z < zMaxOffsets; ++z)
+                for (int y = yMinOffsets; y < yMaxOffsets; ++y)
                 {
-                    if (x == 0 && z == 0) continue;
+                    for (int z = zMinOffsets; z < zMaxOffsets; ++z)
+                    {
+                        glm::vec3 position { 
+                            (float)x * cellSize,
+                            (float)y * cellSize,
+                            (float)z * cellSize
+                        }; 
 
-                    auto newPosition = body->transform.position;
-                    newPosition.x = (float)x * cellSize;
-                    newPosition.z = (float)z * cellSize;                    
-
-                    int hash = computeCellKey(newPosition, m_cellSize);
-                    spatialHash[hash].push_back(bodyWeakPtr);
+                        int hash = computeCellKey(position, m_cellSize);
+                        spatialHash[hash].push_back(bodyWeakPtr);
+                    }
                 }
             }
+        } 
+        else 
+        {
+            int hash = computeCellKey(body->transform.position, m_cellSize);
+            spatialHash[hash].push_back(bodyWeakPtr);
         }
     }
 
