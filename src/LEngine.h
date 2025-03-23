@@ -56,6 +56,7 @@ protected:
 	std::chrono::high_resolution_clock::time_point currentFrameTime = std::chrono::high_resolution_clock::now();
 	std::chrono::high_resolution_clock::time_point previousFrameTime = std::chrono::high_resolution_clock::now();
 
+	const float physicsIterationsCount = 128.0;
 	float fpsTimer = 0.0f;
 	uint32 fps = 0;
 
