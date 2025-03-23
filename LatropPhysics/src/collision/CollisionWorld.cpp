@@ -22,7 +22,7 @@ int computeCellKey(const glm::vec3& position, float cellSize) {
 
 void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 {
-    // spatialHash.clear();
+    spatialHashGrid.clear();
     m_cellSize = cellSize;
 
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
@@ -55,7 +55,7 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
                         }; 
 
                         int hash = computeCellKey(position, m_cellSize);
-                        spatialHash[hash].push_back(bodyWeakPtr);
+                        spatialHashGrid[hash].push_back(bodyWeakPtr);
                     }
                 }
             }
@@ -63,7 +63,7 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
         else 
         {
             int hash = computeCellKey(body->transform.position, m_cellSize);
-            spatialHash[hash].push_back(bodyWeakPtr);
+            spatialHashGrid[hash].push_back(bodyWeakPtr);
         }
     }
 
@@ -141,7 +141,7 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
         auto body = bodyLocked.get();
 
         int hash = computeCellKey(body->transform.position, m_cellSize);
-        auto cell = spatialHash[hash];
+        auto cell = spatialHashGrid[hash];
 
         // TODO: Extract inner loop from this function
         detectInvidualCollisionsOf(body, cell, collisions, triggers);
