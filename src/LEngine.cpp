@@ -41,6 +41,12 @@ void LEngine::initObjects()
 			addTickablePrimitive(tickable);
 		}
 	}
+
+	if (requiresPhysicsGridUpdate)
+	{
+		requiresPhysicsGridUpdate = false;
+		physicsWorld.updateSpacialPartitioningOfStaticBodies(physicsCellSize);
+	}
 	objectsToInit.clear();
 }
 
@@ -78,8 +84,8 @@ void LEngine::loop()
 
 		{
 			ZoneScopedNC("Pass: Physics", 0xFF00AACC);
-			auto miniDelta = getDelta() / 8.0f;
-			for (int i = 0; i < 8; i++)
+			auto miniDelta = getDelta() / physicsIterationsCount;
+			for (int i = 0; i < physicsIterationsCount; i++)
 			{
 				physicsWorld.integrate(miniDelta);
 			}
