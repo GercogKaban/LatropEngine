@@ -3,6 +3,9 @@
 #include <glfw3.h>
 
 LPlayerCharacter* LPlayerCharacter::thisPtr = nullptr;
+const glm::vec3 LPlayerCharacter::standingDimensions = glm::vec3(0.5, 1.6f, /*0.3*/0.5f);
+const glm::vec3 LPlayerCharacter::crouchedDimensions = glm::vec3(0.5, 0.8f, /*0.3*/0.5f);
+const float LPlayerCharacter::mass = 65.0f;
 
 LPlayerCharacter::LPlayerCharacter(const glm::vec3& startPosition)
 {
@@ -11,7 +14,12 @@ LPlayerCharacter::LPlayerCharacter(const glm::vec3& startPosition)
 
 float LPlayerCharacter::getSpeed() const
 {
-	return isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 3.0f : 1.4f;
+	static float walkingSpeed = 1.45f;
+	static float crouchedSpeed = 0.87f;
+	float runningMultiplier = isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0;
+	float speed = isKeyPressed(GLFW_KEY_LEFT_CONTROL) ? crouchedSpeed : walkingSpeed;
+
+	return speed * runningMultiplier;
 }
 
 void LPlayerCharacter::tick(float delta)
@@ -34,9 +42,10 @@ void LPlayerCharacter::tick(float delta)
 	if (glm::length(velocity) > 0.0f)
 	{
 		velocity = glm::normalize(velocity) * getSpeed();
-		physicsComponent->transform.position += velocity * delta;
+		physicsComponent->m_velocity.x = velocity.x;
+		physicsComponent->m_velocity.z = velocity.z;
 	}
-	updateCamera(physicsComponent->transform.position);
+	updateCamera();
 }
 
 void LPlayerCharacter::beginPlay()
@@ -48,7 +57,7 @@ void LPlayerCharacter::beginPlay()
 	renderer = LRenderer::get();
 	glfwSetKeyCallback(renderer->getWindow(), handleInput);
 	glfwSetCursorPosCallback(renderer->getWindow(), mouseInput);
-	updateCamera(physicsComponent->transform.position);
+	updateCamera();
 }
 
 bool LPlayerCharacter::isKeyPressed(int32 keyCode) const
@@ -75,6 +84,19 @@ void LPlayerCharacter::handleInput(GLFWwindow* window, int key, int scancode, in
 		else if (action == GLFW_RELEASE)
 		{
 			playerCharacter->pressedKeys[key] = GLFW_RELEASE;
+
+			if (key == GLFW_KEY_LEFT_CONTROL)
+			{
+				playerCharacter->uncrouch();
+			}
+		}
+
+		if (action == GLFW_PRESS)
+		{
+			if (key == GLFW_KEY_LEFT_CONTROL)
+			{
+				playerCharacter->crouch();
+			}
 		}
 	}
 }
@@ -119,9 +141,14 @@ void LPlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 	}
 }
 
-void LPlayerCharacter::updateCamera(const glm::vec3& newLocation)
+void LPlayerCharacter::updateCamera()
 {
-	renderer->setCameraPosition(newLocation);
+	glm::vec3 headPosition = physicsComponent->transform.position;
+	// Head position is at 90-95% of the total height.
+	// Here we get the scale divided by 2 (0.9 / 2 = 0.45) because the position
+	// of the physicsCompontent is at the center of mass.
+	headPosition.y += physicsComponent->transform.scale.y * 0.45;	
+	renderer->setCameraPosition(headPosition);
 }
 
 void LPlayerCharacter::jump()
@@ -138,4 +165,18 @@ void LPlayerCharacter::jump()
 			physicsComponent->m_velocity.y += 5;
 		}
 	}
+}
+
+void LPlayerCharacter::crouch()
+{
+	float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
+	physicsComponent->transform.position.y -= heightDifference;
+	physicsComponent->transform.scale = crouchedDimensions;
+}
+
+void LPlayerCharacter::uncrouch()
+{
+	float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
+	physicsComponent->transform.position.y += heightDifference;
+	physicsComponent->transform.scale = standingDimensions;
 }
