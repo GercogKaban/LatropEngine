@@ -5,7 +5,7 @@
 
 using namespace LP;
 
-AABB PlaneCollider::getAABB(const Transform * transform) const
+AABB PlaneCollider::getAABB(const Transform* transform) const
 { 
     return AABB { glm::vec3(0), glm::vec3(0)};
 };

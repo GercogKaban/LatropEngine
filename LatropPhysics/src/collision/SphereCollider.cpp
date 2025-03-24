@@ -5,7 +5,7 @@
 
 using namespace LP;
 
-AABB SphereCollider::getAABB(const Transform * transform) const
+AABB SphereCollider::getAABB(const Transform* transform) const
 { 
     auto center = this->center + transform->position;
     auto radius = this->radius * transform->scale;

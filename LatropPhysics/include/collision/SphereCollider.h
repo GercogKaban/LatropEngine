@@ -14,7 +14,7 @@ namespace LP
         glm::vec3 center;
         float radius;
 
-        virtual AABB getAABB(const Transform * transform) const override;
+        virtual AABB getAABB(const Transform* transform) const override;
 
         virtual CollisionPoints testCollision(
             const Transform* transform,

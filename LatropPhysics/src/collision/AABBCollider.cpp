@@ -5,7 +5,7 @@
 
 using namespace LP;
 
-AABB AABBCollider::getAABB(const Transform * transform) const
+AABB AABBCollider::getAABB(const Transform* transform) const
 { 
     glm::vec3 aMin = transform->position + minExtents * transform->scale;
     glm::vec3 aMax = transform->position + maxExtents * transform->scale;
