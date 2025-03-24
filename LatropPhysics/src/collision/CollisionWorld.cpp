@@ -151,6 +151,8 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
                 for (int z = minCell.z; z < maxCell.z; ++z)
                 {
                     int64_t hash = computeCellKey(glm::vec3(x, y, z) * m_cellSize, m_cellSize);
+                    if (m_spatialHashGrid.find(hash) == m_spatialHashGrid.end()) continue;
+
                     auto cell = m_spatialHashGrid[hash];
 
                     // Detect collisions with objects in the current cell
