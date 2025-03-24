@@ -17,8 +17,8 @@ void createPlayer()
 
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
-			physicsComponent->transform.scale = glm::vec3(0.55, 1.0f, 0.55f);
-			physicsComponent->m_mass = 80;
+			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
+			physicsComponent->m_mass = LPlayerCharacter::mass;
 			physicsComponent->m_onCollision = [weakPlayer](LP::Collision collision, float depth) {
 				if (collision.points.normal.y > 0)
 				{
@@ -194,7 +194,7 @@ int main()
 	// createOriginalSample(true);
 	createStairs(100);
 	// createStairsStressTest(60000, 40, 0.001f);
-	// createPerfectlyBouncyPuddle();
+	createPerfectlyBouncyPuddle();
 	
 	// MARK: RunLoop
 	engine.loop();

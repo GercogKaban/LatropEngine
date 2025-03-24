@@ -25,6 +25,10 @@ public:
 		return thisPtr;
 	}
 
+	static const glm::vec3 standingDimensions;
+	static const glm::vec3 crouchedDimensions;
+	static const float mass;
+
 protected:
 
 	virtual void beginPlay() override;
@@ -34,8 +38,10 @@ protected:
 	static void handleInput(class GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouseInput(class GLFWwindow* window, double xpos, double ypos);
 
-	void updateCamera(const glm::vec3& newLocation);
+	void updateCamera();
 	void jump();
+	void crouch();
+	void uncrouch();
 
 	std::unordered_map<int32, bool> pressedKeys;
 
