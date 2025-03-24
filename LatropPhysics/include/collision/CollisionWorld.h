@@ -74,6 +74,6 @@ namespace LP
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
 
         float m_cellSize = 1;
-        std::unordered_map<int, std::vector<std::weak_ptr<CollisionBody>>> spatialHashGrid;
+        std::unordered_map<int64_t, std::vector<std::weak_ptr<CollisionBody>>> m_spatialHashGrid;
     };
 } // namespace LP

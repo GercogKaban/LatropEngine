@@ -2,27 +2,26 @@
 #include "collision/Collider.h"
 #include "collision/AABBCollider.h"
 #include "shared/AABB.h"
+#include <unordered_set>
 
 using namespace LP;
 
 // MARK: Spacial Partitioning
-int computeCellKey(const glm::vec3& position, float cellSize) {
-    int x = static_cast<int>(position.x / cellSize);
-    int y = static_cast<int>(position.y / cellSize);
-    int z = static_cast<int>(position.z / cellSize);
+int64_t computeCellKey(const glm::vec3& position, float cellSize) {
+    int64_t x = static_cast<int64_t> (position.x / cellSize);
+    int64_t y = static_cast<int64_t>(position.y / cellSize);
+    int64_t z = static_cast<int64_t>(position.z / cellSize);
 
-    // Use larger prime numbers and spread the bits
-    x = (x * 73856093) ^ (x >> 16);
-    y = (y * 19349663) ^ (y >> 16);
-    z = (z * 83492791) ^ (z >> 16);
-
-    // Combine the hashed components with bit mixing
-    return x ^ (y << 1) ^ (z << 2);
+    // Improved hash using larger primes and better mixing
+    const int64_t prime1 = 73856093LL;
+    const int64_t prime2 = 19349663LL;
+    const int64_t prime3 = 83492791LL;
+    return (x * prime1) + (y * prime2) + (z * prime3);
 }
 
 void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 {
-    spatialHashGrid.clear();
+    m_spatialHashGrid.clear();
     m_cellSize = cellSize;
 
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : m_bodies)
@@ -31,39 +30,27 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
         if (!bodyLocked) continue;
         auto body = bodyLocked.get();
 
-        if (auto collider = body->collider.lock())
+        auto bodyCollider = body->collider.lock();
+        if (!bodyCollider) continue;
+
+        // Get the AABB of the body
+        AABB aabb = bodyCollider->getAABB(&body->transform);
+
+        // Calculate the range of cells the AABB spans
+        glm::ivec3 minCell = glm::floor(aabb.minExtents / m_cellSize);
+        glm::ivec3 maxCell = glm::floor(aabb.maxExtents / m_cellSize);
+
+        // Iterate over all overlapping cells and insert the object
+        for (int x = minCell.x; x <= maxCell.x; ++x)
         {
-            AABB aabb = collider->getAABB(&body->transform);
-
-            int xMaxOffsets = ceil(aabb.maxExtents.x / cellSize);
-            int yMaxOffsets = ceil(aabb.maxExtents.y / cellSize);
-            int zMaxOffsets = ceil(aabb.maxExtents.z / cellSize);
-            int xMinOffsets = floor(aabb.minExtents.x / cellSize);
-            int yMinOffsets = floor(aabb.minExtents.y / cellSize);
-            int zMinOffsets = floor(aabb.minExtents.z / cellSize);
-            
-            for (int x = xMinOffsets; x < xMaxOffsets; ++x)
+            for (int y = minCell.y; y <= maxCell.y; ++y)
             {
-                for (int y = yMinOffsets; y < yMaxOffsets; ++y)
+                for (int z = minCell.z; z <= maxCell.z; ++z)
                 {
-                    for (int z = zMinOffsets; z < zMaxOffsets; ++z)
-                    {
-                        glm::vec3 position { 
-                            (float)x * cellSize,
-                            (float)y * cellSize,
-                            (float)z * cellSize
-                        }; 
-
-                        int hash = computeCellKey(position, m_cellSize);
-                        spatialHashGrid[hash].push_back(bodyWeakPtr);
-                    }
+                    int64_t hash = computeCellKey(glm::vec3(x, y, z) * m_cellSize, m_cellSize);
+                    m_spatialHashGrid[hash].push_back(bodyWeakPtr);
                 }
             }
-        } 
-        else 
-        {
-            int hash = computeCellKey(body->transform.position, m_cellSize);
-            spatialHashGrid[hash].push_back(bodyWeakPtr);
         }
     }
 
@@ -71,9 +58,36 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 }
 
 // MARK: Collision Handling
+template <typename A, typename B>
+inline void detectInvidualCollisionsOfAnd(
+    const A& body,
+    const B& other,
+    std::vector<Collision>& collisions,
+    std::vector<Collision>& triggers
+) {
+    if (!(body->m_isSimulated || other->m_isSimulated)) return;
+
+    auto bodyCollider = body->collider.lock();
+    auto otherCollider = other->collider.lock();
+    if (!bodyCollider || !otherCollider) return;
+
+    CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
+
+    if (points.hasCollision)
+    {
+        if (bool isTrigger = body->isTrigger || other->isTrigger)
+        {
+            triggers.push_back({body, other, points});
+        }
+        else
+        {
+            collisions.push_back({body, other, points});
+        }
+    }
+}
 
 template <typename A, typename B>
-inline void detectInvidualCollisionsOf(
+inline void detectInvidualCollisionsOfIn(
     const B& other,
     const std::vector<A>& elements,
     std::vector<Collision>& collisions,
@@ -89,27 +103,7 @@ inline void detectInvidualCollisionsOf(
         if (body == other)
             break;
 
-        if (!(body->m_isSimulated || other->m_isSimulated))
-            continue;
-
-        auto bodyCollider = body->collider.lock();
-        auto otherCollider = other->collider.lock();
-        if (!bodyCollider || !otherCollider)
-            continue;
-
-        CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
-
-        if (points.hasCollision)
-        {
-            if (bool isTrigger = body->isTrigger || other->isTrigger)
-            {
-                triggers.push_back({body, other, points});
-            }
-            else
-            {
-                collisions.push_back({body, other, points});
-            }
-        }
+        detectInvidualCollisionsOfAnd(body, other, collisions, triggers);
     }
 }
 
@@ -126,25 +120,51 @@ inline void detectInvidualCollisionsIn(
         if (!bodyLocked) continue;
         auto body = bodyLocked.get();
 
-        detectInvidualCollisionsOf(body, rhs, collisions, triggers);
+        detectInvidualCollisionsOfIn(body, rhs, collisions, triggers);
     }
 }
 
 void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
 {
     // Step 1: All Static VS All Movable
-    // detectInvidualCollisionsIn(m_bodies, movableBodies, collisions, triggers);
     for(const std::weak_ptr<RigidBody>& bodyWeakPtr : movableBodies)
-    {
+    {    
+        std::unordered_set<std::shared_ptr<CollisionBody>> m_spatialCheckBodies;
+
         auto bodyLocked = bodyWeakPtr.lock();
         if (!bodyLocked) continue;
         auto body = bodyLocked.get();
 
-        int hash = computeCellKey(body->transform.position, m_cellSize);
-        auto cell = spatialHashGrid[hash];
+        // Get the AABB of the body to determine overlapping cells
+        auto bodyCollider = body->collider.lock();
+        if (!bodyCollider) continue;
+        AABB aabb = bodyCollider->getAABB(&body->transform);
 
-        // TODO: Extract inner loop from this function
-        detectInvidualCollisionsOf(body, cell, collisions, triggers);
+        // Calculate the range of overlapping cells
+        glm::ivec3 minCell = glm::floor(aabb.minExtents / m_cellSize);
+        glm::ivec3 maxCell = glm::floor(aabb.maxExtents / m_cellSize);
+
+        for (int x = minCell.x; x <= maxCell.x; ++x)
+        {
+            for (int y = minCell.y; y <= maxCell.y; ++y)
+            {
+                for (int z = minCell.z; z <= maxCell.z; ++z)
+                {
+                    int64_t hash = computeCellKey(glm::vec3(x, y, z) * m_cellSize, m_cellSize);
+                    auto cell = m_spatialHashGrid[hash];
+
+                    // Detect collisions with objects in the current cell
+                    for (const std::weak_ptr<CollisionBody>& otherWeakPtr : cell)
+                    {
+                        auto otherLocked = otherWeakPtr.lock();
+                        if (!otherLocked || m_spatialCheckBodies.count(otherLocked)) continue;
+
+                        m_spatialCheckBodies.insert(otherLocked);
+                        detectInvidualCollisionsOfAnd(otherLocked.get(), body, collisions, triggers);
+                    }
+                }
+            }
+        }
     }
 
     // Step 2: All Movable VS All Movable
