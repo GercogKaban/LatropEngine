@@ -1,7 +1,16 @@
 #include "collision/SphereCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
+#include "shared/Transform.h"
+#include "shared/AABB.h"
 
 using namespace LP;
+
+AABB SphereCollider::getAABB(const Transform* transform) const
+{ 
+    auto center = this->center + transform->position;
+    auto radius = this->radius * transform->scale;
+    return AABB { center - radius, center + radius };
+};
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,

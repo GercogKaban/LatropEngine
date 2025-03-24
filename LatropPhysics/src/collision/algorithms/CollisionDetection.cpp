@@ -3,6 +3,7 @@
 #include "collision/PlaneCollider.h"
 #include "collision/AABBCollider.h"
 #include "shared/Transform.h"
+#include "shared/AABB.h"
 
 using namespace LP;
 
@@ -61,11 +62,8 @@ CollisionPoints collisionDetectors::findAABBAABBCollisionPoints(
     CollisionPoints points;
     points.hasCollision = false;
 
-    // Transform min and max extents to world space for both AABBs
-    glm::vec3 aMin = transformA->position + a->minExtents * transformA->scale;
-    glm::vec3 aMax = transformA->position + a->maxExtents * transformA->scale;
-    glm::vec3 bMin = transformB->position + b->minExtents * transformB->scale;
-    glm::vec3 bMax = transformB->position + b->maxExtents * transformB->scale;
+    auto [aMin, aMax] = a->getAABB(transformA);
+    auto [bMin, bMax] = b->getAABB(transformB);
 
     // Calculate overlap on each axis
     glm::vec3 overlapMin = glm::max(aMin, bMin);

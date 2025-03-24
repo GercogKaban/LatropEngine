@@ -1,8 +1,17 @@
 #include "collision/AABBCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 #include "shared/Transform.h"
+#include "shared/AABB.h"
 
 using namespace LP;
+
+AABB AABBCollider::getAABB(const Transform* transform) const
+{ 
+    glm::vec3 aMin = transform->position + minExtents * transform->scale;
+    glm::vec3 aMax = transform->position + maxExtents * transform->scale;
+
+    return { aMin, aMax };
+};
 
 CollisionPoints AABBCollider::testCollision(
     const Transform* transform,

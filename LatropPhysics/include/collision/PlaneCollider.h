@@ -14,6 +14,8 @@ namespace LP
         glm::vec3 plane;
         float distance;
 
+        virtual AABB getAABB(const Transform* transform) const override;
+
         virtual CollisionPoints testCollision(
             const Transform* transform,
             const Collider* other,

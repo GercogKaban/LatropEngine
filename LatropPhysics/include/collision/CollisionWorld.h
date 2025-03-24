@@ -6,6 +6,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <unordered_map>
 
 namespace LP 
 {
@@ -60,6 +61,8 @@ namespace LP
         virtual void detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers);
         virtual void solveCollisions(const std::vector<Collision>& collisions, float deltaTime);
 
+        void updateSpacialPartitioningOfStaticBodies(float cellSize);
+
     protected:
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
         std::vector<std::weak_ptr<RigidBody>> movableBodies;
@@ -69,5 +72,8 @@ namespace LP
 
     private:
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
+
+        float m_cellSize = 1;
+        std::unordered_map<int64_t, std::vector<std::weak_ptr<CollisionBody>>> m_spatialHashGrid;
     };
 } // namespace LP

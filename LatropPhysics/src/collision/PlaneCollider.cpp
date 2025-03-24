@@ -1,8 +1,14 @@
 #include "collision/PlaneCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 #include "shared/Transform.h"
+#include "shared/AABB.h"
 
 using namespace LP;
+
+AABB PlaneCollider::getAABB(const Transform* transform) const
+{ 
+    return AABB { glm::vec3(0), glm::vec3(0)};
+};
 
 CollisionPoints PlaneCollider::testCollision(
     const Transform* transform,
