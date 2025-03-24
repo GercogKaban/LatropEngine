@@ -38,14 +38,14 @@ void CollisionWorld::updateSpacialPartitioningOfStaticBodies(float cellSize)
 
         // Calculate the range of cells the AABB spans
         glm::ivec3 minCell = glm::floor(aabb.minExtents / m_cellSize);
-        glm::ivec3 maxCell = glm::floor(aabb.maxExtents / m_cellSize);
+        glm::ivec3 maxCell = glm::ceil(aabb.maxExtents / m_cellSize);
 
         // Iterate over all overlapping cells and insert the object
-        for (int x = minCell.x; x <= maxCell.x; ++x)
+        for (int x = minCell.x; x < maxCell.x; ++x)
         {
-            for (int y = minCell.y; y <= maxCell.y; ++y)
+            for (int y = minCell.y; y < maxCell.y; ++y)
             {
-                for (int z = minCell.z; z <= maxCell.z; ++z)
+                for (int z = minCell.z; z < maxCell.z; ++z)
                 {
                     int64_t hash = computeCellKey(glm::vec3(x, y, z) * m_cellSize, m_cellSize);
                     m_spatialHashGrid[hash].push_back(bodyWeakPtr);
@@ -142,13 +142,13 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
 
         // Calculate the range of overlapping cells
         glm::ivec3 minCell = glm::floor(aabb.minExtents / m_cellSize);
-        glm::ivec3 maxCell = glm::floor(aabb.maxExtents / m_cellSize);
+        glm::ivec3 maxCell = glm::ceil(aabb.maxExtents / m_cellSize);
 
-        for (int x = minCell.x; x <= maxCell.x; ++x)
+        for (int x = minCell.x; x < maxCell.x; ++x)
         {
-            for (int y = minCell.y; y <= maxCell.y; ++y)
+            for (int y = minCell.y; y < maxCell.y; ++y)
             {
-                for (int z = minCell.z; z <= maxCell.z; ++z)
+                for (int z = minCell.z; z < maxCell.z; ++z)
                 {
                     int64_t hash = computeCellKey(glm::vec3(x, y, z) * m_cellSize, m_cellSize);
                     auto cell = m_spatialHashGrid[hash];
