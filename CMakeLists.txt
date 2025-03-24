@@ -9,12 +9,16 @@ set(CMAKE_SUPPRESS_REGENERATION ON)
 
 file(GLOB SOURCE_FILES src/*.h src/*.cpp)
 
-find_package(Vulkan REQUIRED)
+find_package(Vulkan)
 
 add_subdirectory(LizardGraphics-2.0)
 add_subdirectory(LatropPhysics)
 
 add_executable(LatropGame ${SOURCE_FILES})
+
+if(WIN32)
+set_target_properties(LatropGame PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
+endif()
 
 target_compile_features(LatropGame PRIVATE cxx_std_20)
 target_link_libraries(LatropGame LizardGraphics ${Vulkan_LIBRARIES} glfw LatropPhysics TracyClient)

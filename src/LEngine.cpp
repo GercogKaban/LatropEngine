@@ -92,7 +92,7 @@ void LEngine::loop()
 		}
 
 		{
-			ZoneScopedNC("Pass: Rendering", 0xFFFF007F);
+			ZoneScopedNC("Pass: Rendering", 0x000000FF);
 			renderer->drawFrame();
 		}
 		fps++;
