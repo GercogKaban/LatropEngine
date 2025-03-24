@@ -3,8 +3,8 @@
 #include <glfw3.h>
 
 LPlayerCharacter* LPlayerCharacter::thisPtr = nullptr;
-const glm::vec3 LPlayerCharacter::standingDimensions = glm::vec3(0.5, 1.6f, 0.3f);
-const glm::vec3 LPlayerCharacter::crouchedDimensions = glm::vec3(0.5, 0.8f, 0.3f);
+const glm::vec3 LPlayerCharacter::standingDimensions = glm::vec3(0.5, 1.6f, /*0.3*/0.5f);
+const glm::vec3 LPlayerCharacter::crouchedDimensions = glm::vec3(0.5, 0.8f, /*0.3*/0.5f);
 const float LPlayerCharacter::mass = 65.0f;
 
 LPlayerCharacter::LPlayerCharacter(const glm::vec3& startPosition)
