@@ -2,6 +2,7 @@
 
 #include "LActor.h"
 #include "LTickable.h"
+#include <glm/gtc/quaternion.hpp>
 
 class LPlayerCharacter : public LActor, public LTickable
 {
@@ -50,8 +51,7 @@ protected:
 
 	// should be in camera class
 	bool bFirstMouse = true;
-	float yaw = -90.0f;
-	float pitch = 0.0f;
+	glm::quat orientation;
 	float lastX = 600.0f;
 	float lastY = 300.0f;
 	float sensitivity = 0.1f;
