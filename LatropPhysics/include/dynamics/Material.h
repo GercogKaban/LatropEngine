@@ -55,5 +55,7 @@ namespace LP
         static const Material Sponge;
         /// @brief Moderate friction and low bounce
         static const Material Leather;
+        /// @brief Moderate friction and restitution
+        static const Material HumanBody;
     };
 } // namespace LP

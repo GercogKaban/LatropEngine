@@ -16,3 +16,4 @@ const LP::Material LP::Material::Mud        = { 0.05f, 1.0f, 0.9f };
 const LP::Material LP::Material::Sand       = { 0.1f, 0.8f, 0.6f };
 const LP::Material LP::Material::Sponge     = { 0.2f, 0.4f, 0.3f };
 const LP::Material LP::Material::Leather    = { 0.3f, 0.6f, 0.5f };
+const LP::Material LP::Material::HumanBody  = { 0.5f, 0.4f, 0.5f };
