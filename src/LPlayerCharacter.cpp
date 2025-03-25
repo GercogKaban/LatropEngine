@@ -111,33 +111,34 @@ void LPlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 		xoffset *= playerCharacter->sensitivity;
 		yoffset *= playerCharacter->sensitivity;
 
-		playerCharacter->yaw += xoffset;
-		playerCharacter->pitch -= yoffset;
+		// Create yaw rotation (global Y-axis)
+		glm::quat yawQuat = glm::angleAxis(glm::radians(-xoffset), glm::vec3(0.0f, 1.0f, 0.0f));
 
-		auto pitch = playerCharacter->pitch;
-		auto yaw = playerCharacter->yaw;
+		// Extract the current pitch angle from the quaternion
+		glm::vec3 forward = playerCharacter->orientation * glm::vec3(0.0f, 0.0f, -1.0f);
+		float currentPitch = glm::degrees(asin(forward.y));  // Extract pitch from direction vector
 
-		if (pitch > 89.0f)
-		{
-			pitch = 89.0f;
-		}
-		if (pitch < -89.0f)
-		{
-			pitch = -89.0f;
-		}
+		// Apply pitch change and clamp it to (-89, 89) degress
+		float newPitch = glm::clamp(currentPitch - yoffset, -89.0f, 89.0f);
+		float pitchDelta = glm::radians(newPitch - currentPitch);
+		glm::quat pitchQuat = glm::angleAxis(pitchDelta, glm::vec3(1.0f, 0.0f, 0.0f));
 
-		glm::vec3 front
-		{
-			cos(glm::radians(pitch)) * cos(glm::radians(yaw)),
-			sin(glm::radians(pitch)),
-			cos(glm::radians(pitch)) * sin(glm::radians(yaw))
-		};
+		// Apply rotations (yaw globally, pitch locally)
+		playerCharacter->orientation = yawQuat * playerCharacter->orientation;  // Apply yaw
+		playerCharacter->orientation = playerCharacter->orientation * pitchQuat; // Apply pitch
+		playerCharacter->orientation = glm::normalize(playerCharacter->orientation);
 
-		LRenderer::get()->setCameraFront(glm::normalize(front));
-
+		// Reset cursor position
 		glfwSetCursorPos(window, playerCharacter->centerX, playerCharacter->centerY);
 		playerCharacter->lastX = playerCharacter->centerX;
 		playerCharacter->lastY = playerCharacter->centerY;
+
+		// Update camera
+		playerCharacter->updateCamera();
+
+		// Compute the new camera direction from the quaternion
+		glm::vec3 front = playerCharacter->orientation * glm::vec3(0.0f, 0.0f, -1.0f);
+		LRenderer::get()->setCameraFront(glm::normalize(front));
 	}
 }
 
@@ -147,7 +148,7 @@ void LPlayerCharacter::updateCamera()
 	// Head position is at 90-95% of the total height.
 	// Here we get the scale divided by 2 (0.9 / 2 = 0.45) because the position
 	// of the physicsCompontent is at the center of mass.
-	headPosition.y += physicsComponent->transform.scale.y * 0.45;	
+	headPosition.y += physicsComponent->transform.scale.y * 0.45f;
 	renderer->setCameraPosition(headPosition);
 }
 
