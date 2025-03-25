@@ -41,9 +41,8 @@ CollisionPoints AABBCollider::testCollision(
 
 CollisionPoints AABBCollider::testCollision(
     const Transform* transform,
-    const PlaneCollider* other,
+    const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
-    // We don't really care about plane-plane collisions.
-    return {};
+    return collisionDetectors::findPlaneAABBCollisionPoints(other, otherTransform, this, transform);
 };

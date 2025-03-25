@@ -1,16 +1,19 @@
-#include "collision/PlaneCollider.h"
+#include "collision/BoundedPlaneCollider.h"
 #include "collision/algorithms/CollisionDetection.h"
 #include "shared/Transform.h"
 #include "shared/AABB.h"
 
 using namespace LP;
 
-AABB PlaneCollider::getAABB(const Transform* transform) const
+AABB BoundedPlaneCollider::getAABB(const Transform* transform) const
 { 
-    return AABB { glm::vec3(0), glm::vec3(0)};
+    glm::vec3 aMin = transform->position - transform->scale / 2.0f;
+    glm::vec3 aMax = transform->position + transform->scale / 2.0f;
+
+    return { aMin, aMax };
 };
 
-CollisionPoints PlaneCollider::testCollision(
+CollisionPoints BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const Collider* other,
     const Transform* otherTransform
@@ -28,11 +31,19 @@ CollisionPoints PlaneCollider::testCollision(
 //     );
 // }
 
-CollisionPoints PlaneCollider::testCollision(
+CollisionPoints BoundedPlaneCollider::testCollision(
     const Transform* transform,
-    const PlaneCollider* other,
+    const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
     // We don't really care about plane-plane collisions.
     return {};
+};
+
+CollisionPoints BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const AABBCollider* other,
+    const Transform* otherTransform
+) const {
+    return collisionDetectors::findPlaneAABBCollisionPoints(this, transform, other, otherTransform);
 };

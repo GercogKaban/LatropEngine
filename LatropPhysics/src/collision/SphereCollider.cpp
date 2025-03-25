@@ -32,7 +32,7 @@ CollisionPoints SphereCollider::testCollision(
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,
-    const PlaneCollider* other,
+    const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
     return collisionDetectors::findSpherePlaneCollisionPoints(

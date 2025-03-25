@@ -1,9 +1,11 @@
 #include "collision/algorithms/CollisionDetection.h"
 #include "collision/SphereCollider.h"
-#include "collision/PlaneCollider.h"
+#include "collision/BoundedPlaneCollider.h"
 #include "collision/AABBCollider.h"
 #include "shared/Transform.h"
 #include "shared/AABB.h"
+#include <vector>
+#include <limits>
 
 using namespace LP;
 
@@ -28,27 +30,9 @@ CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     return result;
 }
 
-CollisionPoints collisionDetectors::findSpherePlaneCollisionPoints(
-    const SphereCollider* a, const Transform* transformA,
-    const PlaneCollider* b, const Transform* transformB
-) {
-    glm::vec3 center = transformA->position + a->center;
-    glm::vec3 planeNormal = glm::normalize(b->plane);
-    float signedDistance = glm::dot(center, planeNormal) - b->distance;
-
-    CollisionPoints result;
-    result.hasCollision = signedDistance < a->radius;
-    result.normal = planeNormal;
-    result.start = center - planeNormal * a->radius;
-    result.end = center - planeNormal * signedDistance;
-    result.depth = a->radius - signedDistance;
-
-    return result;
-}
-
 // MARK: - Plane
 CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
-    const PlaneCollider* a, const Transform* transformA,
+    const BoundedPlaneCollider* a, const Transform* transformA,
     const SphereCollider* b, const Transform* transformB
 ) {
     return findSpherePlaneCollisionPoints(b, transformB, a, transformA);
@@ -102,6 +86,69 @@ CollisionPoints collisionDetectors::findAABBAABBCollisionPoints(
     // Calculate collision points
     points.start = overlapMin;
     points.end = overlapMax;
+
+    return points;
+}
+
+// MARK: Mixed
+CollisionPoints collisionDetectors::findSpherePlaneCollisionPoints(
+    const SphereCollider* a, const Transform* transformA,
+    const BoundedPlaneCollider* b, const Transform* transformB
+) {
+    return {};
+}
+
+CollisionPoints collisionDetectors::findPlaneAABBCollisionPoints(
+    const BoundedPlaneCollider* a, const Transform* transformA,
+    const AABBCollider* b, const Transform* transformB
+) {
+    CollisionPoints points;
+    points.hasCollision = false;
+
+    // Get AABB corners in world space
+    auto [aabbMin, aabbMax] = b->getAABB(transformB);
+
+    // Transform plane normal to world space
+    glm::vec3 planeNormal = glm::normalize(transformA->rotation * a->normal);
+
+    // Transform AABB corners into plane's local space
+    std::vector<glm::vec3> corners = {
+        // Min side
+        { aabbMin.x, aabbMin.y, aabbMin.z },
+        { aabbMax.x, aabbMin.y, aabbMin.z },
+        { aabbMin.x, aabbMax.y, aabbMin.z },
+        { aabbMin.x, aabbMin.y, aabbMax.z },
+        // Max side
+        { aabbMax.x, aabbMax.y, aabbMax.z },
+        { aabbMin.x, aabbMax.y, aabbMax.z },
+        { aabbMax.x, aabbMin.y, aabbMax.z },
+        { aabbMax.x, aabbMax.y, aabbMin.z }
+    };
+
+    // Project corners onto the plane
+    int behindCount = 0;
+    float minPenetration = std::numeric_limits<float>::max();
+    glm::vec3 penetrationPoint;
+
+    for (const auto& corner : corners) {
+        float signedDistance = glm::dot(corner - transformA->position, planeNormal);
+        if (signedDistance < 0) {
+            behindCount++;
+            if (-signedDistance < minPenetration) {
+                minPenetration = -signedDistance;
+                penetrationPoint = corner;
+            }
+        }
+    }
+
+    // If at least one corner is behind the plane, we have a collision
+    if (behindCount > 0) {
+        points.hasCollision = true;
+        points.normal = planeNormal;
+        points.depth = minPenetration;
+        points.start = penetrationPoint;
+        points.end = penetrationPoint + planeNormal * minPenetration;
+    }
 
     return points;
 }

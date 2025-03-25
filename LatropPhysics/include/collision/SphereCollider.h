@@ -30,7 +30,7 @@ namespace LP
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
-            const PlaneCollider* other,
+            const BoundedPlaneCollider* other,
             const Transform* otherTransform
         ) const override;
     };

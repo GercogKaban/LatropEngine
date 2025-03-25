@@ -5,7 +5,7 @@
 namespace LP 
 {
     struct SphereCollider;
-    struct PlaneCollider;
+    struct BoundedPlaneCollider;
     struct AABBCollider;
     struct Transform;
     struct AABB;
@@ -36,7 +36,7 @@ namespace LP
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
-            const PlaneCollider* other,
+            const BoundedPlaneCollider* other,
             const Transform* otherTransform
         ) const = 0;
     };
