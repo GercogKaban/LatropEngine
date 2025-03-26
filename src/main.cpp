@@ -32,7 +32,7 @@ void createPlayer()
 void createFloor(float scale = 20.0f) 
 {
 	auto floor = ObjectBuilder::construct<LActor>().lock();
-	floor->loadComponent<LG::LCube>();
+	floor->loadComponent<LG::LPlane>();
 	floor->loadComponent<LP::RigidBody>([scale](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->collider = cubeAABBCollider;

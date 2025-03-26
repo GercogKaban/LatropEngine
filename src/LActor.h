@@ -2,7 +2,7 @@
 
 #include <Primitives.h>
 #include <dynamics/RigidBody.h>
-#include <map>
+#include <unordered_map>
 
 class LActor
 {
@@ -52,7 +52,7 @@ protected:
 	std::function<void()> initGraphicsComponent;
 	std::function<void()> initPhysicsComponent;
 
-	static std::map<std::string, uint32> componentCounter;
+	static std::unordered_map<std::string, uint32> componentCounter;
 
 	// DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
 };
