@@ -51,7 +51,7 @@ protected:
 
 	// should be in camera class
 	bool bFirstMouse = true;
-	glm::quat orientation;
+	glm::quat orientation{};
 	float lastX = 600.0f;
 	float lastY = 300.0f;
 	float sensitivity = 0.1f;
