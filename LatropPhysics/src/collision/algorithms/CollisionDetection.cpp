@@ -109,7 +109,7 @@ CollisionPoints collisionDetectors::findPlaneAABBCollisionPoints(
     auto [aabbMin, aabbMax] = b->getAABB(transformB);
 
     // Transform plane normal to world space
-    glm::vec3 planeNormal = glm::normalize(transformA->rotation * a->normal);
+    glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
 
     // Transform AABB corners into plane's local space
     std::vector<glm::vec3> corners = {

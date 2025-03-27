@@ -5,6 +5,8 @@
 
 using namespace LP;
 
+glm::vec3 BoundedPlaneCollider::normal = { 0.0f, 1.0f, 0.0f };
+
 AABB BoundedPlaneCollider::getAABB(const Transform* transform) const
 { 
     glm::vec3 aMin = transform->position - transform->scale / 2.0f;
