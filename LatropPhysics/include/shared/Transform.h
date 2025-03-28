@@ -8,12 +8,6 @@ namespace LP
 {
     struct Transform 
     {
-        // Transform()
-        //     : position(glm::vec3(0.0f))
-        //     , scale(glm::vec3(1.0f))
-        //     , rotation(glm::quat(1, glm::vec3(0.0f)))
-        // {}
-
         glm::vec3 position = glm::vec3(0.0f);
         glm::vec3 scale = glm::vec3(1.0f);
         glm::quat rotation = glm::quat(1.0f, glm::vec3(0.0f));

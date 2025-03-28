@@ -14,8 +14,8 @@ CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     const SphereCollider* a, const Transform* transformA,
     const SphereCollider* b, const Transform* transformB
 ) {
-    glm::vec3 centerA = transformA->position + a->center;
-    glm::vec3 centerB = transformB->position + b->center;
+    glm::vec3 centerA = transformA->position;
+    glm::vec3 centerB = transformB->position;
     glm::vec3 delta = centerB - centerA;
     float distance = glm::length(delta);
     float combinedRadius = a->radius + b->radius;

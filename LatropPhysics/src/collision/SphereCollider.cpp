@@ -7,7 +7,7 @@ using namespace LP;
 
 AABB SphereCollider::getAABB(const Transform* transform) const
 { 
-    auto center = this->center + transform->position;
+    auto center = transform->position;
     auto radius = this->radius * transform->scale;
     return AABB { center - radius, center + radius };
 };
@@ -20,15 +20,23 @@ CollisionPoints SphereCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-// CollisionPoints SphereCollider::testCollision(
-//     const Transform* transform,
-//     const SphereCollider* other,
-//     const Transform* otherTransform
-// ) const {
-//     return collisionDetectors::findSphereSphereCollisionPoints(
-//         this, transform, other, otherTransform
-//     );
-// }
+CollisionPoints SphereCollider::testCollision(
+    const Transform* transform,
+    const SphereCollider* other,
+    const Transform* otherTransform
+) const {
+    return collisionDetectors::findSphereSphereCollisionPoints(
+        this, transform, other, otherTransform
+    );
+}
+
+CollisionPoints SphereCollider::testCollision(
+    const Transform* transform,
+    const CapsuleCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,
@@ -38,4 +46,20 @@ CollisionPoints SphereCollider::testCollision(
     return collisionDetectors::findSpherePlaneCollisionPoints(
         this, transform, other, otherTransform
     );
+}
+
+CollisionPoints SphereCollider::testCollision(
+    const Transform* transform,
+    const AABBCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
+
+CollisionPoints SphereCollider::testCollision(
+    const Transform* transform,
+    const OBBCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
 }

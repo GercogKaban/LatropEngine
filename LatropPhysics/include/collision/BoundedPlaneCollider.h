@@ -10,6 +10,8 @@ namespace LP
 
         virtual AABB getAABB(const Transform* transform) const override;
 
+        // MARK: - Colliders
+
         virtual CollisionPoints testCollision(
             const Transform* transform,
             const Collider* other,
@@ -18,19 +20,31 @@ namespace LP
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
-            const AABBCollider* other,
+            const SphereCollider* other,
             const Transform* otherTransform
         ) const override;
-        
-        // virtual CollisionPoints testCollision(
-        //     const Transform* transform,
-        //     const SphereCollider* other,
-        //     const Transform* otherTransform
-        // ) const override;
+
+        virtual CollisionPoints testCollision(
+            const Transform* transform,
+            const CapsuleCollider* other,
+            const Transform* otherTransform
+        ) const override;
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
             const BoundedPlaneCollider* other,
+            const Transform* otherTransform
+        ) const override;
+
+        virtual CollisionPoints testCollision(
+            const Transform* transform,
+            const AABBCollider* other,
+            const Transform* otherTransform
+        ) const override;
+
+        virtual CollisionPoints testCollision(
+            const Transform* transform,
+            const OBBCollider* other,
             const Transform* otherTransform
         ) const override;
     };

@@ -27,6 +27,11 @@ namespace LP
         bool hasCollision = false;
     };
 
+    struct CollisionManifold
+    {
+        glm::vec3 contactPoints[2];
+    };
+
     struct Collision
     {
         Collision(CollisionBody* bodyA, CollisionBody* bodyB, const CollisionPoints& points)

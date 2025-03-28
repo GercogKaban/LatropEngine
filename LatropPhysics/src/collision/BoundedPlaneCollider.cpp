@@ -23,15 +23,21 @@ CollisionPoints BoundedPlaneCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-// CollisionPoints PlaneCollider::testCollision(
-//     const Transform* transform,
-//     const SphereCollider* other,
-//     const Transform* otherTransform
-// ) const {
-//     return collisionDetectors::findPlaneSphereCollisionPoints(
-//         this, transform, other, otherTransform
-//     );
-// }
+CollisionPoints BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const SphereCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
+
+CollisionPoints BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const CapsuleCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
 
 CollisionPoints BoundedPlaneCollider::testCollision(
     const Transform* transform,
@@ -49,3 +55,11 @@ CollisionPoints BoundedPlaneCollider::testCollision(
 ) const {
     return collisionDetectors::findPlaneAABBCollisionPoints(this, transform, other, otherTransform);
 };
+
+CollisionPoints BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const OBBCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
