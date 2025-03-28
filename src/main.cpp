@@ -191,6 +191,64 @@ void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
     }
 }
 
+void createStairsStressTest2(int height, int maxLength = 3, float YStep = 0.01f)
+{
+    int directionIndex = 0;
+    int stepCount = 0;
+    int currentLength = 0;
+    glm::ivec2 position(0, 0); // Starting position
+
+    // Movement directions: forward, right, backward, left
+    glm::ivec2 directions[4] = 
+	{
+        {0, 1},   // forward (up)
+        {1, 0},   // right
+        {0, -1},  // backward (down)
+        {-1, 0}   // left
+    };
+
+    for (int i = -maxLength; i < height - maxLength; ++i)
+    {
+		auto step = ObjectBuilder::construct<LActor>().lock();
+		step->loadComponent<LG::LCube>();
+		step->loadComponent<LP::RigidBody>([position, i, YStep](LP::RigidBody* physicsComponent)
+			{
+				physicsComponent->setIsSimulated(false);
+				
+				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->transform.position = glm::vec3((float)position.x, (float)i * YStep, (float)position.y);
+			});
+
+        // Move to the next position
+        position += directions[directionIndex];
+        ++currentLength;
+
+        // Change direction if reached max length
+        if (currentLength >= maxLength)
+        {
+            currentLength = 0;
+            directionIndex = (directionIndex + 1) % 4;  // Cycle through 0-3
+        }
+    }
+}
+
+void createPerfectlyBouncyPuddleNearHeavenlyOrbit(int height, int maxLength = 3, float YStep = 0.01f)
+{
+	auto puddle = ObjectBuilder::construct<LActor>().lock();
+	puddle->loadComponent<LG::LCube>();
+	puddle->loadComponent<LP::RigidBody>([height, maxLength, YStep](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(false);
+			
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = glm::vec3(7.0f, (height - maxLength) * YStep, 7.0f);
+			physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
+			// Must be adjusted to accomodate the material of the object that wishes to bounce:
+			// bouncyPuddle.restituion = 1 / object.restituion
+			physicsComponent->material.restitution = 5.0; 
+		});
+}
+
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
@@ -199,9 +257,10 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	createOriginalSample(true);
+	// createOriginalSample(true);
 	createStairs(100);
-	// createStairsStressTest(60000, 40, 0.001f);
+	// createStairsStressTest(600000, 40, 0.00625f);
+	// createPerfectlyBouncyPuddleNearHeavenlyOrbit(600000, 40, 0.00625f);
 	createPerfectlyBouncyPuddle();
 	
 	// MARK: RunLoop
