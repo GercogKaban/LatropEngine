@@ -10,7 +10,7 @@ void DynamicsWorld::applyGravity()
         {
             if (rigidBody->isSimulated() && rigidBody->takesGravity)
             {
-                rigidBody->force = m_gravity * rigidBody->getMass();
+                rigidBody->force = gravity * rigidBody->getMass();
             }
             else
             {

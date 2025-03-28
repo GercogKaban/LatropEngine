@@ -8,6 +8,8 @@ namespace LP
 {
     struct DynamicsWorld : CollisionWorld
     {
+        glm::vec3 gravity = { 0.0f, -9.81f, 0.0f };
+
         void addRigidBody(std::weak_ptr<RigidBody> body) 
         {
             if (body.lock()->isSimulated())
@@ -23,7 +25,5 @@ namespace LP
         virtual void integrate(float deltaTime);
         virtual void applyGravity();
         virtual void moveBodies(float deltaTime);
-    // protected:
-        glm::vec3 m_gravity = { 0.0f, -9.81f, 0.0f };
     };
 } // namespace LP

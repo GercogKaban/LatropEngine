@@ -16,6 +16,8 @@ namespace LP
             : onCollision(onCollision)  
             {}
 
+        std::function<void(const Collision&, float)> onCollision;
+
         void addCollisionBody(std::weak_ptr<CollisionBody> body) 
         {
             m_bodies.emplace_back(body);
@@ -67,9 +69,6 @@ namespace LP
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
         std::vector<std::weak_ptr<RigidBody>> movableBodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;
-
-        std::function<void(const Collision&, float)> onCollision;
-
     private:
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
 
