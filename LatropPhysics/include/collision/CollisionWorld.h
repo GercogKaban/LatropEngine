@@ -13,7 +13,7 @@ namespace LP
     struct CollisionWorld
     {
         CollisionWorld(std::function<void(const Collision&, float)> onCollision = [](auto a, auto b) {}) 
-            : m_onCollision(onCollision)  
+            : onCollision(onCollision)  
             {}
 
         void addCollisionBody(std::weak_ptr<CollisionBody> body) 
@@ -68,7 +68,7 @@ namespace LP
         std::vector<std::weak_ptr<RigidBody>> movableBodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;
 
-        std::function<void(const Collision&, float)> m_onCollision;
+        std::function<void(const Collision&, float)> onCollision;
 
     private:
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 

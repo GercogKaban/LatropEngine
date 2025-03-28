@@ -8,11 +8,11 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
     std::vector<std::pair<glm::vec3, glm::vec3>> deltas;
 
 	for (const Collision& manifold : collisions) {
-		RigidBody* aBody = manifold.bodyA->m_isSimulated ? (RigidBody*)manifold.bodyA : nullptr;
-		RigidBody* bBody = manifold.bodyB->m_isSimulated ? (RigidBody*)manifold.bodyB : nullptr;
+		RigidBody* aBody = manifold.bodyA->isSimulated() ? (RigidBody*)manifold.bodyA : nullptr;
+		RigidBody* bBody = manifold.bodyB->isSimulated() ? (RigidBody*)manifold.bodyB : nullptr;
 
-		float aInvMass = aBody ? 1 / aBody->m_mass : 1.0f;
-        float bInvMass = bBody ? 1 / bBody->m_mass : 1.0f;
+		float aInvMass = aBody->getInvMass();
+        float bInvMass = bBody->getInvMass();
 
 		const float percent = 0.8f;
 		const float slop = 0.01f;
@@ -24,11 +24,11 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
 		glm::vec3 deltaA;
 		glm::vec3 deltaB;
 
-		if (aBody ? aBody->m_isSimulated : false) {
+		if (aBody ? aBody->isSimulated() : false) {
 			deltaA = aInvMass * correction;
 		}
 
-		if (bBody ? bBody->m_isSimulated : false) {
+		if (bBody ? bBody->isSimulated() : false) {
 			deltaB = bInvMass * correction;
 		}
 
@@ -36,14 +36,14 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
 	}
 
 	for (unsigned i = 0; i < collisions.size(); i++) {
-		RigidBody* aBody = collisions[i].bodyA->m_isSimulated ? (RigidBody*)collisions[i].bodyA : nullptr;
-		RigidBody* bBody = collisions[i].bodyB->m_isSimulated ? (RigidBody*)collisions[i].bodyB : nullptr;
+		RigidBody* aBody = collisions[i].bodyA->isSimulated() ? (RigidBody*)collisions[i].bodyA : nullptr;
+		RigidBody* bBody = collisions[i].bodyB->isSimulated() ? (RigidBody*)collisions[i].bodyB : nullptr;
 
-		if (aBody ? aBody->m_isSimulated : false) {
+		if (aBody ? aBody->isSimulated() : false) {
 			aBody->transform.position -= deltas[i].first;
 		}
 
-		if (bBody ? bBody->m_isSimulated : false) {
+		if (bBody ? bBody->isSimulated() : false) {
 			bBody->transform.position += deltas[i].second;
 		}
 	}

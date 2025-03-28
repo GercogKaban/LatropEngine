@@ -10,8 +10,8 @@ void PositionSolver::solve(const std::vector<Collision>& collisions, float delta
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
         
-        float aInvMass = aBody ? 1 / aBody->m_mass : 1.0f;
-        float bInvMass = bBody ? 1 / bBody->m_mass : 1.0f;
+        float aInvMass = aBody->getInvMass();
+        float bInvMass = bBody->getInvMass();
 
         // === Positional Correction ===
         const float percent = 0.2f;  // usually 20% to 80%
@@ -19,14 +19,14 @@ void PositionSolver::solve(const std::vector<Collision>& collisions, float delta
         float correctionMagnitude = glm::max(manifold.points.depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
         glm::vec3 correction = correctionMagnitude * manifold.points.normal;
 
-        if (aBody && aBody->m_isSimulated)
+        if (aBody && aBody->isSimulated())
         {
-            aBody->transform.position -= aInvMass * correction * (bBody && bBody->m_isSimulated ? 1.0f : 2.0f);
+            aBody->transform.position -= aInvMass * correction * (bBody && bBody->isSimulated() ? 1.0f : 2.0f);
         } 
 
-        if (bBody && bBody->m_isSimulated) 
+        if (bBody && bBody->isSimulated()) 
         {
-            bBody->transform.position += bInvMass * correction * (aBody && aBody->m_isSimulated ? 1.0f : 2.0f);
+            bBody->transform.position += bInvMass * correction * (aBody && aBody->isSimulated() ? 1.0f : 2.0f);
         }
     }
 

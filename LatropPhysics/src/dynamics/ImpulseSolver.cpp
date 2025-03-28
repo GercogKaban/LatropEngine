@@ -12,13 +12,13 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
-        glm::vec3 aVel = aBody ? aBody->m_velocity : glm::vec3(0.0f);
-        glm::vec3 bVel = bBody ? bBody->m_velocity : glm::vec3(0.0f);
+        glm::vec3 aVel = aBody ? aBody->linearVelocity : glm::vec3(0.0f);
+        glm::vec3 bVel = bBody ? bBody->linearVelocity : glm::vec3(0.0f);
         glm::vec3 rVel = bVel - aVel;
         float nSpd = glm::dot(rVel, manifold.points.normal);
 
-        float aInvMass = aBody ? 1 / aBody->m_mass : 1.0f;
-        float bInvMass = bBody ? 1 / bBody->m_mass : 1.0f;
+        float aInvMass = aBody->getInvMass();
+        float bInvMass = bBody->getInvMass();
 
         // Impulse
 
@@ -34,12 +34,12 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
 
         glm::vec3 impluse = j * manifold.points.normal;
 
-        if (aBody ? aBody->m_isSimulated : false) 
+        if (aBody ? aBody->isSimulated() : false) 
         {
             aVel -= impluse * aInvMass;
         }
 
-        if (bBody ? bBody->m_isSimulated : false) 
+        if (bBody ? bBody->isSimulated() : false) 
         {
             bVel += impluse * bInvMass;
         }
@@ -77,14 +77,14 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
             friction = -j * tangent * mu;
         }
 
-        if (aBody ? aBody->m_isSimulated : false) 
+        if (aBody ? aBody->isSimulated() : false) 
         {
-            aBody->m_velocity = aVel - friction * aInvMass;
+            aBody->linearVelocity = aVel - friction * aInvMass;
         }
 
-        if (bBody ? bBody->m_isSimulated : false) 
+        if (bBody ? bBody->isSimulated() : false) 
         {
-            bBody->m_velocity = bVel + friction * bInvMass;
+            bBody->linearVelocity = bVel + friction * bInvMass;
         }
     }
 }

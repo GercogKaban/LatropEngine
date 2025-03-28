@@ -8,10 +8,6 @@ namespace LP
 
     struct CollisionPoints 
     {
-        // CollisionPoints(glm::vec3 start, glm::vec3 end, glm::vec3 normal, float depth, bool hasCollision)
-        //     : start(start), end(end), normal(normal), depth(depth), hasCollision(hasCollision)
-        //     {}
-
         /// @brief The furthest point of `start` into `end`.
         glm::vec3 start = glm::vec3(0.0f);
 
@@ -25,11 +21,6 @@ namespace LP
         float depth = 0.0f;
 
         bool hasCollision = false;
-    };
-
-    struct CollisionManifold
-    {
-        glm::vec3 contactPoints[2];
     };
 
     struct Collision

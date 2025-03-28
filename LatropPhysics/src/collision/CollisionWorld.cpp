@@ -65,7 +65,7 @@ inline void detectInvidualCollisionsOfAnd(
     std::vector<Collision>& collisions,
     std::vector<Collision>& triggers
 ) {
-    if (!(body->m_isSimulated || other->m_isSimulated)) return;
+    if (!(body->isSimulated() || other->isSimulated())) return;
 
     auto bodyCollider = body->collider.lock();
     auto otherCollider = other->collider.lock();
@@ -185,10 +185,10 @@ void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collision
 {
     for(const Collision& collision : collisions)
     {
-        m_onCollision(collision, deltaTime);
+        onCollision(collision, deltaTime);
 
-        collision.bodyA->m_onCollision(collision, deltaTime);
-        collision.bodyB->m_onCollision(collision, deltaTime);
+        collision.bodyA->onCollision(collision, deltaTime);
+        collision.bodyB->onCollision(collision, deltaTime);
     }
 }
 

@@ -11,18 +11,21 @@ namespace LP
 {
     struct CollisionBody
     {
-        CollisionBody(){}
-
         virtual ~CollisionBody() = default;
 
-    // protected:
-
         Transform transform {};
-        std::function<void(Collision, float)> m_onCollision = [](auto a, auto b) {};
+        std::function<void(Collision, float)> onCollision = [](auto a, auto b) {};
         std::weak_ptr<Collider> collider;
 
+        /// @brief If the body is a trigger it is not affected by collisions
+        /// nor does it affect other bodies. Only onCollision callback is called.
         bool isTrigger = false;
 
+        /// @brief If the body is simulated and moves, or only affects others.
+        inline bool isSimulated() const { return m_isSimulated; }
+        virtual void setIsSimulated(bool newValue) { m_isSimulated = newValue; }
+
+    private:
         /// @brief If the body is simulated and moves, or only affects others.
         bool m_isSimulated = true;
     };

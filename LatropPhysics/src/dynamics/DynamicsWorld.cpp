@@ -8,9 +8,9 @@ void DynamicsWorld::applyGravity()
     {
         if (std::shared_ptr<RigidBody> rigidBody = body.lock())
         {
-            if (rigidBody->m_isSimulated && rigidBody->m_takesGravity)
+            if (rigidBody->isSimulated() && rigidBody->takesGravity)
             {
-                rigidBody->m_force = m_gravity * rigidBody->m_mass;
+                rigidBody->force = m_gravity * rigidBody->getMass();
             }
             else
             {
@@ -26,13 +26,13 @@ void DynamicsWorld::moveBodies(float deltaTime)
     {
         if (std::shared_ptr<RigidBody> rigidBody = body.lock())
         {
-            glm::vec3 oldVelocity = rigidBody->m_velocity;
+            glm::vec3 oldVelocity = rigidBody->linearVelocity;
             glm::vec3 oldPosition = rigidBody->transform.position;
 
-            rigidBody->m_velocity = oldVelocity + rigidBody->m_force / rigidBody->m_mass * deltaTime;
+            rigidBody->linearVelocity = oldVelocity + rigidBody->force * rigidBody->getInvMass() * deltaTime;
             rigidBody->transform.position = oldPosition + oldVelocity * deltaTime;
 
-            rigidBody->m_force = glm::vec3(0.0f);
+            rigidBody->force = glm::vec3(0.0f);
         }
     }
 }
