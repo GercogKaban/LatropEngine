@@ -42,8 +42,8 @@ void LPlayerCharacter::tick(float delta)
 	if (glm::length(velocity) > 0.0f)
 	{
 		velocity = glm::normalize(velocity) * getSpeed();
-		physicsComponent->m_velocity.x = velocity.x;
-		physicsComponent->m_velocity.z = velocity.z;
+		physicsComponent->linearVelocity.x = velocity.x;
+		physicsComponent->linearVelocity.z = velocity.z;
 	}
 	updateCamera();
 }
@@ -157,13 +157,13 @@ void LPlayerCharacter::jump()
 	if (jumpsCounter < maxJumpsCount)
 	{
 		jumpsCounter += 1;
-		if (physicsComponent->m_velocity.y < 0)
+		if (physicsComponent->linearVelocity.y < 0)
 		{
-			physicsComponent->m_velocity.y = 5;
+			physicsComponent->linearVelocity.y = 5;
 		}
 		else 
 		{
-			physicsComponent->m_velocity.y += 5;
+			physicsComponent->linearVelocity.y += 5;
 		}
 	}
 }
