@@ -2,9 +2,11 @@
 #include "LEngine.h"
 #include "LPlayerCharacter.h"
 #include <collision/AABBCollider.h>
+#include <collision/BoundedPlaneCollider.h>
 
 // MARK: - Shared Colliders
 auto cubeAABBCollider = std::make_shared<LP::AABBCollider>(LP::AABBCollider::makeCube());
+auto planeYUPCollider = std::make_shared<LP::BoundedPlaneCollider>(LP::BoundedPlaneCollider());
 
 void createPlayer() 
 {
