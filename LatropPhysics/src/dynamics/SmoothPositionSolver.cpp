@@ -8,8 +8,8 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
     std::vector<std::pair<glm::vec3, glm::vec3>> deltas;
 
 	for (const Collision& manifold : collisions) {
-		RigidBody* aBody = manifold.bodyA->isSimulated() ? (RigidBody*)manifold.bodyA : nullptr;
-		RigidBody* bBody = manifold.bodyB->isSimulated() ? (RigidBody*)manifold.bodyB : nullptr;
+		RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
+        RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
 		float aInvMass = aBody->getInvMass();
         float bInvMass = bBody->getInvMass();
