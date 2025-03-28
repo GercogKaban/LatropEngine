@@ -2,7 +2,6 @@
 #include "collision/Collider.h"
 #include "collision/AABBCollider.h"
 #include "shared/AABB.h"
-#include <unordered_set>
 
 using namespace LP;
 
@@ -129,7 +128,7 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
     // Step 1: All Static VS All Movable
     for(const std::weak_ptr<RigidBody>& bodyWeakPtr : movableBodies)
     {    
-        std::unordered_set<std::shared_ptr<CollisionBody>> m_spatialCheckBodies;
+        m_spatialCheckBodies.clear();
 
         auto bodyLocked = bodyWeakPtr.lock();
         if (!bodyLocked) continue;

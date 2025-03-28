@@ -7,6 +7,7 @@
 #include <memory>
 #include <algorithm>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace LP 
 {
@@ -66,13 +67,16 @@ namespace LP
         void updateSpacialPartitioningOfStaticBodies(float cellSize);
 
     protected:
-        std::vector<std::weak_ptr<CollisionBody>> m_bodies;
         std::vector<std::weak_ptr<RigidBody>> movableBodies;
-        std::vector<std::unique_ptr<Solver>> m_solvers;
     private:
         void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
 
-        float m_cellSize = 1;
+        std::vector<std::weak_ptr<CollisionBody>> m_bodies;
+        std::vector<std::unique_ptr<Solver>> m_solvers;
+
         std::unordered_map<int64_t, std::vector<std::weak_ptr<CollisionBody>>> m_spatialHashGrid;
+        std::unordered_set<std::shared_ptr<CollisionBody>> m_spatialCheckBodies;
+
+        float m_cellSize = 1;
     };
 } // namespace LP
