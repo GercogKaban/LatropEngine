@@ -40,7 +40,7 @@ void createFloor(float scale = 20.0f)
 		{
 			physicsComponent->setIsSimulated(false);
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = planeYUPCollider;
 			physicsComponent->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
 			physicsComponent->transform.scale = glm::vec3(scale, 1.0f, scale);
 			physicsComponent->material = LP::Material::Ice;
