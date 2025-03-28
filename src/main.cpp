@@ -60,7 +60,8 @@ void createOriginalSample(bool isSimulated = false)
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
-			physicsComponent->transform.position = glm::vec3(0.0f, 1.0f, 0.0f);
+			physicsComponent->material.restitution = 1.0f;
+			physicsComponent->transform.position = glm::vec3(2.0f, 1.0f, 0.0f);
 		});
 
 	auto cubeB = ObjectBuilder::construct<LActor>().lock();
@@ -73,7 +74,8 @@ void createOriginalSample(bool isSimulated = false)
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
-			physicsComponent->transform.position = glm::vec3(1.0f, 2.0f, 0.0f);
+			physicsComponent->material.restitution = 2.2f;
+			physicsComponent->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
 		});
 
 	auto cubeC = ObjectBuilder::construct<LActor>().lock();
@@ -85,8 +87,8 @@ void createOriginalSample(bool isSimulated = false)
 
 			physicsComponent->collider = cubeAABBCollider;
 			physicsComponent->takesGravity = isSimulated;
-			physicsComponent->material = LP::Material::Metal;
-			physicsComponent->transform.position = glm::vec3(2.0f, 3.0f, 0.0f);
+			physicsComponent->material = LP::Material::Rubber;
+			physicsComponent->transform.position = glm::vec3(2.0f, 5.0f, 0.0f);
 		});
 }
 
@@ -197,7 +199,7 @@ int main()
 	// MARK: Samples
 	createPlayer();
 	createFloor();
-	// createOriginalSample(true);
+	createOriginalSample(true);
 	createStairs(100);
 	// createStairsStressTest(60000, 40, 0.001f);
 	createPerfectlyBouncyPuddle();
