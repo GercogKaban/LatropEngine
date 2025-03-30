@@ -2,7 +2,6 @@
 #include <glfw3.h>
 #include <dynamics/ImpulseSolver.h>
 #include <dynamics/PositionSolver.h>
-#include <tracy/Tracy.hpp>
 
 LEngine* LEngine::thisPtr = nullptr;
 
