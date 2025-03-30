@@ -35,3 +35,5 @@ add_dependencies(LatropGame move_textures)
 
 target_compile_features(LatropGame PRIVATE cxx_std_20)
 target_link_libraries(LatropGame LizardGraphics ${Vulkan_LIBRARIES} glfw LatropPhysics TracyClient)
+
+add_compile_definitions(TRACY_ON_DEMAND)
