@@ -42,6 +42,7 @@ void createFloor(float scale = 20.0f)
 			physicsComponent->m_mass = 100000;
 			physicsComponent->material = LP::Material::Ice;
 		});
+	floor->graphicsComponent->setColorTexture("textures/smile.jpg");
 }
 
 void createOriginalSample(bool isSimulated = false)
@@ -103,14 +104,23 @@ void createStairs(int height, int maxLength = 3)
     for (int i = 0; i < height; ++i)
     {
 		auto step = ObjectBuilder::construct<LActor>().lock();
-		step->loadComponent<LG::LCube>();
-		step->loadComponent<LP::RigidBody>([position, i](LP::RigidBody* physicsComponent)
+		step->loadComponent<LG::LCube>().
+			loadComponent<LP::RigidBody>([position, i](LP::RigidBody* physicsComponent)
 			{
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->m_isSimulated = false;
 				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i, (float)position.y * 0.85f);
 				physicsComponent->m_mass = 10.0f;
 			});
+
+		if (i % 2 == 0)
+		{
+			step->graphicsComponent->setColorTexture("textures/smile.jpg");
+		}
+		else
+		{
+			step->graphicsComponent->setColorTexture("textures/smile2.jpg");
+		}
 
         // Move to the next position
         position += directions[directionIndex];

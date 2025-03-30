@@ -57,11 +57,11 @@ void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
 
 void LEngine::loop()
 {
-	renderer = std::make_unique<LRenderer>(window, LActor::getComponentCounter());
+	renderer = std::make_unique<LRenderer>(window, LRenderer::StaticInitData(LActor::getComponentCounter(), LG::LGraphicsComponent::getInitTexturesData()));
 
 	beginPlay();
 
-	while (renderer->window && !glfwWindowShouldClose(renderer->window))
+	while (renderer->getWindow() && !glfwWindowShouldClose(renderer->getWindow()))
 	{
 		FrameMark;
 		updateDelta();
@@ -76,11 +76,6 @@ void LEngine::loop()
 		
 		glfwPollEvents();
 		executeTickables();
-
-		if (renderer->bNeedToUpdateProjView)
-		{
-			renderer->updateProjView();
-		}
 
 		{
 			ZoneScopedNC("Pass: Physics", 0xFF00AACC);
@@ -97,7 +92,8 @@ void LEngine::loop()
 		}
 		fps++;
 	}
-	vkDeviceWaitIdle(renderer->logicalDevice);
+
+	renderer->exit();
 	endPlay();
 }
 

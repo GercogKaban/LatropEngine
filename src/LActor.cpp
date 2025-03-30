@@ -21,7 +21,7 @@ void LActor::beginPlay()
 
 	if (graphicsComponent)
 	{
-		graphicsComponent->getModelMatrix = [this]()
+		const_cast<std::function<glm::mat4x4()>&>(graphicsComponent->getModelMatrix) = [this]()
 		{
 			return physicsComponent->transform.getAsMatrix();
 		};
