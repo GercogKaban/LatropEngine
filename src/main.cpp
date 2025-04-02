@@ -158,6 +158,7 @@ void createPerfectlyBouncyPuddle()
 			// bouncyPuddle.restituion = 1 / object.restituion
 			physicsComponent->material.restitution = 2.0; 
 		});
+	puddle->graphicsComponent->setColorTexture("textures/smile.jpg");
 }
 
 void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
@@ -259,6 +260,93 @@ void createPerfectlyBouncyPuddleNearHeavenlyOrbit(int height, int maxLength = 3,
 		});
 }
 
+void createPortals()
+{
+	const glm::vec3 portalScale = glm::vec3(3.0f, 1.0f, 3.0f);
+	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+
+	const glm::vec3 pos1 = glm::vec3(7.0f, 1.0f, -5.0f);
+	const glm::vec3 pos2 = glm::vec3(-5.0f, 1.0f, -5.0f);
+
+	auto portal1 = ObjectBuilder::construct<LActor>().lock();
+	portal1->loadComponent<LG::LPortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
+		{
+			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
+		});
+	portal1->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(false);
+
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = pos1;
+			physicsComponent->transform.scale = portalScale;
+			physicsComponent->transform.rotation *= rotationY;
+			physicsComponent->material.restitution = 5.0;
+			physicsComponent->isTrigger = true;
+		});
+
+	auto portal2 = ObjectBuilder::construct<LActor>().lock();
+	portal2->loadComponent<LG::LPortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
+		{
+			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
+		});
+	portal2->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(false);
+
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = pos2;
+			physicsComponent->transform.scale = portalScale;
+			physicsComponent->transform.rotation *= rotationY;
+			physicsComponent->material.restitution = 5.0;
+			physicsComponent->isTrigger = true;
+		});
+
+	auto cube1 = ObjectBuilder::construct<LActor>().lock();
+	cube1->loadComponent<LG::LCube>([pos1](LG::LGraphicsComponent* graphicsComponent)
+		{
+			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		});
+	cube1->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(false);
+
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = pos1;
+			physicsComponent->transform.position.z -= 1.0f;
+			physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
+			physicsComponent->transform.rotation *= rotationY;
+			physicsComponent->material.restitution = 5.0;
+			physicsComponent->isTrigger = true;
+		});
+	cube1->graphicsComponent->setColorTexture("textures/smile1.jpg");
+
+	auto cube2 = ObjectBuilder::construct<LActor>().lock();
+	cube2->loadComponent<LG::LCube>([pos2](LG::LGraphicsComponent* graphicsComponent)
+		{
+			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		});
+	cube2->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(false);
+
+			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->transform.position = pos2;
+			physicsComponent->transform.position.z -= 1.0f;
+			physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
+			physicsComponent->transform.rotation *= rotationY;
+			physicsComponent->material.restitution = 5.0;
+			physicsComponent->isTrigger = true;
+		});
+	cube2->graphicsComponent->setColorTexture("textures/smile1.jpg");
+}
+
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
@@ -269,8 +357,9 @@ int main()
 	createFloor();
 	// createOriginalSample(true);
 	createStairs(100);
-	// createStairsStressTest(600000, 40, 0.00625f);
-	// createPerfectlyBouncyPuddleNearHeavenlyOrbit(600000, 40, 0.00625f);
+	//createStairsStressTest(600000, 40, 0.00625f);
+	//createPerfectlyBouncyPuddleNearHeavenlyOrbit(600000, 40, 0.00625f);
+	createPortals();
 	createPerfectlyBouncyPuddle();
 	
 	// MARK: RunLoop
