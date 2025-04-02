@@ -324,7 +324,7 @@ void createPortals()
 			physicsComponent->material.restitution = 5.0;
 			physicsComponent->isTrigger = true;
 		});
-	cube1->graphicsComponent->setColorTexture("textures/smile1.jpg");
+	cube1->graphicsComponent->setColorTexture("textures/smile2.jpg");
 
 	auto cube2 = ObjectBuilder::construct<LActor>().lock();
 	cube2->loadComponent<LG::LCube>([pos2](LG::LGraphicsComponent* graphicsComponent)
@@ -344,7 +344,7 @@ void createPortals()
 			physicsComponent->material.restitution = 5.0;
 			physicsComponent->isTrigger = true;
 		});
-	cube2->graphicsComponent->setColorTexture("textures/smile1.jpg");
+	cube2->graphicsComponent->setColorTexture("textures/smile2.jpg");
 }
 
 int main()
