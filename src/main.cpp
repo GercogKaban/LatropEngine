@@ -8,6 +8,25 @@
 auto cubeAABBCollider = std::make_shared<LP::AABBCollider>(LP::AABBCollider::makeCube());
 auto planeYUPCollider = std::make_shared<LP::BoundedPlaneCollider>(LP::BoundedPlaneCollider());
 
+void printVector(const glm::vec4& vec)
+{
+	std::cout << std::format("{} {} {} {}\n", vec.x, vec.y, vec.z, vec.w);
+}
+
+void printMatrix(const glm::mat4& mat)
+{
+	std::cout << std::endl;
+	for (uint32 i = 0; i < 4; ++i)
+	{
+		printVector(mat[i]);
+	}
+}
+
+void playground()
+{
+
+}
+
 void createPlayer() 
 {
 	auto weakPlayer = ObjectBuilder::construct<LPlayerCharacter>();
@@ -274,6 +293,21 @@ void createPortals()
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
+
+			auto p1View = glm::lookAt(pos1, pos1 + cameraFront, cameraUp);
+			printMatrix(p1View);
+
+			auto playerView = LRenderer::get()->getView();
+			printMatrix(playerView);
+
+			//glm::mat4 model(1.0f);
+			//model = glm::translate(model, {0,0,5});
+
+			auto modifiedModel = p1View * playerView;
+			printMatrix(modifiedModel);
+
+			return;
+
 		});
 	portal1->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
 		{
@@ -306,45 +340,45 @@ void createPortals()
 			physicsComponent->isTrigger = true;
 		});
 
-	auto cube1 = ObjectBuilder::construct<LActor>().lock();
-	cube1->loadComponent<LG::LCube>([pos1](LG::LGraphicsComponent* graphicsComponent)
-		{
-			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		});
-	cube1->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
-		{
-			physicsComponent->setIsSimulated(false);
+	//auto cube1 = ObjectBuilder::construct<LActor>().lock();
+	//cube1->loadComponent<LG::LCube>([pos1](LG::LGraphicsComponent* graphicsComponent)
+	//	{
+	//		const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	//		const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	//	});
+	//cube1->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
+	//	{
+	//		physicsComponent->setIsSimulated(false);
 
-			physicsComponent->collider = cubeAABBCollider;
-			physicsComponent->transform.position = pos1;
-			physicsComponent->transform.position.z -= 1.0f;
-			physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
-			physicsComponent->transform.rotation *= rotationY;
-			physicsComponent->material.restitution = 5.0;
-			physicsComponent->isTrigger = true;
-		});
-	cube1->graphicsComponent->setColorTexture("textures/smile1.jpg");
+	//		physicsComponent->collider = cubeAABBCollider;
+	//		physicsComponent->transform.position = pos1;
+	//		physicsComponent->transform.position.z -= 1.0f;
+	//		physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
+	//		physicsComponent->transform.rotation *= rotationY;
+	//		physicsComponent->material.restitution = 5.0;
+	//		physicsComponent->isTrigger = true;
+	//	});
+	//cube1->graphicsComponent->setColorTexture("textures/smile1.jpg");
 
-	auto cube2 = ObjectBuilder::construct<LActor>().lock();
-	cube2->loadComponent<LG::LCube>([pos2](LG::LGraphicsComponent* graphicsComponent)
-		{
-			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		});
-	cube2->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
-		{
-			physicsComponent->setIsSimulated(false);
+	//auto cube2 = ObjectBuilder::construct<LActor>().lock();
+	//cube2->loadComponent<LG::LCube>([pos2](LG::LGraphicsComponent* graphicsComponent)
+	//	{
+	//		const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
+	//		const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	//	});
+	//cube2->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
+	//	{
+	//		physicsComponent->setIsSimulated(false);
 
-			physicsComponent->collider = cubeAABBCollider;
-			physicsComponent->transform.position = pos2;
-			physicsComponent->transform.position.z -= 1.0f;
-			physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
-			physicsComponent->transform.rotation *= rotationY;
-			physicsComponent->material.restitution = 5.0;
-			physicsComponent->isTrigger = true;
-		});
-	cube2->graphicsComponent->setColorTexture("textures/smile1.jpg");
+	//		physicsComponent->collider = cubeAABBCollider;
+	//		physicsComponent->transform.position = pos2;
+	//		physicsComponent->transform.position.z -= 1.0f;
+	//		physicsComponent->transform.scale = portalScale + glm::vec3(0.2f);
+	//		physicsComponent->transform.rotation *= rotationY;
+	//		physicsComponent->material.restitution = 5.0;
+	//		physicsComponent->isTrigger = true;
+	//	});
+	//cube2->graphicsComponent->setColorTexture("textures/smile1.jpg");
 }
 
 int main()

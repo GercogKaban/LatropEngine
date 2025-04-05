@@ -30,6 +30,8 @@ public:
 	static const glm::vec3 crouchedDimensions;
 	static const float mass;
 
+	glm::quat orientation{};
+
 protected:
 
 	virtual void beginPlay() override;
@@ -51,7 +53,7 @@ protected:
 
 	// should be in camera class
 	bool bFirstMouse = true;
-	glm::quat orientation{};
+
 	float lastX = 600.0f;
 	float lastY = 300.0f;
 	float sensitivity = 0.1f;

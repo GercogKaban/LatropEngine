@@ -96,6 +96,8 @@ void LEngine::loop()
 			}
 		}
 		renderer->playerModel = LPlayerCharacter::get()->physicsComponent->transform.getAsMatrix();
+		renderer->playerOrientation = LPlayerCharacter::get()->orientation;
+
 		{
 			ZoneScopedNC("Pass: Rendering", 0x000000FF);
 			renderer->drawFrame(getDelta());
