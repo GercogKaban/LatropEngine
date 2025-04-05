@@ -31,6 +31,9 @@ public:
 	static const float mass;
 
 	glm::quat orientation{};
+	// FIXME: Temporary storage for portals to reference one another
+	LP::RigidBody* bluePortal;
+	LP::RigidBody* orangePortal;
 
 protected:
 
