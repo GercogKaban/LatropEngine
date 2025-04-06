@@ -150,6 +150,7 @@ void LPlayerCharacter::updateCamera()
 	// of the physicsCompontent is at the center of mass.
 	headPosition.y += physicsComponent->transform.scale.y * 0.45f;
 	renderer->setCameraPosition(headPosition);
+	renderer->setCameraPositionToPlayer({ 0.0f, physicsComponent->transform.scale.y * 0.45f, 0.0f });
 }
 
 void LPlayerCharacter::jump()
