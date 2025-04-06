@@ -371,6 +371,116 @@ void createPortals()
 		});
 }
 
+// MARK: Complex Scene - Room
+
+namespace RoomScene
+{
+	void createFloor(int width = 20, int depth = 20)
+	{
+		int halfWidth = width / 2;
+		int halfDepth = depth / 2;
+
+		for (int i = -halfWidth; i < halfWidth; ++i)
+		{
+			for (int k = -halfDepth; k < halfDepth; ++k)
+			{
+				// float sign = (i + k) % 3;
+				float sign = rand() % 3;
+				glm::quat rotation = glm::angleAxis(sign * glm::radians(90.0f), glm::vec3(0, 1, 0));
+
+				auto floor = ObjectBuilder::construct<LActor>().lock();
+				floor->loadComponent<LG::LPlane>();
+				floor->loadComponent<LP::RigidBody>([i, k, rotation](LP::RigidBody *physicsComponent) 
+				{
+					physicsComponent->setIsSimulated(false);
+
+					physicsComponent->collider = planeYUPCollider;
+					physicsComponent->transform.rotation *= rotation;
+					physicsComponent->transform.position = glm::vec3(float(i), 0.0f, float(k));
+					physicsComponent->material = LP::Material::Concrete; 
+				});
+				floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+			}
+		}
+	}
+
+	void createWall(glm::ivec2 normal, int width = 20, int height = 10)
+	{
+		// glm::vec3 normal3 = { normal.x, 0.0, normal.y };
+
+		int halfWidth = width / 2;
+
+		for (int i = -halfWidth; i < halfWidth; ++i)
+		{
+			for (int j = 0; j < height; ++j)
+			{
+				auto floor = ObjectBuilder::construct<LActor>().lock();
+				floor->loadComponent<LG::LPlane>();
+				floor->loadComponent<LP::RigidBody>([normal, i, j, halfWidth](LP::RigidBody *physicsComponent)
+				{
+					physicsComponent->setIsSimulated(false);
+
+					physicsComponent->collider = planeYUPCollider;
+					physicsComponent->transform.position = glm::vec3(
+						normal.x != 0 ? float(i) : normal.y * float(halfWidth - 0.5f),
+						float(j), 
+						normal.y != 0 ? float(i) : normal.x * float(halfWidth - 0.5f)
+					);
+					glm::quat rotation = glm::angleAxis(glm::radians(90.0f), glm::vec3(-normal.x, 0.0f, normal.y));
+					physicsComponent->transform.rotation *= rotation;
+					// float sign = (i + j) % 3;
+					float sign = rand() % 3;
+					glm::quat styler = glm::angleAxis(sign * glm::radians(90.0f), glm::vec3(0, 1, 0));
+					physicsComponent->transform.rotation *= styler; 
+
+					physicsComponent->material = LP::Material::Concrete; 
+				});
+				floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+			}
+		}
+	}
+
+	void createSmoothStairs(int height, glm::vec3 origin, float radius = 2.0f, float YStep = 0.1f, float angleStep = 0.1f)
+	{
+		// int stepCount = float(height) / YStep;
+		float angle = 0.0f;
+
+		for (int i = 0; i < height; ++i)
+		{
+			glm::vec2 dir(glm::cos(angle), glm::sin(angle));
+			glm::vec2 pos2D = dir * radius;
+			glm::vec3 position(pos2D.x, i * YStep, pos2D.y);
+
+			auto step = ObjectBuilder::construct<LActor>().lock();
+			step->loadComponent<LG::LCube>().
+				loadComponent<LP::RigidBody>([position, YStep, origin](LP::RigidBody* physicsComponent)
+				{
+					physicsComponent->setIsSimulated(false);
+					physicsComponent->collider = cubeAABBCollider;
+					physicsComponent->transform.position = origin + position;
+					physicsComponent->transform.scale.y = YStep;
+					physicsComponent->material = LP::Material::Concrete; 
+				});
+
+			step->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+
+			angle += angleStep; // smooth curve
+		}
+	}
+
+	void create()
+	{
+		createFloor();
+		createWall({ 1, 0 });
+		createWall({ -1, 0 });
+		createWall({ 0, 1 });
+		createWall({ 0, -1 });
+		createSmoothStairs(1000, { 0, 0, 0 }, 2.0, 0.05);
+	}
+} // namespace RoomScene
+
+// MARK: Main
+
 int main()
 {
 	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
@@ -378,13 +488,15 @@ int main()
 
 	// MARK: Samples
 	createPlayer();
-	createFloor();
+	// createFloor();
 	// createOriginalSample(true);
-	createStairs(100);
+	// createStairs(100);
 	//createStairsStressTest(600000, 40, 0.00625f);
 	//createPerfectlyBouncyPuddleNearHeavenlyOrbit(600000, 40, 0.00625f);
 	createPortals();
-	createPerfectlyBouncyPuddle();
+	// createPerfectlyBouncyPuddle();
+
+	RoomScene::create();
 	
 	// MARK: RunLoop
 	engine.loop();
