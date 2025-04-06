@@ -264,7 +264,7 @@ void createPerfectlyBouncyPuddleNearHeavenlyOrbit(int height, int maxLength = 3,
 
 void createPortals()
 {
-	const glm::vec3 portalScale = glm::vec3(3.0f, 1.0f, 3.0f);
+	const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
 	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 	const glm::vec3 pos1 = glm::vec3(7.0f, 1.0f, -5.0f);
@@ -301,30 +301,30 @@ void createPortals()
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			// physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
-			// 	if (collision.points.normal.z == 1)
-			// 	{
-			// 		std::cout << "Colliding: ";
-			// 		std::cout << "x: " << collision.points.normal.x << " ";
-			// 		std::cout << "y: " << collision.points.normal.y << " ";
-			// 		std::cout << "z: " << collision.points.normal.z << " ";
-			// 		std::cout << "d: " << collision.points.depth << " ";
-			// 		std::cout << std::endl;
-			// 		auto portal = player->orangePortal;
-			// 		// Get destination portal's transform
-			// 		auto destinationTransform = portal->transform;
-			// 		destinationTransform.position.y -= 1.0f;
+			physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
+				if (collision.points.normal.z == 1)
+				{
+					// std::cout << "Colliding: ";
+					// std::cout << "x: " << collision.points.normal.x << " ";
+					// std::cout << "y: " << collision.points.normal.y << " ";
+					// std::cout << "z: " << collision.points.normal.z << " ";
+					// std::cout << "d: " << collision.points.depth << " ";
+					// std::cout << std::endl;
+					// auto portal = player->orangePortal;
+					// // Get destination portal's transform
+					// auto destinationTransform = portal->transform;
+					// // destinationTransform.position.y -= 1.0f;
 
-			// 		// Compute teleport position: Move to portal position & offset slightly along normal
-			// 		glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 0.0f, -1.0f });
-			// 		// Teleport position
-			// 		player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-			// 		player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
+					// // Compute teleport position: Move to portal position & offset slightly along normal
+					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 1.0f, 0.0f });
+					// // Teleport position
+					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
+					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
 
-			// 		// Rotate player 180 degrees around Y-axis
-			// 		// player->physicsComponent->transform.rotation = destinationTransform.rotation * glm::angleAxis(glm::pi<float>(), glm::vec3(0, 1, 0));
-			// 	}
-			// };
+					// // Rotate player 180 degrees around Y-axis
+					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+				}
+			};
 		});
 
 	auto orangePortal = ObjectBuilder::construct<LActor>().lock();
@@ -346,30 +346,30 @@ void createPortals()
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			// physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
-			// 	if (collision.points.normal.z == -1)
-			// 	{
-			// 		std::cout << "Colliding: ";
-			// 		std::cout << "x: " << collision.points.normal.x << " ";
-			// 		std::cout << "y: " << collision.points.normal.y << " ";
-			// 		std::cout << "z: " << collision.points.normal.z << " ";
-			// 		std::cout << "d: " << collision.points.depth << " ";
-			// 		std::cout << std::endl;
-			// 		auto portal = player->bluePortal;
-			// 		// Get destination portal's transform
-			// 		auto destinationTransform = portal->transform;
-			// 		destinationTransform.position.y -= 1.0f;
+			physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
+				if (collision.points.normal.z == -1)
+				{
+					// std::cout << "Colliding: ";
+					// std::cout << "x: " << collision.points.normal.x << " ";
+					// std::cout << "y: " << collision.points.normal.y << " ";
+					// std::cout << "z: " << collision.points.normal.z << " ";
+					// std::cout << "d: " << collision.points.depth << " ";
+					// std::cout << std::endl;
+					// auto portal = player->bluePortal;
+					// // Get destination portal's transform
+					// auto destinationTransform = portal->transform;
+					// // destinationTransform.position.y -= 1.0f;
 
-			// 		// Compute teleport position: Move to portal position & offset slightly along normal
-			// 		glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3{ 0.0f, 0.0f, 1.0f });
-			// 		// Teleport position
-			// 		player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-			// 		player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
+					// // Compute teleport position: Move to portal position & offset slightly along normal
+					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3{ 0.0f, 1.0f, 0.0f });
+					// // Teleport position
+					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
+					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
 
-			// 		// Rotate player 180 degrees around Y-axis
-			// 		// player->physicsComponent->transform.rotation = destinationTransform.rotation * glm::angleAxis(glm::pi<float>(), glm::vec3(0, 1, 0));
-			// 	}
-			// };
+					// // Rotate player 180 degrees around Y-axis
+					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+				}
+			};
 		});
 }
 
@@ -401,7 +401,7 @@ namespace RoomScene
 					physicsComponent->transform.position = glm::vec3(float(i), 0.0f, float(k));
 					physicsComponent->material = LP::Material::Concrete; 
 				});
-				floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+				floor->graphicsComponent->setColorTexture("textures/smile.jpg");
 			}
 		}
 	}
@@ -437,7 +437,7 @@ namespace RoomScene
 
 					physicsComponent->material = LP::Material::Concrete; 
 				});
-				floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+				floor->graphicsComponent->setColorTexture("textures/smile.jpg");
 			}
 		}
 	}
@@ -470,6 +470,42 @@ namespace RoomScene
 		}
 	}
 
+	void createPerfectlyBouncyPuddle(glm::vec3 origin, bool withCube = false)
+	{
+		auto puddle = ObjectBuilder::construct<LActor>().lock();
+		puddle->loadComponent<LG::LCube>();
+		puddle->loadComponent<LP::RigidBody>([origin](LP::RigidBody* physicsComponent)
+			{
+				physicsComponent->setIsSimulated(false);
+				
+				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->transform.position = origin;
+				physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
+				// Must be adjusted to accomodate the material of the object that wishes to bounce:
+				// bouncyPuddle.restituion = 1 / object.restituion
+				physicsComponent->material.restitution = 2.0; 
+			});
+		puddle->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+
+		if (withCube)
+		{
+			auto cube = ObjectBuilder::construct<LActor>().lock();
+			cube->loadComponent<LG::LCube>();
+			cube->graphicsComponent->setColorTexture("textures/smile.jpg");
+
+			cube->loadComponent<LP::RigidBody>([origin](LP::RigidBody* physicsComponent)
+				{
+					physicsComponent->setIsSimulated(true);
+					physicsComponent->setMass(10.0f);
+					physicsComponent->takesGravity = true;
+					
+					physicsComponent->collider = cubeAABBCollider;
+					physicsComponent->transform.position = origin + glm::vec3(0.0f, 3.0f, 0.0f);
+					physicsComponent->material = LP::Material::HumanBody;
+				});
+		}
+	}
+
 	void create()
 	{
 		createFloor();
@@ -477,7 +513,9 @@ namespace RoomScene
 		createWall({ -1, 0 });
 		createWall({ 0, 1 });
 		createWall({ 0, -1 });
-		createSmoothStairs(1000, { 0, 0, 0 }, 2.0, 0.05);
+		createSmoothStairs(1000, { 5, 0, 2 }, 2.0, 0.05);
+		createSmoothStairs(200, { -5, 0, 2 }, 1.4, 0.05);
+		createPerfectlyBouncyPuddle({ 7.0f, 0.5f, 7.0f }, false);
 	}
 } // namespace RoomScene
 
