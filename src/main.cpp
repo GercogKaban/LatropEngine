@@ -199,6 +199,8 @@ void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
             currentLength = 0;
             directionIndex = (directionIndex + 1) % 4;  // Cycle through 0-3
         }
+
+		step->graphicsComponent->setColorTexture("textures/smile.jpg");
     }
 }
 
@@ -462,7 +464,7 @@ namespace RoomScene
 					physicsComponent->material = LP::Material::Concrete; 
 				});
 
-			step->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+			step->graphicsComponent->setColorTexture("textures/smile2.jpg");
 
 			angle += angleStep; // smooth curve
 		}
