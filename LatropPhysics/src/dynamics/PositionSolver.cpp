@@ -26,15 +26,6 @@ void PositionSolver::solve(const std::vector<Collision>& collisions, float delta
 
         if (bBody && bBody->isSimulated()) 
         {
-            // Temporary logic to allow stairs-like behaviour(and climbing walls)
-            // Check if this is a potential stair
-            if (glm::abs(manifold.points.normal.y) < 0.5f && manifold.points.depth < slop)
-            {
-                // Step up instead of resolving normally
-                bBody->transform.position.y += slop - manifold.points.depth;
-                continue; // skip regular resolution
-            }
-
             bBody->transform.position += bInvMass * correction * (aBody && aBody->isSimulated() ? 1.0f : 2.0f);
         }
     }

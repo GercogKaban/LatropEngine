@@ -85,15 +85,6 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         if (bBody ? bBody->isSimulated() : false) 
         {
             bBody->linearVelocity = bVel + friction * bInvMass;
-
-            // Temporary logic to allow stairs-like behaviour(and climbing walls)
-            // Allow stepping up small vertical surfaces instead of treating them as collisions
-            const float maxStepHeight = 0.01f;
-            if (glm::abs(manifold.points.normal.y) < 0.5f && manifold.points.depth < maxStepHeight)
-            {
-                bBody->transform.position.y += (maxStepHeight - manifold.points.depth);
-                continue; // Skip normal impulse resolution
-            }
         }
     }
 }
