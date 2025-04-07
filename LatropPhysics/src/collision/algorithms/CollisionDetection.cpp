@@ -1,5 +1,6 @@
 #include "collision/algorithms/CollisionDetection.h"
 #include "collision/SphereCollider.h"
+#include "collision/CapsuleCollider.h"
 #include "collision/BoundedPlaneCollider.h"
 #include "collision/AABBCollider.h"
 #include "shared/Transform.h"
@@ -10,6 +11,7 @@
 using namespace LP;
 
 // MARK: - Sphere
+
 CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     const SphereCollider* a, const Transform* transformA,
     const SphereCollider* b, const Transform* transformB
@@ -30,15 +32,46 @@ CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
     return result;
 }
 
-// MARK: - Plane
-CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
-    const BoundedPlaneCollider* a, const Transform* transformA,
-    const SphereCollider* b, const Transform* transformB
+// MARK: - Capsule
+
+CollisionPoints collisionDetectors::findCapsuleCapsuleCollisionPoints(
+    const CapsuleCollider* a, const Transform* transformA,
+    const CapsuleCollider* b, const Transform* transformB
 ) {
-    return findSpherePlaneCollisionPoints(b, transformB, a, transformA);
+   // Get world-space endpoints of both capsules
+   glm::vec3 topA, bottomA, topB, bottomB;
+   a->getWorldEndpoints(transformA, topA, bottomA);
+   b->getWorldEndpoints(transformB, topB, bottomB);
+
+   // Calculate the vector between the capsule centers
+   glm::vec3 delta = bottomB - bottomA;
+   float distance = glm::length(delta);
+   float combinedRadius = a->radius + b->radius;
+
+   CollisionPoints result;
+   result.hasCollision = false;
+
+   // Check if the distance between the capsule centers is less than the combined radii
+   if (distance < combinedRadius) {
+       // There is a potential collision, check further
+       result.hasCollision = true;
+
+       // Calculate normal vector between capsules
+       result.normal = glm::normalize(delta);
+
+       // Calculate the penetration depth (how far the capsules are overlapping)
+       result.depth = combinedRadius - distance;
+
+       // Calculate collision points (adjusted by radius to find exact collision)
+       result.start = bottomA + result.normal * a->radius;
+       result.end = bottomB - result.normal * b->radius;
+   }
+
+   return result;
 }
 
 // MARK: - AABB
+
 CollisionPoints collisionDetectors::findAABBAABBCollisionPoints(
     const AABBCollider* a, const Transform* transformA,
     const AABBCollider* b, const Transform* transformB
@@ -90,12 +123,66 @@ CollisionPoints collisionDetectors::findAABBAABBCollisionPoints(
     return points;
 }
 
-// MARK: Mixed
-CollisionPoints collisionDetectors::findSpherePlaneCollisionPoints(
-    const SphereCollider* a, const Transform* transformA,
-    const BoundedPlaneCollider* b, const Transform* transformB
+// MARK: Mixed - Plane
+
+CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
+    const BoundedPlaneCollider* a, const Transform* transformA,
+    const SphereCollider* b, const Transform* transformB
 ) {
     return {};
+}
+
+CollisionPoints collisionDetectors::findPlaneCapsuleCollisionPoints(
+    const BoundedPlaneCollider* a, const Transform* transformA,
+    const CapsuleCollider* b, const Transform* transformB
+) {
+    CollisionPoints points;
+    points.hasCollision = false;
+
+    // Get capsule's world-space endpoints
+    glm::vec3 topB, bottomB;
+    b->getWorldEndpoints(transformB, topB, bottomB);
+
+    // Transform the plane's normal to world space
+    glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
+
+    // Calculate distance of both the capsule's ends (top and bottom) from the plane
+    float topDistance = glm::dot(topB - transformA->position, planeNormal);
+    float bottomDistance = glm::dot(bottomB - transformA->position, planeNormal);
+
+    // Check for collision with top or bottom sphere
+    if (topDistance < b->radius && topDistance > 0.0f) {
+        points.hasCollision = true;
+        points.normal = planeNormal;
+        points.depth = b->radius - topDistance;
+        points.start = topB - planeNormal * points.depth;
+        points.end = topB;
+    }
+
+    if (bottomDistance < b->radius && bottomDistance > 0.0f) {
+        points.hasCollision = true;
+        points.normal = planeNormal;
+        points.depth = b->radius - bottomDistance;
+        points.start = bottomB - planeNormal * points.depth;
+        points.end = bottomB;
+    }
+
+    // If no collision at top or bottom, check if capsule cylinder intersects the plane
+    if (!points.hasCollision) {
+        // Check if the capsule cylinder intersects the plane, if the capsule center is above or below the plane
+        glm::vec3 capsuleCenter = (topB + bottomB) / 2.0f;
+        float centerDistance = glm::dot(capsuleCenter - transformA->position, planeNormal);
+
+        if (centerDistance < b->radius && centerDistance > 0.0f) {
+            points.hasCollision = true;
+            points.normal = planeNormal;
+            points.depth = b->radius - centerDistance;
+            points.start = capsuleCenter - planeNormal * points.depth;
+            points.end = capsuleCenter;
+        }
+    }
+
+    return points;
 }
 
 CollisionPoints collisionDetectors::findPlaneAABBCollisionPoints(
@@ -152,3 +239,173 @@ CollisionPoints collisionDetectors::findPlaneAABBCollisionPoints(
 
     return points;
 }
+
+// MARK: Mixed - AABB
+
+// Function to compute the squared distance between two points
+float distanceSquaredBetween(const glm::vec3& a, const glm::vec3& b) {
+    return glm::dot(a - b, a - b);
+}
+
+// Function to compute the closest point on the capsule to a point
+glm::vec3 closestPointOnSegment(const glm::vec3& p, const glm::vec3& a, const glm::vec3& b) {
+    glm::vec3 ab = b - a;
+    float t = glm::dot(p - a, ab) / glm::dot(ab, ab);
+    t = glm::clamp(t, 0.0f, 1.0f);  // Clamp t to the segment [0, 1]
+    return a + t * ab;
+}
+
+CollisionPoints collisionDetectors::findAABBCapsuleCollisionPoints(
+    const AABBCollider* a, const Transform* transformA,
+    const CapsuleCollider* capsule, const Transform* transformB
+) {
+    CollisionPoints points;
+    points.hasCollision = false;
+
+    // Get AABB of object A
+    auto [aMin, aMax] = a->getAABB(transformA);
+
+    // Get capsule position and radius
+    glm::vec3 capsuleP1, capsuleP2;
+    float capsuleRadius = capsule->radius;
+    capsule->getWorldEndpoints(transformB, capsuleP2, capsuleP1);
+
+    // List of 8 corners of the AABB
+    std::array<glm::vec3, 8> corners = {
+        glm::vec3(aMin.x, aMin.y, aMin.z),
+        glm::vec3(aMax.x, aMin.y, aMin.z),
+        glm::vec3(aMin.x, aMax.y, aMin.z),
+        glm::vec3(aMax.x, aMax.y, aMin.z),
+        glm::vec3(aMin.x, aMin.y, aMax.z),
+        glm::vec3(aMax.x, aMin.y, aMax.z),
+        glm::vec3(aMin.x, aMax.y, aMax.z),
+        glm::vec3(aMax.x, aMax.y, aMax.z)
+    };
+
+    // Iterate over each AABB face (center of each face)
+    for (int i = 0; i < 6; ++i) {
+        glm::vec3 faceCenter;
+        if (i == 0) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMin.y, (aMin.z + aMax.z) / 2); // Bottom
+        else if (i == 1) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMax.y, (aMin.z + aMax.z) / 2); // Top
+        else if (i == 2) faceCenter = glm::vec3(aMin.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Left
+        else if (i == 3) faceCenter = glm::vec3(aMax.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Right
+        else if (i == 4) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMin.z); // Front
+        else faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMax.z); // Back
+
+        // Find the closest point on the capsule segment to this face center
+        glm::vec3 closestPointOnCapsule = closestPointOnSegment(faceCenter, capsuleP1, capsuleP2);
+        
+        // Check distance to the capsule and detect collision
+        float distanceSquared = distanceSquaredBetween(closestPointOnCapsule, faceCenter);
+        if (distanceSquared <= capsuleRadius * capsuleRadius) {
+            points.hasCollision = true;
+
+            float penetrationDepth = capsuleRadius - std::sqrt(distanceSquared);
+            glm::vec3 normal = glm::normalize(closestPointOnCapsule - faceCenter);
+
+            if (points.depth == 0.0f || penetrationDepth < points.depth) {
+                points.depth = penetrationDepth;
+                points.normal = normal;
+                points.start = faceCenter;
+                points.end = closestPointOnCapsule;
+            }
+        }
+    }
+
+    // // Iterate over each AABB edge (each pair of corners)
+    // std::array<std::pair<glm::vec3, glm::vec3>, 12> edges = {
+    //     std::make_pair(corners[0], corners[1]),
+    //     std::make_pair(corners[1], corners[3]),
+    //     std::make_pair(corners[3], corners[2]),
+    //     std::make_pair(corners[2], corners[0]),
+    //     std::make_pair(corners[4], corners[5]),
+    //     std::make_pair(corners[5], corners[7]),
+    //     std::make_pair(corners[7], corners[6]),
+    //     std::make_pair(corners[6], corners[4]),
+    //     std::make_pair(corners[0], corners[4]),
+    //     std::make_pair(corners[1], corners[5]),
+    //     std::make_pair(corners[3], corners[7]),
+    //     std::make_pair(corners[2], corners[6])
+    // };
+
+    // for (const auto& edge : edges) {
+    //     // Find the closest point on the capsule's segment to the edge's line segment
+    //     glm::vec3 closestPointOnCapsule = closestPointOnSegment(edge.first, capsuleP1, capsuleP2);
+        
+    //     // Check distance to the capsule and detect collision
+    //     float distanceSquared = distanceSquaredBetween(closestPointOnCapsule, edge.first);
+    //     if (distanceSquared <= capsuleRadius * capsuleRadius) {
+    //         points.hasCollision = true;
+
+    //         float penetrationDepth = capsuleRadius - std::sqrt(distanceSquared);
+    //         glm::vec3 normal = glm::normalize(closestPointOnCapsule - edge.first);
+
+    //         if (points.depth == 0.0f || penetrationDepth < points.depth) {
+    //             points.depth = penetrationDepth;
+    //             points.normal = normal;
+    //             points.start = edge.first;
+    //             points.end = closestPointOnCapsule;
+    //         }
+    //     }
+    // }
+
+    return points;
+}
+
+// CollisionPoints collisionDetectors::findAABBCapsuleCollisionPoints(
+//     const AABBCollider* a, const Transform* transformA,
+//     const CapsuleCollider* capsule, const Transform* transformB
+// ) {
+//     CollisionPoints points;
+//     points.hasCollision = false;
+
+//     // Get AABB of object A (same as before)
+//     auto [aMin, aMax] = a->getAABB(transformA);
+
+//     // Get capsule position and radius (assumed capsule has p1, p2, radius)
+//     glm::vec3 capsuleP1, capsuleP2;
+//     float capsuleRadius = capsule->radius;
+//     capsule->getWorldEndpoints(transformB, capsuleP2, capsuleP1);
+
+//     // Iterate over all 8 corners of the AABB
+//     std::array<glm::vec3, 8> corners = {
+//         glm::vec3(aMin.x, aMin.y, aMin.z),
+//         glm::vec3(aMax.x, aMin.y, aMin.z),
+//         glm::vec3(aMin.x, aMax.y, aMin.z),
+//         glm::vec3(aMax.x, aMax.y, aMin.z),
+//         glm::vec3(aMin.x, aMin.y, aMax.z),
+//         glm::vec3(aMax.x, aMin.y, aMax.z),
+//         glm::vec3(aMin.x, aMax.y, aMax.z),
+//         glm::vec3(aMax.x, aMax.y, aMax.z)
+//     };
+
+//     // Check for closest point on the capsule for each corner
+//     for (const auto& corner : corners) {
+//         // Find the closest point on the capsule's segment to the corner
+//         glm::vec3 closestPointOnCapsule = closestPointOnSegment(corner, capsuleP1, capsuleP2);
+
+//         // Calculate squared distance from the corner to the closest point on the capsule
+//         float distanceSquaredToCapsule = distanceSquared(closestPointOnCapsule, corner);
+
+//         // Check if this distance is within the capsule's radius
+//         if (distanceSquaredToCapsule <= capsuleRadius * capsuleRadius) {
+//             points.hasCollision = true;
+
+//             // Determine the penetration depth (the distance to the capsule's surface)
+//             float penetrationDepth = capsuleRadius - std::sqrt(distanceSquaredToCapsule);
+
+//             // Calculate the normal (pointing towards the closest point on the capsule)
+//             glm::vec3 normal = glm::normalize(closestPointOnCapsule - corner);
+
+//             // If this is the first collision or if this penetration depth is smaller than previous
+//             if (points.depth == 0.0f || penetrationDepth < points.depth) {
+//                 points.depth = penetrationDepth;
+//                 points.normal = normal;
+//                 points.start = corner;
+//                 points.end = closestPointOnCapsule;
+//             }
+//         }
+//     }
+
+//     return points;
+// }

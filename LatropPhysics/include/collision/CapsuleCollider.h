@@ -6,6 +6,12 @@ namespace LP
 {
     struct CapsuleCollider: Collider 
     {
+        CapsuleCollider(float radius) : radius(radius) {}
+
+        const float radius;
+
+        void getWorldEndpoints(const Transform* transform, glm::vec3& top, glm::vec3& bottom) const;
+        
         virtual AABB getAABB(const Transform* transform) const override;
 
         // MARK: - Colliders

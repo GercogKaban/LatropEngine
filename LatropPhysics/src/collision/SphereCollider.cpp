@@ -43,8 +43,8 @@ CollisionPoints SphereCollider::testCollision(
     const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findSpherePlaneCollisionPoints(
-        this, transform, other, otherTransform
+    return collisionDetectors::findPlaneSphereCollisionPoints(
+        other, otherTransform, this, transform
     );
 }
 

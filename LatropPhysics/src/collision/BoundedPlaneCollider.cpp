@@ -36,7 +36,9 @@ CollisionPoints BoundedPlaneCollider::testCollision(
     const CapsuleCollider* other,
     const Transform* otherTransform
 ) const {
-    return {};
+    return collisionDetectors::findPlaneCapsuleCollisionPoints(
+        this, transform, other, otherTransform
+    );
 }
 
 CollisionPoints BoundedPlaneCollider::testCollision(
