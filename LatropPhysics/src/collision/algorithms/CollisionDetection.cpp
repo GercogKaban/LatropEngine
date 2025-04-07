@@ -259,58 +259,58 @@ CollisionPoints collisionDetectors::findAABBCapsuleCollisionPoints(
     const AABBCollider* a, const Transform* transformA,
     const CapsuleCollider* capsule, const Transform* transformB
 ) {
-    CollisionPoints points;
-    points.hasCollision = false;
+    // CollisionPoints points;
+    // points.hasCollision = false;
 
-    // Get AABB of object A
-    auto [aMin, aMax] = a->getAABB(transformA);
+    // // Get AABB of object A
+    // auto [aMin, aMax] = a->getAABB(transformA);
 
-    // Get capsule position and radius
-    glm::vec3 capsuleP1, capsuleP2;
-    float capsuleRadius = capsule->radius;
-    capsule->getWorldEndpoints(transformB, capsuleP2, capsuleP1);
+    // // Get capsule position and radius
+    // glm::vec3 capsuleP1, capsuleP2;
+    // float capsuleRadius = capsule->radius;
+    // capsule->getWorldEndpoints(transformB, capsuleP2, capsuleP1);
 
-    // List of 8 corners of the AABB
-    std::array<glm::vec3, 8> corners = {
-        glm::vec3(aMin.x, aMin.y, aMin.z),
-        glm::vec3(aMax.x, aMin.y, aMin.z),
-        glm::vec3(aMin.x, aMax.y, aMin.z),
-        glm::vec3(aMax.x, aMax.y, aMin.z),
-        glm::vec3(aMin.x, aMin.y, aMax.z),
-        glm::vec3(aMax.x, aMin.y, aMax.z),
-        glm::vec3(aMin.x, aMax.y, aMax.z),
-        glm::vec3(aMax.x, aMax.y, aMax.z)
-    };
+    // // List of 8 corners of the AABB
+    // std::array<glm::vec3, 8> corners = {
+    //     glm::vec3(aMin.x, aMin.y, aMin.z),
+    //     glm::vec3(aMax.x, aMin.y, aMin.z),
+    //     glm::vec3(aMin.x, aMax.y, aMin.z),
+    //     glm::vec3(aMax.x, aMax.y, aMin.z),
+    //     glm::vec3(aMin.x, aMin.y, aMax.z),
+    //     glm::vec3(aMax.x, aMin.y, aMax.z),
+    //     glm::vec3(aMin.x, aMax.y, aMax.z),
+    //     glm::vec3(aMax.x, aMax.y, aMax.z)
+    // };
 
-    // Iterate over each AABB face (center of each face)
-    for (int i = 0; i < 6; ++i) {
-        glm::vec3 faceCenter;
-        if (i == 0) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMin.y, (aMin.z + aMax.z) / 2); // Bottom
-        else if (i == 1) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMax.y, (aMin.z + aMax.z) / 2); // Top
-        else if (i == 2) faceCenter = glm::vec3(aMin.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Left
-        else if (i == 3) faceCenter = glm::vec3(aMax.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Right
-        else if (i == 4) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMin.z); // Front
-        else faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMax.z); // Back
+    // // Iterate over each AABB face (center of each face)
+    // for (int i = 0; i < 6; ++i) {
+    //     glm::vec3 faceCenter;
+    //     if (i == 0) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMin.y, (aMin.z + aMax.z) / 2); // Bottom
+    //     else if (i == 1) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, aMax.y, (aMin.z + aMax.z) / 2); // Top
+    //     else if (i == 2) faceCenter = glm::vec3(aMin.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Left
+    //     else if (i == 3) faceCenter = glm::vec3(aMax.x, (aMin.y + aMax.y) / 2, (aMin.z + aMax.z) / 2); // Right
+    //     else if (i == 4) faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMin.z); // Front
+    //     else faceCenter = glm::vec3((aMin.x + aMax.x) / 2, (aMin.y + aMax.y) / 2, aMax.z); // Back
 
-        // Find the closest point on the capsule segment to this face center
-        glm::vec3 closestPointOnCapsule = closestPointOnSegment(faceCenter, capsuleP1, capsuleP2);
+    //     // Find the closest point on the capsule segment to this face center
+    //     glm::vec3 closestPointOnCapsule = closestPointOnSegment(faceCenter, capsuleP1, capsuleP2);
         
-        // Check distance to the capsule and detect collision
-        float distanceSquared = distanceSquaredBetween(closestPointOnCapsule, faceCenter);
-        if (distanceSquared <= capsuleRadius * capsuleRadius) {
-            points.hasCollision = true;
+    //     // Check distance to the capsule and detect collision
+    //     float distanceSquared = distanceSquaredBetween(closestPointOnCapsule, faceCenter);
+    //     if (distanceSquared <= capsuleRadius * capsuleRadius) {
+    //         points.hasCollision = true;
 
-            float penetrationDepth = capsuleRadius - std::sqrt(distanceSquared);
-            glm::vec3 normal = glm::normalize(closestPointOnCapsule - faceCenter);
+    //         float penetrationDepth = capsuleRadius - std::sqrt(distanceSquared);
+    //         glm::vec3 normal = glm::normalize(closestPointOnCapsule - faceCenter);
 
-            if (points.depth == 0.0f || penetrationDepth < points.depth) {
-                points.depth = penetrationDepth;
-                points.normal = normal;
-                points.start = faceCenter;
-                points.end = closestPointOnCapsule;
-            }
-        }
-    }
+    //         if (points.depth == 0.0f || penetrationDepth < points.depth) {
+    //             points.depth = penetrationDepth;
+    //             points.normal = normal;
+    //             points.start = faceCenter;
+    //             points.end = closestPointOnCapsule;
+    //         }
+    //     }
+    // }
 
     // // Iterate over each AABB edge (each pair of corners)
     // std::array<std::pair<glm::vec3, glm::vec3>, 12> edges = {
@@ -349,7 +349,7 @@ CollisionPoints collisionDetectors::findAABBCapsuleCollisionPoints(
     //     }
     // }
 
-    return points;
+    return {};
 }
 
 // CollisionPoints collisionDetectors::findAABBCapsuleCollisionPoints(
