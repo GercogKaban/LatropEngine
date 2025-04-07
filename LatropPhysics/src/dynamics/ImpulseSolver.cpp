@@ -12,6 +12,13 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
+        if (!(aBody && bBody))
+        {
+            continue;
+        }
+
+        Material combinedMaterial = aBody->material.combinedWith(bBody->material);
+
         glm::vec3 aVel = aBody ? aBody->linearVelocity : glm::vec3(0.0f);
         glm::vec3 bVel = bBody ? bBody->linearVelocity : glm::vec3(0.0f);
         glm::vec3 rVel = bVel - aVel;
@@ -27,8 +34,7 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         if (nSpd >= 0)
             continue;
 
-        float e = (aBody ? aBody->material.restitution : 1.0f)
-                * (bBody ? bBody->material.restitution : 1.0f);
+        float e = combinedMaterial.restitution;
 
         float j = -(1.0f + e) * nSpd / (aInvMass + bInvMass);
 
