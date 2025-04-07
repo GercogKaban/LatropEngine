@@ -22,6 +22,7 @@ void createPlayer()
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
 			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
+			// physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Multiply;
 			physicsComponent->onCollision = [weakPlayer](LP::Collision collision, float depth) {
 				if (collision.points.normal.y > 0)
 				{
@@ -399,7 +400,10 @@ namespace RoomScene
 					physicsComponent->collider = planeYUPCollider;
 					physicsComponent->transform.rotation *= rotation;
 					physicsComponent->transform.position = glm::vec3(float(i), 0.0f, float(k));
-					physicsComponent->material = LP::Material::Concrete; 
+					physicsComponent->material = LP::Material::Concrete;
+					physicsComponent->material.restitution = 0.05f; 
+					physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Maximum;
+					physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Minimum;
 				});
 				floor->graphicsComponent->setColorTexture("textures/smile.jpg");
 			}
@@ -436,6 +440,8 @@ namespace RoomScene
 					physicsComponent->transform.rotation *= styler; 
 
 					physicsComponent->material = LP::Material::Concrete; 
+					physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Maximum;
+					physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Multiply;
 				});
 				floor->graphicsComponent->setColorTexture("textures/smile.jpg");
 			}
@@ -481,9 +487,8 @@ namespace RoomScene
 				physicsComponent->collider = cubeAABBCollider;
 				physicsComponent->transform.position = origin;
 				physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
-				// Must be adjusted to accomodate the material of the object that wishes to bounce:
-				// bouncyPuddle.restituion = 1 / object.restituion
-				physicsComponent->material.restitution = 2.0; 
+				physicsComponent->material.restitution = 1.0; 
+				physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Maximum;
 			});
 		puddle->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
 
@@ -491,7 +496,7 @@ namespace RoomScene
 		{
 			auto cube = ObjectBuilder::construct<LActor>().lock();
 			cube->loadComponent<LG::LCube>();
-			cube->graphicsComponent->setColorTexture("textures/smile.jpg");
+			cube->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
 
 			cube->loadComponent<LP::RigidBody>([origin](LP::RigidBody* physicsComponent)
 				{
@@ -500,7 +505,7 @@ namespace RoomScene
 					physicsComponent->takesGravity = true;
 					
 					physicsComponent->collider = cubeAABBCollider;
-					physicsComponent->transform.position = origin + glm::vec3(0.0f, 3.0f, 0.0f);
+					physicsComponent->transform.position = origin + glm::vec3(0.0f, 5.0f, 0.0f);
 					physicsComponent->material = LP::Material::HumanBody;
 				});
 		}
