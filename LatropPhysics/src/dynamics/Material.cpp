@@ -10,8 +10,32 @@ Material::CombinationMode max(Material::CombinationMode a, Material::Combination
 
 Material Material::combinedWith(const Material& otherMaterial) const
 {
+    Material::CombinationMode frictionMode = max(restitutionCombinator, otherMaterial.restitutionCombinator);
     Material::CombinationMode restitutionMode = max(restitutionCombinator, otherMaterial.restitutionCombinator);
+
+    float combinedStaticFriction;
+    float combinedDynamicFriction;
     float combinedRestituion;
+
+    switch (frictionMode)
+    {
+    case Material::CombinationMode::Average:
+        combinedRestituion = (staticFriction + otherMaterial.staticFriction) / 2.0f;
+        combinedDynamicFriction = (dynamicFriction + otherMaterial.dynamicFriction) / 2.0f;
+        break;
+    case Material::CombinationMode::Minimum:
+        combinedRestituion = std::fmin(staticFriction, otherMaterial.staticFriction);
+        combinedDynamicFriction = std::fmin(dynamicFriction, otherMaterial.dynamicFriction);
+        break;
+    case Material::CombinationMode::Multiply:
+        combinedRestituion = staticFriction * otherMaterial.staticFriction;
+        combinedDynamicFriction = dynamicFriction * otherMaterial.dynamicFriction;
+        break;
+    case Material::CombinationMode::Maximum:
+        combinedRestituion = std::fmax(staticFriction, otherMaterial.staticFriction);
+        combinedDynamicFriction = std::fmax(dynamicFriction, otherMaterial.dynamicFriction);
+        break;
+    }
 
     switch (restitutionMode)
     {
@@ -30,10 +54,10 @@ Material Material::combinedWith(const Material& otherMaterial) const
     }
 
     return {
-        staticFriction,
-        dynamicFriction,
+        combinedStaticFriction,
+        combinedDynamicFriction,
         combinedRestituion,
-        restitutionMode,
+        frictionMode,
         restitutionMode
     };
 }
