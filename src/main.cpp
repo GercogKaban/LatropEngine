@@ -464,7 +464,7 @@ namespace RoomScene
 					physicsComponent->material = LP::Material::Concrete; 
 				});
 
-			step->graphicsComponent->setColorTexture("textures/smile2.jpg");
+			step->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
 
 			angle += angleStep; // smooth curve
 		}
