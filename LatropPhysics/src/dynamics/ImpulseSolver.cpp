@@ -54,7 +54,7 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         rVel = bVel - aVel;
         nSpd = glm::dot(rVel, manifold.points.normal);
 
-        glm::vec3 tangent = rVel - glm::dot(rVel, manifold.points.normal) * manifold.points.normal;
+        glm::vec3 tangent = rVel - nSpd * manifold.points.normal;
 
         if (glm::length(tangent) > 0.0001f) 
         { 
