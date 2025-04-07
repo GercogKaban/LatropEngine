@@ -12,8 +12,15 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
-        glm::vec3 aVel = aBody ? aBody->linearVelocity : glm::vec3(0.0f);
-        glm::vec3 bVel = bBody ? bBody->linearVelocity : glm::vec3(0.0f);
+        if (!(aBody && bBody))
+        {
+            continue;
+        }
+
+        Material combinedMaterial = aBody->material.combinedWith(bBody->material);
+
+        glm::vec3 aVel = aBody->linearVelocity;
+        glm::vec3 bVel = bBody->linearVelocity;
         glm::vec3 rVel = bVel - aVel;
         float nSpd = glm::dot(rVel, manifold.points.normal);
 
@@ -27,19 +34,17 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         if (nSpd >= 0)
             continue;
 
-        float e = (aBody ? aBody->material.restitution : 1.0f)
-                * (bBody ? bBody->material.restitution : 1.0f);
-
+        float e = combinedMaterial.restitution;
         float j = -(1.0f + e) * nSpd / (aInvMass + bInvMass);
 
         glm::vec3 impluse = j * manifold.points.normal;
 
-        if (aBody ? aBody->isSimulated() : false) 
+        if (aBody->isSimulated()) 
         {
             aVel -= impluse * aInvMass;
         }
 
-        if (bBody ? bBody->isSimulated() : false) 
+        if (bBody->isSimulated()) 
         {
             bVel += impluse * bInvMass;
         }
@@ -52,37 +57,33 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         glm::vec3 tangent = rVel - nSpd * manifold.points.normal;
 
         if (glm::length(tangent) > 0.0001f) 
-        { // safe normalize
+        { 
             tangent = glm::normalize(tangent);
         }
 
         float fVel = glm::dot(rVel, tangent);
+        float f    = -fVel / (aInvMass + bInvMass);
 
-        float aSF = aBody ? aBody->material.staticFriction  : 0.0f;
-        float bSF = bBody ? bBody->material.staticFriction  : 0.0f;
-        float aDF = aBody ? aBody->material.dynamicFriction : 0.0f;
-        float bDF = bBody ? bBody->material.dynamicFriction : 0.0f;
-        float mu  = (float)glm::vec2(aSF, bSF).length();
-
-        float f  = -fVel / (aInvMass + bInvMass);
+        float staticMu  = combinedMaterial.staticFriction;
+        float dynamicMu = combinedMaterial.dynamicFriction;
 
         glm::vec3 friction;
-        if (abs(f) < j * mu) 
+        
+        if (glm::abs(f) < j * staticMu) 
         {
             friction = f * tangent;
         }
         else 
         {
-            mu = glm::length(glm::vec2(aDF, bDF));
-            friction = -j * tangent * mu;
+            friction = -j * dynamicMu * tangent;
         }
 
-        if (aBody ? aBody->isSimulated() : false) 
+        if (aBody->isSimulated()) 
         {
             aBody->linearVelocity = aVel - friction * aInvMass;
         }
 
-        if (bBody ? bBody->isSimulated() : false) 
+        if (bBody->isSimulated()) 
         {
             bBody->linearVelocity = bVel + friction * bInvMass;
         }

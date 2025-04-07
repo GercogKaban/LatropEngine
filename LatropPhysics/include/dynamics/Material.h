@@ -4,6 +4,19 @@ namespace LP
 {
     struct Material
     {
+        /// @brief When two bodies are in contact, the same bounciness and friction 
+        /// effect is applied to both of them according to the chosen mode. There is 
+        /// a special case when the two colliders in contact have different combine 
+        /// modes set. In this particular case, the function that has the highest 
+        /// priority is used. The priority order is as follows:
+        /// Average < Minimum < Multiply < Maximum. For example, if one material 
+        /// has Average set but the other one has Maximum, then the combine function 
+        /// to be used is Maximum, since it has higher priority.
+        enum class CombinationMode
+        {
+            Average, Minimum, Multiply, Maximum
+        };
+
         /// @brief Static friction is the friction between two objects that are not 
         /// moving relative to each other. It affects how much force must be applied
         /// for the object to start moving while standing on this material.
@@ -23,6 +36,11 @@ namespace LP
         /// off of this material and will experience more friction due to the need
         /// to slide sooner than if it was to bounce of into the air.
         float restitution;
+
+        CombinationMode frictionCombinator = CombinationMode::Average;
+        CombinationMode restitutionCombinator = CombinationMode::Average;
+
+        Material combinedWith(const Material& otherMaterial) const;
 
         // MARK: Common surfaces
 
