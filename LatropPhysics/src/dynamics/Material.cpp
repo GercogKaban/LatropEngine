@@ -1,5 +1,5 @@
 #include "dynamics/Material.h"
-#include <algorithm>
+#include <cmath>
 
 using namespace LP;
 
@@ -20,19 +20,19 @@ Material Material::combinedWith(const Material& otherMaterial) const
     switch (frictionMode)
     {
     case Material::CombinationMode::Average:
-        combinedRestituion = (staticFriction + otherMaterial.staticFriction) / 2.0f;
+        combinedStaticFriction = (staticFriction + otherMaterial.staticFriction) / 2.0f;
         combinedDynamicFriction = (dynamicFriction + otherMaterial.dynamicFriction) / 2.0f;
         break;
     case Material::CombinationMode::Minimum:
-        combinedRestituion = std::fmin(staticFriction, otherMaterial.staticFriction);
+        combinedStaticFriction = std::fmin(staticFriction, otherMaterial.staticFriction);
         combinedDynamicFriction = std::fmin(dynamicFriction, otherMaterial.dynamicFriction);
         break;
     case Material::CombinationMode::Multiply:
-        combinedRestituion = staticFriction * otherMaterial.staticFriction;
+        combinedStaticFriction = staticFriction * otherMaterial.staticFriction;
         combinedDynamicFriction = dynamicFriction * otherMaterial.dynamicFriction;
         break;
     case Material::CombinationMode::Maximum:
-        combinedRestituion = std::fmax(staticFriction, otherMaterial.staticFriction);
+        combinedStaticFriction = std::fmax(staticFriction, otherMaterial.staticFriction);
         combinedDynamicFriction = std::fmax(dynamicFriction, otherMaterial.dynamicFriction);
         break;
     }
