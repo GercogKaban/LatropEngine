@@ -22,7 +22,7 @@ void createPlayer()
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
 			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
-			// physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Multiply;
+			physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Minimum;
 			physicsComponent->onCollision = [weakPlayer](LP::Collision collision, float depth) {
 				if (collision.points.normal.y > 0)
 				{
