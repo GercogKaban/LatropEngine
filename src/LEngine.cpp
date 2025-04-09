@@ -1,7 +1,7 @@
 #include "LEngine.h"
 #include <glfw3.h>
 #include <dynamics/ImpulseSolver.h>
-#include <dynamics/PositionSolver.h>
+#include <dynamics/SmoothPositionSolver.h>
 #include "LPlayerCharacter.h"
 
 LEngine* LEngine::thisPtr = nullptr;
@@ -11,7 +11,7 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 {
 	thisPtr = this;
 	physicsWorld.addSolver(std::make_unique<LP::ImpulseSolver>());
-	physicsWorld.addSolver(std::make_unique<LP::PositionSolver>());
+	physicsWorld.addSolver(std::make_unique<LP::SmoothPositionSolver>());
 }
 
 void LEngine::beginPlay()
