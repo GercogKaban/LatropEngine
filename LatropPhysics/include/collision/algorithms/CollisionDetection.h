@@ -6,6 +6,7 @@ namespace LP
     struct CapsuleCollider;
     struct BoundedPlaneCollider;
     struct AABBCollider;
+    struct OBBCollider;
     struct Transform;
     struct CollisionPoints;
 
@@ -30,6 +31,13 @@ namespace LP
         CollisionPoints findAABBAABBCollisionPoints(
             const AABBCollider* a, const Transform* transformA,
             const AABBCollider* b, const Transform* transformB
+        );
+
+        // MARK: - OBB
+
+        CollisionPoints findOBBOBBCollisionPoints(
+            const OBBCollider* a, const Transform* transformA,
+            const OBBCollider* b, const Transform* transformB
         );
 
         // MARK: Mixed - Plane
