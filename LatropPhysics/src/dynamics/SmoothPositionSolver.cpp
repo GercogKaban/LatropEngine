@@ -14,7 +14,7 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
 		float aInvMass = aBody->getInvMass();
         float bInvMass = bBody->getInvMass();
 
-		const float percent = 0.8f;
+		const float percent = 0.4f;
 		const float slop = 0.01f;
 
 		glm::vec3 correction = manifold.points.normal * percent
@@ -36,8 +36,8 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
 	}
 
 	for (unsigned i = 0; i < collisions.size(); i++) {
-		RigidBody* aBody = collisions[i].bodyA->isSimulated() ? (RigidBody*)collisions[i].bodyA : nullptr;
-		RigidBody* bBody = collisions[i].bodyB->isSimulated() ? (RigidBody*)collisions[i].bodyB : nullptr;
+		RigidBody* aBody = dynamic_cast<RigidBody*>(collisions[i].bodyA);
+        RigidBody* bBody = dynamic_cast<RigidBody*>(collisions[i].bodyB);
 
 		if (aBody ? aBody->isSimulated() : false) {
 			aBody->transform.position -= deltas[i].first;

@@ -29,19 +29,4 @@ void PositionSolver::solve(const std::vector<Collision>& collisions, float delta
             bBody->transform.position += bInvMass * correction * (aBody && aBody->isSimulated() ? 1.0f : 2.0f);
         }
     }
-
-    // for (Collision& manifold : collisions) {
-    //     RigidBody* aBody = manifold.bodyA;
-    //     RigidBody* bBody = manifold.bodyB;
-
-    //     float aStatic = (float)(int)!aBody->m_isSimulated;
-    //     float bStatic = (float)(int)!bBody->m_isSimulated;
-
-    //     glm::vec3 resolution = manifold.Normal 
-    //         * manifold.Depth 
-    //         / iw::max<scalar>(1, aStatic + bStatic);
-
-    //     aBody->Transform.Position -= resolution * scalar(1 - aStatic);
-    //     bBody->Transform.Position += resolution * scalar(1 - bStatic);
-    // }
 }
