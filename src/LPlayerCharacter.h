@@ -30,6 +30,11 @@ public:
 	static const glm::vec3 crouchedDimensions;
 	static const float mass;
 
+	glm::quat orientation{};
+	// FIXME: Temporary storage for portals to reference one another
+	LP::RigidBody* bluePortal;
+	LP::RigidBody* orangePortal;
+
 protected:
 
 	virtual void beginPlay() override;
@@ -51,7 +56,7 @@ protected:
 
 	// should be in camera class
 	bool bFirstMouse = true;
-	glm::quat orientation{};
+
 	float lastX = 600.0f;
 	float lastY = 300.0f;
 	float sensitivity = 0.1f;

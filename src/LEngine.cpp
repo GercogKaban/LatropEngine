@@ -1,7 +1,8 @@
 #include "LEngine.h"
 #include <glfw3.h>
 #include <dynamics/ImpulseSolver.h>
-#include <dynamics/PositionSolver.h>
+#include <dynamics/SmoothPositionSolver.h>
+#include "LPlayerCharacter.h"
 
 LEngine* LEngine::thisPtr = nullptr;
 
@@ -10,7 +11,7 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 {
 	thisPtr = this;
 	physicsWorld.addSolver(std::make_unique<LP::ImpulseSolver>());
-	physicsWorld.addSolver(std::make_unique<LP::PositionSolver>());
+	physicsWorld.addSolver(std::make_unique<LP::SmoothPositionSolver>());
 }
 
 void LEngine::beginPlay()
@@ -56,13 +57,22 @@ void LEngine::addTickablePrimitive(std::weak_ptr<LTickable> ptr)
 
 void LEngine::loop()
 {
-	renderer = std::make_unique<LRenderer>(window, LRenderer::StaticInitData(LActor::getComponentCounter(), LG::LGraphicsComponent::getInitTexturesData()));
+	LRenderer::StaticInitData initData =
+	{
+		// TODO: hardcoded stuff should be changed
+		.maxPortalNum = 2,
+		.primitiveCounter = LActor::getComponentCounter(),
+		.textures = LG::LGraphicsComponent::getInitTexturesData()
+	};
 
+
+	renderer = std::make_unique<LRenderer>(window, std::move(initData));
 	beginPlay();
 
 	while (renderer->getWindow() && !glfwWindowShouldClose(renderer->getWindow()))
 	{
 		FrameMark;
+
 		updateDelta();
 		fpsTimer += getDelta();
 		if (fpsTimer >= 1.0f)
@@ -72,6 +82,7 @@ void LEngine::loop()
 		}
 
 		initObjects();
+
 		
 		glfwPollEvents();
 		executeTickables();
@@ -84,10 +95,12 @@ void LEngine::loop()
 				physicsWorld.integrate(miniDelta);
 			}
 		}
+		renderer->playerModel = LPlayerCharacter::get()->physicsComponent->transform.getAsMatrix();
+		renderer->playerOrientation = LPlayerCharacter::get()->orientation;
 
 		{
 			ZoneScopedNC("Pass: Rendering", 0x000000FF);
-			renderer->drawFrame();
+			renderer->drawFrame(getDelta());
 		}
 		fps++;
 	}

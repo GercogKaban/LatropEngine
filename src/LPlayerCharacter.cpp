@@ -16,7 +16,7 @@ float LPlayerCharacter::getSpeed() const
 {
 	static float walkingSpeed = 1.45f;
 	static float crouchedSpeed = 0.87f;
-	float runningMultiplier = isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0;
+	float runningMultiplier = (isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0) * 1.5;
 	float speed = isKeyPressed(GLFW_KEY_LEFT_CONTROL) ? crouchedSpeed : walkingSpeed;
 
 	return speed * runningMultiplier;
@@ -150,6 +150,7 @@ void LPlayerCharacter::updateCamera()
 	// of the physicsCompontent is at the center of mass.
 	headPosition.y += physicsComponent->transform.scale.y * 0.45f;
 	renderer->setCameraPosition(headPosition);
+	renderer->setCameraPositionToPlayer({ 0.0f, physicsComponent->transform.scale.y * 0.45f, 0.0f });
 }
 
 void LPlayerCharacter::jump()
