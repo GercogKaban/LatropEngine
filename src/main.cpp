@@ -1,11 +1,11 @@
 #include <LWindow.h>
 #include "LEngine.h"
 #include "LPlayerCharacter.h"
-#include <collision/AABBCollider.h>
+#include <collision/OBBCollider.h>
 #include <collision/BoundedPlaneCollider.h>
 
 // MARK: - Shared Colliders
-auto cubeAABBCollider = std::make_shared<LP::AABBCollider>(LP::AABBCollider::makeCube());
+auto cubeOBBCollider = std::make_shared<LP::OBBCollider>(LP::OBBCollider::makeCube());
 auto planeYUPCollider = std::make_shared<LP::BoundedPlaneCollider>(LP::BoundedPlaneCollider());
 
 void createPlayer() 
@@ -18,13 +18,13 @@ void createPlayer()
 			physicsComponent->setMass(LPlayerCharacter::mass);
 			physicsComponent->takesGravity = true;
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
 			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
 			physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Minimum;
-			physicsComponent->onCollision = [weakPlayer](LP::Collision collision, float depth) {
-				if (collision.points.normal.y > 0)
+			physicsComponent->onCollision = [weakPlayer](LP::CollisionManifold collision, float depth) {
+				if (collision.normal.y > 0)
 				{
 					auto playerCharacter = weakPlayer.lock();
 					playerCharacter->resetJump();
@@ -59,7 +59,7 @@ void createOriginalSample(bool isSimulated = false)
 			physicsComponent->setIsSimulated(isSimulated);
 			if (isSimulated) physicsComponent->setMass(10.0f);
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
 			physicsComponent->material.restitution = 1.0f;
@@ -73,7 +73,7 @@ void createOriginalSample(bool isSimulated = false)
 			physicsComponent->setIsSimulated(isSimulated);
 			if (isSimulated) physicsComponent->setMass(10.0f);
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
 			physicsComponent->material.restitution = 2.2f;
@@ -87,7 +87,7 @@ void createOriginalSample(bool isSimulated = false)
 			physicsComponent->setIsSimulated(isSimulated);
 			if (isSimulated) physicsComponent->setMass(10.0f);
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Rubber;
 			physicsComponent->transform.position = glm::vec3(2.0f, 5.0f, 0.0f);
@@ -118,7 +118,7 @@ void createStairs(int height, int maxLength = 3)
 			{
 				physicsComponent->setIsSimulated(false);
 				
-				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->collider = cubeOBBCollider;
 				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i, (float)position.y * 0.85f);
 			});
 
@@ -152,7 +152,7 @@ void createPerfectlyBouncyPuddle()
 		{
 			physicsComponent->setIsSimulated(false);
 			
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = glm::vec3(7.0f, 0.5f, 7.0f);
 			physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
 			// Must be adjusted to accomodate the material of the object that wishes to bounce:
@@ -186,7 +186,7 @@ void createStairsStressTest(int height, int maxLength = 3, float YStep = 0.01f)
 			{
 				physicsComponent->setIsSimulated(false);
 				
-				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->collider = cubeOBBCollider;
 				physicsComponent->transform.position = glm::vec3((float)position.x * 0.85f, (float)i * YStep, (float)position.y * 0.85f);
 			});
 
@@ -229,7 +229,7 @@ void createStairsStressTest2(int height, int maxLength = 3, float YStep = 0.01f)
 			{
 				physicsComponent->setIsSimulated(false);
 				
-				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->collider = cubeOBBCollider;
 				physicsComponent->transform.position = glm::vec3((float)position.x, (float)i * YStep, (float)position.y);
 			});
 
@@ -254,7 +254,7 @@ void createPerfectlyBouncyPuddleNearHeavenlyOrbit(int height, int maxLength = 3,
 		{
 			physicsComponent->setIsSimulated(false);
 			
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = glm::vec3(7.0f, (height - maxLength) * YStep, 7.0f);
 			physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
 			// Must be adjusted to accomodate the material of the object that wishes to bounce:
@@ -296,14 +296,14 @@ void createPortals()
 			auto player = LPlayerCharacter::get();
 			player->bluePortal = physicsComponent;
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = pos1;
 			physicsComponent->transform.scale = portalScale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
-				if (collision.points.normal.z == 1)
+			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
+				if (collision.normal.z == 1)
 				{
 					// std::cout << "Colliding: ";
 					// std::cout << "x: " << collision.points.normal.x << " ";
@@ -341,14 +341,14 @@ void createPortals()
 			auto player = LPlayerCharacter::get();
 			player->orangePortal = physicsComponent;
 
-			physicsComponent->collider = cubeAABBCollider;
+			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = pos2;
 			physicsComponent->transform.scale = portalScale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::Collision collision, float dt) {
-				if (collision.points.normal.z == -1)
+			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
+				if (collision.normal.z == -1)
 				{
 					// std::cout << "Colliding: ";
 					// std::cout << "x: " << collision.points.normal.x << " ";
@@ -397,7 +397,7 @@ namespace RoomScene
 				{
 					physicsComponent->setIsSimulated(false);
 
-					physicsComponent->collider = planeYUPCollider;
+					physicsComponent->collider = cubeOBBCollider;
 					physicsComponent->transform.rotation *= rotation;
 					physicsComponent->transform.position = glm::vec3(float(i), 0.0f, float(k));
 					physicsComponent->material = LP::Material::Concrete;
@@ -426,7 +426,7 @@ namespace RoomScene
 				{
 					physicsComponent->setIsSimulated(false);
 
-					physicsComponent->collider = planeYUPCollider;
+					physicsComponent->collider = cubeOBBCollider;
 					physicsComponent->transform.position = glm::vec3(
 						normal.x != 0 ? float(i) : normal.y * float(halfWidth - 0.5f),
 						float(j), 
@@ -464,7 +464,7 @@ namespace RoomScene
 				loadComponent<LP::RigidBody>([position, YStep, origin](LP::RigidBody* physicsComponent)
 				{
 					physicsComponent->setIsSimulated(false);
-					physicsComponent->collider = cubeAABBCollider;
+					physicsComponent->collider = cubeOBBCollider;
 					physicsComponent->transform.position = origin + position;
 					physicsComponent->transform.scale.y = YStep;
 					physicsComponent->material = LP::Material::Concrete; 
@@ -484,7 +484,7 @@ namespace RoomScene
 			{
 				physicsComponent->setIsSimulated(false);
 				
-				physicsComponent->collider = cubeAABBCollider;
+				physicsComponent->collider = cubeOBBCollider;
 				physicsComponent->transform.position = origin;
 				physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
 				physicsComponent->material.restitution = 1.0; 
@@ -504,7 +504,7 @@ namespace RoomScene
 					physicsComponent->setMass(10.0f);
 					physicsComponent->takesGravity = true;
 					
-					physicsComponent->collider = cubeAABBCollider;
+					physicsComponent->collider = cubeOBBCollider;
 					physicsComponent->transform.position = origin + glm::vec3(0.0f, 5.0f, 0.0f);
 					physicsComponent->material = LP::Material::HumanBody;
 				});
