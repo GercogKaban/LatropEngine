@@ -7,7 +7,9 @@ include(FetchContent)
 set(CMAKE_SKIP_INSTALL_RULES ON)
 set(CMAKE_SUPPRESS_REGENERATION ON)
 
-file(GLOB SOURCE_FILES src/*.h src/*.cpp)
+# File globs for headers and sources
+file(GLOB_RECURSE HEADER_FILES include/*.h)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp)
 
 find_package(Vulkan)
 
@@ -15,6 +17,12 @@ add_subdirectory(LizardGraphics-2.0)
 add_subdirectory(LatropPhysics)
 
 add_executable(LatropGame ${SOURCE_FILES})
+
+# Include directories for the executable
+target_include_directories(LatropGame PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+)
 
 if(WIN32)
 set_target_properties(LatropGame PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
