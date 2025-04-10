@@ -126,6 +126,40 @@ std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners,
     return { min, max };
 }
 
+std::array<glm::vec3, 4> clipIncidentFaceAgainstReference(
+    const std::array<glm::vec3, 4>& incident, 
+    const std::array<glm::vec3, 4>& referenceNormals, 
+    const glm::vec3& referenceFaceNormal
+) {
+    std::array<glm::vec3, 4> clipped;
+    int clippedCount = 0;
+
+    for (const auto& normal : referenceNormals) {
+        glm::vec3 prevPoint = incident[3];
+        for (const auto& currentPoint : incident) {
+            float prevDistance = glm::dot(prevPoint, normal);
+            float currentDistance = glm::dot(currentPoint, normal);
+
+            if (currentDistance < 0) {
+                if (prevDistance < 0) {
+                    clipped[clippedCount++] = currentPoint;
+                } else {
+                    float t = prevDistance / (prevDistance - currentDistance);
+                    clipped[clippedCount++] = prevPoint + t * (currentPoint - prevPoint);
+                    clipped[clippedCount++] = currentPoint;
+                }
+            } else if (prevDistance < 0) {
+                float t = prevDistance / (prevDistance - currentDistance);
+                clipped[clippedCount++] = prevPoint + t * (currentPoint - prevPoint);
+            }
+
+            prevPoint = currentPoint;
+        }
+    }
+
+    return clipped;
+}
+
 ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     const OBBCollider* a, const Transform* transformA,
     const OBBCollider* b, const Transform* transformB
@@ -189,10 +223,54 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
     if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
 
-    manifold.contactPoints[0].depth = minOverlap;
-    manifold.contactPoints[0].start = (cornersA[0] + cornersB[0]) * 0.5f; // Placeholder for contact point
-    manifold.contactPoints[0].end = manifold.contactPoints[0].start; // Placeholder for contact point
-    manifold.contactsCount = 1;
+    // Determine reference and incident boxes
+    const OBBCollider* referenceBox = glm::dot(direction, manifold.normal) > 0 ? a : b;
+    const OBBCollider* incidentBox = referenceBox == a ? b : a;
+
+    // Find the reference face normal that is most aligned with the collision normal
+    glm::vec3 referenceFaceNormal = glm::normalize(manifold.normal);
+
+    // Compute corners of the reference face
+    glm::vec3 referenceFaceCorners[4];
+    glm::vec3 referenceExtents = (referenceBox->maxExtents - referenceBox->minExtents) * 0.5f;
+
+    glm::vec3 faceCenter = referenceBox->minExtents + referenceExtents;
+    referenceFaceCorners[0] = faceCenter + referenceFaceNormal * referenceExtents.z; // Top face
+    referenceFaceCorners[1] = faceCenter - referenceFaceNormal * referenceExtents.z; // Bottom face
+    referenceFaceCorners[2] = faceCenter + referenceFaceNormal * referenceExtents.x; // Right face
+    referenceFaceCorners[3] = faceCenter - referenceFaceNormal * referenceExtents.x; // Left face
+
+    // Compute incident face corners based on the incident box's rotation and extents
+    glm::vec3 incidentExtents = (incidentBox->maxExtents - incidentBox->minExtents) * 0.5f;
+    glm::vec3 incidentFaceCenter = incidentBox->minExtents + incidentExtents;
+
+    glm::mat3 incidentRot = glm::mat3(transformB->rotation);
+    std::array<glm::vec3, 4> incidentFaceCorners = {
+        incidentFaceCenter + glm::vec3(0, 0, incidentExtents.z) * incidentRot, // Top face
+        incidentFaceCenter + glm::vec3(0, 0, -incidentExtents.z) * incidentRot, // Bottom face
+        incidentFaceCenter + glm::vec3(incidentExtents.x, 0, 0) * incidentRot, // Right face
+        incidentFaceCenter + glm::vec3(-incidentExtents.x, 0, 0) * incidentRot // Left face
+    };
+
+    // Generate side plane normals based on reference face edges and the face normal
+    std::array<glm::vec3, 4> referenceFaceEdges = {
+        glm::normalize(referenceFaceCorners[1] - referenceFaceCorners[0]),
+        glm::normalize(referenceFaceCorners[2] - referenceFaceCorners[0]),
+        glm::normalize(referenceFaceCorners[3] - referenceFaceCorners[0]),
+        glm::normalize(referenceFaceCorners[1] - referenceFaceCorners[2])
+    };
+
+    // Clip the incident face against the reference face
+    auto clippedPoints = clipIncidentFaceAgainstReference(incidentFaceCorners, referenceFaceEdges, referenceFaceNormal);
+
+    // Populate the manifold's contactPoints based on clipped points
+    for (int i = 0; i < clippedPoints.size(); ++i) {
+        if (i >= 4) break; // Limit to 4 contact points
+        manifold.contactPoints[i].depth = minOverlap; // Set depth
+        manifold.contactPoints[i].start = clippedPoints[i]; // Set contact start point
+        manifold.contactPoints[i].end = clippedPoints[i]; // Set contact end point
+    }
+    manifold.contactsCount = std::min(4, static_cast<int>(clippedPoints.size()));
 
     return manifold;
 }
