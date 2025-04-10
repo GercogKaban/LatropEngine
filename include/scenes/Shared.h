@@ -8,6 +8,6 @@ extern std::shared_ptr<LP::BoundedPlaneCollider> planeYUPCollider;
 
 namespace SharedScene
 {
-    void createPlayer();
+    void createPlayer(glm::vec3 origin = glm::vec3(2.0f, 2.0f, 2.0f), bool takesGravity = true);
     void createPortals();
 } // namespace SharedScene

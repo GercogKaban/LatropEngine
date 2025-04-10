@@ -1,6 +1,7 @@
 #include <LWindow.h>
 #include "LEngine.h"
 #include "scenes/Shared.h"
+#include "scenes/RotationalScene.h"
 
 // MARK: Main
 
@@ -10,7 +11,9 @@ int main()
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
 	// MARK: Samples
-	SharedScene::createPlayer();
+	RotationalScene::createScenarioI();
+
+	// Portals are required by the engine at the moment.
 	SharedScene::createPortals();
 	
 	// MARK: RunLoop

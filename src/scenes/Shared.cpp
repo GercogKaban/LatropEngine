@@ -6,18 +6,18 @@
 std::shared_ptr<LP::OBBCollider> cubeOBBCollider = std::make_shared<LP::OBBCollider>(LP::OBBCollider::makeCube());
 std::shared_ptr<LP::BoundedPlaneCollider> planeYUPCollider = std::make_shared<LP::BoundedPlaneCollider>(LP::BoundedPlaneCollider());
 
-void SharedScene::createPlayer() 
+void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity) 
 {
 	auto weakPlayer = ObjectBuilder::construct<LPlayerCharacter>();
 	auto playerCharacter = weakPlayer.lock();
-	playerCharacter->loadComponent<LP::RigidBody>([weakPlayer](LP::RigidBody* physicsComponent)
+	playerCharacter->loadComponent<LP::RigidBody>([weakPlayer, origin, takesGravity](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(true);
 			physicsComponent->setMass(LPlayerCharacter::mass);
-			physicsComponent->takesGravity = true;
+			physicsComponent->takesGravity = takesGravity;
 
 			physicsComponent->collider = cubeOBBCollider;
-			physicsComponent->transform.position = glm::vec3(2.0f, 2.0f, 2.0f);
+			physicsComponent->transform.position = origin;
 			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
 			physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Minimum;
