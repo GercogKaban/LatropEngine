@@ -7,7 +7,7 @@ namespace LP
     struct BoundedPlaneCollider;
     struct OBBCollider;
     struct Transform;
-    struct CollisionPoints;
+    struct ContactManifold;
     struct AABB;
 
     namespace collisionDetectors 
@@ -18,33 +18,33 @@ namespace LP
 
         // MARK: - Sphere
 
-        CollisionPoints findSphereSphereCollisionPoints(
+        ContactManifold findSphereSphereCollisionPoints(
             const SphereCollider* a, const Transform* transformA,
             const SphereCollider* b, const Transform* transformB
         );
         
         // MARK: - Capsule
 
-        CollisionPoints findCapsuleCapsuleCollisionPoints(
+        ContactManifold findCapsuleCapsuleCollisionPoints(
             const CapsuleCollider* a, const Transform* transformA,
             const CapsuleCollider* b, const Transform* transformB
         );
 
         // MARK: - OBB
 
-        CollisionPoints findOBBOBBCollisionPoints(
+        ContactManifold findOBBOBBCollisionPoints(
             const OBBCollider* a, const Transform* transformA,
             const OBBCollider* b, const Transform* transformB
         );
 
         // MARK: Mixed - Plane
 
-        CollisionPoints findPlaneSphereCollisionPoints(
+        ContactManifold findPlaneSphereCollisionPoints(
             const BoundedPlaneCollider* a, const Transform* transformA,
             const SphereCollider* b, const Transform* transformB
         );
 
-        CollisionPoints findPlaneCapsuleCollisionPoints(
+        ContactManifold findPlaneCapsuleCollisionPoints(
             const BoundedPlaneCollider* a, const Transform* transformA,
             const CapsuleCollider* b, const Transform* transformB
         );

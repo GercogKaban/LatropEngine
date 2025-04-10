@@ -15,9 +15,6 @@ using namespace LP;
 
 bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 {
-    CollisionPoints points;
-    points.hasCollision = false;
-
     auto [aMin, aMax] = a;
     auto [bMin, bMax] = b;
 

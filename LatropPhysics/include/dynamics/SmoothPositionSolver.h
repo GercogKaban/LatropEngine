@@ -6,6 +6,6 @@ namespace LP
 {
     struct SmoothPositionSolver : Solver
     {
-        void solve(const std::vector<Collision>& collisions, float deltaTime) override;
+        void solve(const std::vector<CollisionManifold>& collisions, float deltaTime) override;
     };
 } // namespace LP
