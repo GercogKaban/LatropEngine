@@ -37,226 +37,226 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 // MARK: Narrow Phase
 // MARK: - Sphere
 
-CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
-    const SphereCollider* a, const Transform* transformA,
-    const SphereCollider* b, const Transform* transformB
-) {
-    glm::vec3 centerA = transformA->position;
-    glm::vec3 centerB = transformB->position;
-    glm::vec3 delta = centerB - centerA;
-    float distance = glm::length(delta);
-    float combinedRadius = a->radius + b->radius;
+// CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
+//     const SphereCollider* a, const Transform* transformA,
+//     const SphereCollider* b, const Transform* transformB
+// ) {
+//     glm::vec3 centerA = transformA->position;
+//     glm::vec3 centerB = transformB->position;
+//     glm::vec3 delta = centerB - centerA;
+//     float distance = glm::length(delta);
+//     float combinedRadius = a->radius + b->radius;
 
-    CollisionPoints result;
-    result.hasCollision = distance < combinedRadius;
-    result.normal = distance > 0.0f ? glm::normalize(delta) : glm::vec3(1, 0, 0);
-    result.start = centerA + result.normal * a->radius;
-    result.end = centerB - result.normal * b->radius;
-    result.depth = combinedRadius - distance;
+//     CollisionPoints result;
+//     result.hasCollision = distance < combinedRadius;
+//     result.normal = distance > 0.0f ? glm::normalize(delta) : glm::vec3(1, 0, 0);
+//     result.start = centerA + result.normal * a->radius;
+//     result.end = centerB - result.normal * b->radius;
+//     result.depth = combinedRadius - distance;
 
-    return result;
-}
+//     return result;
+// }
 
 // MARK: - Capsule
 
-CollisionPoints collisionDetectors::findCapsuleCapsuleCollisionPoints(
-    const CapsuleCollider* a, const Transform* transformA,
-    const CapsuleCollider* b, const Transform* transformB
-) {
-   // Get world-space endpoints of both capsules
-   glm::vec3 topA, bottomA, topB, bottomB;
-   a->getWorldEndpoints(transformA, topA, bottomA);
-   b->getWorldEndpoints(transformB, topB, bottomB);
+// CollisionPoints collisionDetectors::findCapsuleCapsuleCollisionPoints(
+//     const CapsuleCollider* a, const Transform* transformA,
+//     const CapsuleCollider* b, const Transform* transformB
+// ) {
+//    // Get world-space endpoints of both capsules
+//    glm::vec3 topA, bottomA, topB, bottomB;
+//    a->getWorldEndpoints(transformA, topA, bottomA);
+//    b->getWorldEndpoints(transformB, topB, bottomB);
 
-   // Calculate the vector between the capsule centers
-   glm::vec3 delta = bottomB - bottomA;
-   float distance = glm::length(delta);
-   float combinedRadius = a->radius + b->radius;
+//    // Calculate the vector between the capsule centers
+//    glm::vec3 delta = bottomB - bottomA;
+//    float distance = glm::length(delta);
+//    float combinedRadius = a->radius + b->radius;
 
-   CollisionPoints result;
-   result.hasCollision = false;
+//    CollisionPoints result;
+//    result.hasCollision = false;
 
-   // Check if the distance between the capsule centers is less than the combined radii
-   if (distance < combinedRadius) {
-       // There is a potential collision, check further
-       result.hasCollision = true;
+//    // Check if the distance between the capsule centers is less than the combined radii
+//    if (distance < combinedRadius) {
+//        // There is a potential collision, check further
+//        result.hasCollision = true;
 
-       // Calculate normal vector between capsules
-       result.normal = glm::normalize(delta);
+//        // Calculate normal vector between capsules
+//        result.normal = glm::normalize(delta);
 
-       // Calculate the penetration depth (how far the capsules are overlapping)
-       result.depth = combinedRadius - distance;
+//        // Calculate the penetration depth (how far the capsules are overlapping)
+//        result.depth = combinedRadius - distance;
 
-       // Calculate collision points (adjusted by radius to find exact collision)
-       result.start = bottomA + result.normal * a->radius;
-       result.end = bottomB - result.normal * b->radius;
-   }
+//        // Calculate collision points (adjusted by radius to find exact collision)
+//        result.start = bottomA + result.normal * a->radius;
+//        result.end = bottomB - result.normal * b->radius;
+//    }
 
-   return result;
-}
+//    return result;
+// }
 
 // MARK: OBB
 
-std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
-    glm::vec3 center = (obb->minExtents + obb->maxExtents) * 0.5f;
-    glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
+// std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
+//     glm::vec3 center = (obb->minExtents + obb->maxExtents) * 0.5f;
+//     glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
 
-    glm::mat3 rot = glm::mat3(transform->rotation);
+//     glm::mat3 rot = glm::mat3(transform->rotation);
 
-    std::array<glm::vec3, 8> corners;
-    int i = 0;
-    for (int x = -1; x <= 1; x += 2) {
-        for (int y = -1; y <= 1; y += 2) {
-            for (int z = -1; z <= 1; z += 2) {
-                glm::vec3 localCorner = center + glm::vec3(x * extents.x, y * extents.y, z * extents.z);
-                localCorner *= transform->scale;
-                corners[i++] = transform->position + rot * (localCorner - center);
-            }
-        }
-    }
+//     std::array<glm::vec3, 8> corners;
+//     int i = 0;
+//     for (int x = -1; x <= 1; x += 2) {
+//         for (int y = -1; y <= 1; y += 2) {
+//             for (int z = -1; z <= 1; z += 2) {
+//                 glm::vec3 localCorner = center + glm::vec3(x * extents.x, y * extents.y, z * extents.z);
+//                 localCorner *= transform->scale;
+//                 corners[i++] = transform->position + rot * (localCorner - center);
+//             }
+//         }
+//     }
 
-    return corners;
-}
+//     return corners;
+// }
 
-std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) {
-    float min = glm::dot(corners[0], axis);
-    float max = min;
-    for (int i = 1; i < 8; ++i) {
-        float projection = glm::dot(corners[i], axis);
-        min = std::min(min, projection);
-        max = std::max(max, projection);
-    }
-    return { min, max };
-}
+// std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) {
+//     float min = glm::dot(corners[0], axis);
+//     float max = min;
+//     for (int i = 1; i < 8; ++i) {
+//         float projection = glm::dot(corners[i], axis);
+//         min = std::min(min, projection);
+//         max = std::max(max, projection);
+//     }
+//     return { min, max };
+// }
 
-CollisionPoints collisionDetectors::findOBBOBBCollisionPoints(
-    const OBBCollider* a, const Transform* transformA,
-    const OBBCollider* b, const Transform* transformB
-) {
-    CollisionPoints result;
-    result.hasCollision = false;
+// CollisionPoints collisionDetectors::findOBBOBBCollisionPoints(
+//     const OBBCollider* a, const Transform* transformA,
+//     const OBBCollider* b, const Transform* transformB
+// ) {
+//     CollisionPoints result;
+//     result.hasCollision = false;
 
-    // Step 1: Compute world-space corner points of each OBB
-    std::array<glm::vec3, 8> cornersA = getOBBCorners(a, transformA);
-    std::array<glm::vec3, 8> cornersB = getOBBCorners(b, transformB);
+//     // Step 1: Compute world-space corner points of each OBB
+//     std::array<glm::vec3, 8> cornersA = getOBBCorners(a, transformA);
+//     std::array<glm::vec3, 8> cornersB = getOBBCorners(b, transformB);
 
-    // Step 2: Extract OBB axes from transform rotation
-    glm::vec3 axesA[3] = {
-        glm::normalize(transformA->rotation * glm::vec3(1, 0, 0)),
-        glm::normalize(transformA->rotation * glm::vec3(0, 1, 0)),
-        glm::normalize(transformA->rotation * glm::vec3(0, 0, 1))
-    };
+//     // Step 2: Extract OBB axes from transform rotation
+//     glm::vec3 axesA[3] = {
+//         glm::normalize(transformA->rotation * glm::vec3(1, 0, 0)),
+//         glm::normalize(transformA->rotation * glm::vec3(0, 1, 0)),
+//         glm::normalize(transformA->rotation * glm::vec3(0, 0, 1))
+//     };
 
-    glm::vec3 axesB[3] = {
-        glm::normalize(transformB->rotation * glm::vec3(1, 0, 0)),
-        glm::normalize(transformB->rotation * glm::vec3(0, 1, 0)),
-        glm::normalize(transformB->rotation * glm::vec3(0, 0, 1))
-    };
+//     glm::vec3 axesB[3] = {
+//         glm::normalize(transformB->rotation * glm::vec3(1, 0, 0)),
+//         glm::normalize(transformB->rotation * glm::vec3(0, 1, 0)),
+//         glm::normalize(transformB->rotation * glm::vec3(0, 0, 1))
+//     };
 
-    // Step 3: Generate the 15 potential separating axes
-    std::vector<glm::vec3> testAxes;
-    for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
-    for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
-    for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j) {
-            glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
-            if (glm::length(axis) > 0.0001f) // avoid degenerate axes
-                testAxes.push_back(glm::normalize(axis));
-        }
+//     // Step 3: Generate the 15 potential separating axes
+//     std::vector<glm::vec3> testAxes;
+//     for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
+//     for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
+//     for (int i = 0; i < 3; ++i)
+//         for (int j = 0; j < 3; ++j) {
+//             glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
+//             if (glm::length(axis) > 0.0001f) // avoid degenerate axes
+//                 testAxes.push_back(glm::normalize(axis));
+//         }
 
-    float minOverlap = std::numeric_limits<float>::max();
-    glm::vec3 smallestAxis;
+//     float minOverlap = std::numeric_limits<float>::max();
+//     glm::vec3 smallestAxis;
 
-    // Step 4: SAT test
-    for (const auto& axis : testAxes) {
-        // Project both sets of corners onto the axis
-        auto [minA, maxA] = projectOntoAxis(cornersA, axis);
-        auto [minB, maxB] = projectOntoAxis(cornersB, axis);
+//     // Step 4: SAT test
+//     for (const auto& axis : testAxes) {
+//         // Project both sets of corners onto the axis
+//         auto [minA, maxA] = projectOntoAxis(cornersA, axis);
+//         auto [minB, maxB] = projectOntoAxis(cornersB, axis);
 
-        // Check for overlap
-        if (maxA < minB || maxB < minA) {
-            return result; // No collision
-        }
+//         // Check for overlap
+//         if (maxA < minB || maxB < minA) {
+//             return result; // No collision
+//         }
 
-        // Compute overlap amount
-        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap < minOverlap) {
-            minOverlap = overlap;
-            smallestAxis = axis;
-        }
-    }
+//         // Compute overlap amount
+//         float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+//         if (overlap < minOverlap) {
+//             minOverlap = overlap;
+//             smallestAxis = axis;
+//         }
+//     }
 
-    // Step 5: If no separating axis found, we have a collision
-    result.hasCollision = true;
-    result.normal = smallestAxis;
-    result.depth = minOverlap;
-    result.start = transformA->position; // Placeholder
-    result.end = transformA->position + smallestAxis * minOverlap;
+//     // Step 5: If no separating axis found, we have a collision
+//     result.hasCollision = true;
+//     result.normal = smallestAxis;
+//     result.depth = minOverlap;
+//     result.start = transformA->position; // Placeholder
+//     result.end = transformA->position + smallestAxis * minOverlap;
 
-    return result;
-}
+//     return result;
+// }
 
 // MARK: Mixed - Plane
 
-CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
-    const BoundedPlaneCollider* a, const Transform* transformA,
-    const SphereCollider* b, const Transform* transformB
-) {
-    return {};
-}
+// CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
+//     const BoundedPlaneCollider* a, const Transform* transformA,
+//     const SphereCollider* b, const Transform* transformB
+// ) {
+//     return {};
+// }
 
-CollisionPoints collisionDetectors::findPlaneCapsuleCollisionPoints(
-    const BoundedPlaneCollider* a, const Transform* transformA,
-    const CapsuleCollider* b, const Transform* transformB
-) {
-    CollisionPoints points;
-    points.hasCollision = false;
+// CollisionPoints collisionDetectors::findPlaneCapsuleCollisionPoints(
+//     const BoundedPlaneCollider* a, const Transform* transformA,
+//     const CapsuleCollider* b, const Transform* transformB
+// ) {
+//     CollisionPoints points;
+//     points.hasCollision = false;
 
-    // Get capsule's world-space endpoints
-    glm::vec3 topB, bottomB;
-    b->getWorldEndpoints(transformB, topB, bottomB);
+//     // Get capsule's world-space endpoints
+//     glm::vec3 topB, bottomB;
+//     b->getWorldEndpoints(transformB, topB, bottomB);
 
-    // Transform the plane's normal to world space
-    glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
+//     // Transform the plane's normal to world space
+//     glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
 
-    // Calculate distance of both the capsule's ends (top and bottom) from the plane
-    float topDistance = glm::dot(topB - transformA->position, planeNormal);
-    float bottomDistance = glm::dot(bottomB - transformA->position, planeNormal);
+//     // Calculate distance of both the capsule's ends (top and bottom) from the plane
+//     float topDistance = glm::dot(topB - transformA->position, planeNormal);
+//     float bottomDistance = glm::dot(bottomB - transformA->position, planeNormal);
 
-    // Check for collision with top or bottom sphere
-    if (topDistance < b->radius && topDistance > 0.0f) {
-        points.hasCollision = true;
-        points.normal = planeNormal;
-        points.depth = b->radius - topDistance;
-        points.start = topB - planeNormal * points.depth;
-        points.end = topB;
-    }
+//     // Check for collision with top or bottom sphere
+//     if (topDistance < b->radius && topDistance > 0.0f) {
+//         points.hasCollision = true;
+//         points.normal = planeNormal;
+//         points.depth = b->radius - topDistance;
+//         points.start = topB - planeNormal * points.depth;
+//         points.end = topB;
+//     }
 
-    if (bottomDistance < b->radius && bottomDistance > 0.0f) {
-        points.hasCollision = true;
-        points.normal = planeNormal;
-        points.depth = b->radius - bottomDistance;
-        points.start = bottomB - planeNormal * points.depth;
-        points.end = bottomB;
-    }
+//     if (bottomDistance < b->radius && bottomDistance > 0.0f) {
+//         points.hasCollision = true;
+//         points.normal = planeNormal;
+//         points.depth = b->radius - bottomDistance;
+//         points.start = bottomB - planeNormal * points.depth;
+//         points.end = bottomB;
+//     }
 
-    // If no collision at top or bottom, check if capsule cylinder intersects the plane
-    if (!points.hasCollision) {
-        // Check if the capsule cylinder intersects the plane, if the capsule center is above or below the plane
-        glm::vec3 capsuleCenter = (topB + bottomB) / 2.0f;
-        float centerDistance = glm::dot(capsuleCenter - transformA->position, planeNormal);
+//     // If no collision at top or bottom, check if capsule cylinder intersects the plane
+//     if (!points.hasCollision) {
+//         // Check if the capsule cylinder intersects the plane, if the capsule center is above or below the plane
+//         glm::vec3 capsuleCenter = (topB + bottomB) / 2.0f;
+//         float centerDistance = glm::dot(capsuleCenter - transformA->position, planeNormal);
 
-        if (centerDistance < b->radius && centerDistance > 0.0f) {
-            points.hasCollision = true;
-            points.normal = planeNormal;
-            points.depth = b->radius - centerDistance;
-            points.start = capsuleCenter - planeNormal * points.depth;
-            points.end = capsuleCenter;
-        }
-    }
+//         if (centerDistance < b->radius && centerDistance > 0.0f) {
+//             points.hasCollision = true;
+//             points.normal = planeNormal;
+//             points.depth = b->radius - centerDistance;
+//             points.start = capsuleCenter - planeNormal * points.depth;
+//             points.end = capsuleCenter;
+//         }
+//     }
 
-    return points;
-}
+//     return points;
+// }
 
 // CollisionPoints collisionDetectors::findPlaneAABBCollisionPoints(
 //     const BoundedPlaneCollider* a, const Transform* transformA,
