@@ -7,7 +7,6 @@ namespace LP
     struct SphereCollider;
     struct CapsuleCollider;
     struct BoundedPlaneCollider;
-    struct AABBCollider;
     struct OBBCollider;
     struct Transform;
     struct AABB;
@@ -16,7 +15,11 @@ namespace LP
     {
         virtual ~Collider() = default;
 
+        // MARK: Broad-Phase Primitives
+
         virtual AABB getAABB(const Transform * transform) const = 0;
+
+        // MARK: Narrow-Phase Primitives
 
         virtual CollisionPoints testCollision(
             const Transform* transform,
@@ -39,12 +42,6 @@ namespace LP
         virtual CollisionPoints testCollision(
             const Transform* transform,
             const BoundedPlaneCollider* other,
-            const Transform* otherTransform
-        ) const = 0;
-
-        virtual CollisionPoints testCollision(
-            const Transform* transform,
-            const AABBCollider* other,
             const Transform* otherTransform
         ) const = 0;
 

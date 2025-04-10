@@ -50,14 +50,6 @@ CollisionPoints SphereCollider::testCollision(
 
 CollisionPoints SphereCollider::testCollision(
     const Transform* transform,
-    const AABBCollider* other,
-    const Transform* otherTransform
-) const {
-    return {};
-}
-
-CollisionPoints SphereCollider::testCollision(
-    const Transform* transform,
     const OBBCollider* other,
     const Transform* otherTransform
 ) const {

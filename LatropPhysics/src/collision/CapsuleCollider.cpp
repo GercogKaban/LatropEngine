@@ -76,16 +76,6 @@ CollisionPoints CapsuleCollider::testCollision(
 
 CollisionPoints CapsuleCollider::testCollision(
     const Transform* transform,
-    const AABBCollider* other,
-    const Transform* otherTransform
-) const {
-    return collisionDetectors::findAABBCapsuleCollisionPoints(
-        other, otherTransform, this, transform
-    );
-}
-
-CollisionPoints CapsuleCollider::testCollision(
-    const Transform* transform,
     const OBBCollider* other,
     const Transform* otherTransform
 ) const {

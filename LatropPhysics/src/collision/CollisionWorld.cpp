@@ -1,6 +1,5 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
-#include "collision/AABBCollider.h"
 #include "shared/AABB.h"
 
 using namespace LP;
