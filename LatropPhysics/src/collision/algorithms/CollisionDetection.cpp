@@ -32,6 +32,57 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 }
 
 // MARK: Narrow Phase
+// MARK: - OBB
+
+ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
+    const OBBCollider* a, const Transform* transformA,
+    const OBBCollider* b, const Transform* transformB
+) {
+    ContactManifold points;
+
+    auto [aMin, aMax] = a->getAABB(transformA);
+    auto [bMin, bMax] = b->getAABB(transformB);
+
+    // Calculate overlap on each axis
+    glm::vec3 overlapMin = glm::max(aMin, bMin);
+    glm::vec3 overlapMax = glm::min(aMax, bMax);
+
+    // Check for collision
+    if (overlapMin.x >= overlapMax.x || overlapMin.y >= overlapMax.y || overlapMin.z >= overlapMax.z) {
+        return points;  // No collision
+    }
+
+    // Collision exists
+    // Calculate overlap distances along each axis
+    float overlapX = overlapMax.x - overlapMin.x;
+    float overlapY = overlapMax.y - overlapMin.y;
+    float overlapZ = overlapMax.z - overlapMin.z;
+
+    // Find the smallest overlap axis (to calculate the collision normal and depth)
+    float minOverlap = overlapX;
+    points.normal = glm::vec3((aMin.x < bMin.x) ? -1.0f : 1.0f, 0.0f, 0.0f);
+
+    if (overlapY < minOverlap) {
+        minOverlap = overlapY;
+        points.normal = glm::vec3(0.0f, (aMin.y < bMin.y) ? -1.0f : 1.0f, 0.0f);
+    }
+
+    if (overlapZ < minOverlap) {
+        minOverlap = overlapZ;
+        points.normal = glm::vec3(0.0f, 0.0f, (aMin.z < bMin.z) ? -1.0f : 1.0f);
+    }
+
+    // Calculate penetration depth
+    points.contactPoints[0].depth = minOverlap;
+
+    // Calculate collision points
+    points.contactPoints[0].start = overlapMin;
+    points.contactPoints[0].end = overlapMax;
+    points.contactsCount = 1;
+
+    return points;
+}
+
 // MARK: - Sphere
 
 // CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(

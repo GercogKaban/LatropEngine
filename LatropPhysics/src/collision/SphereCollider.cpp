@@ -43,9 +43,7 @@ ContactManifold SphereCollider::testCollision(
     const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findPlaneSphereCollisionPoints(
-        other, otherTransform, this, transform
-    );
+    return {};
 }
 
 ContactManifold SphereCollider::testCollision(

@@ -36,9 +36,7 @@ ContactManifold BoundedPlaneCollider::testCollision(
     const CapsuleCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findPlaneCapsuleCollisionPoints(
-        this, transform, other, otherTransform
-    );
+    return {};
 }
 
 ContactManifold BoundedPlaneCollider::testCollision(
