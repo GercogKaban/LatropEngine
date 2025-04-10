@@ -32,57 +32,6 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 }
 
 // MARK: Narrow Phase
-// MARK: - OBB
-
-ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
-    const OBBCollider* a, const Transform* transformA,
-    const OBBCollider* b, const Transform* transformB
-) {
-    ContactManifold points;
-
-    auto [aMin, aMax] = a->getAABB(transformA);
-    auto [bMin, bMax] = b->getAABB(transformB);
-
-    // Calculate overlap on each axis
-    glm::vec3 overlapMin = glm::max(aMin, bMin);
-    glm::vec3 overlapMax = glm::min(aMax, bMax);
-
-    // Check for collision
-    if (overlapMin.x >= overlapMax.x || overlapMin.y >= overlapMax.y || overlapMin.z >= overlapMax.z) {
-        return points;  // No collision
-    }
-
-    // Collision exists
-    // Calculate overlap distances along each axis
-    float overlapX = overlapMax.x - overlapMin.x;
-    float overlapY = overlapMax.y - overlapMin.y;
-    float overlapZ = overlapMax.z - overlapMin.z;
-
-    // Find the smallest overlap axis (to calculate the collision normal and depth)
-    float minOverlap = overlapX;
-    points.normal = glm::vec3((aMin.x < bMin.x) ? -1.0f : 1.0f, 0.0f, 0.0f);
-
-    if (overlapY < minOverlap) {
-        minOverlap = overlapY;
-        points.normal = glm::vec3(0.0f, (aMin.y < bMin.y) ? -1.0f : 1.0f, 0.0f);
-    }
-
-    if (overlapZ < minOverlap) {
-        minOverlap = overlapZ;
-        points.normal = glm::vec3(0.0f, 0.0f, (aMin.z < bMin.z) ? -1.0f : 1.0f);
-    }
-
-    // Calculate penetration depth
-    points.contactPoints[0].depth = minOverlap;
-
-    // Calculate collision points
-    points.contactPoints[0].start = overlapMin;
-    points.contactPoints[0].end = overlapMax;
-    points.contactsCount = 1;
-
-    return points;
-}
-
 // MARK: - Sphere
 
 // CollisionPoints collisionDetectors::findSphereSphereCollisionPoints(
@@ -145,104 +94,108 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
 // MARK: OBB
 
-// std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
-//     glm::vec3 center = (obb->minExtents + obb->maxExtents) * 0.5f;
-//     glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
+std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
+    glm::vec3 center = (obb->minExtents + obb->maxExtents) * 0.5f;
+    glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
 
-//     glm::mat3 rot = glm::mat3(transform->rotation);
+    glm::mat3 rot = glm::mat3(transform->rotation);
 
-//     std::array<glm::vec3, 8> corners;
-//     int i = 0;
-//     for (int x = -1; x <= 1; x += 2) {
-//         for (int y = -1; y <= 1; y += 2) {
-//             for (int z = -1; z <= 1; z += 2) {
-//                 glm::vec3 localCorner = center + glm::vec3(x * extents.x, y * extents.y, z * extents.z);
-//                 localCorner *= transform->scale;
-//                 corners[i++] = transform->position + rot * (localCorner - center);
-//             }
-//         }
-//     }
+    std::array<glm::vec3, 8> corners;
+    int i = 0;
+    for (int x = -1; x <= 1; x += 2) {
+        for (int y = -1; y <= 1; y += 2) {
+            for (int z = -1; z <= 1; z += 2) {
+                glm::vec3 localCorner = center + glm::vec3(x * extents.x, y * extents.y, z * extents.z);
+                localCorner *= transform->scale;
+                corners[i++] = transform->position + rot * (localCorner - center);
+            }
+        }
+    }
 
-//     return corners;
-// }
+    return corners;
+}
 
-// std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) {
-//     float min = glm::dot(corners[0], axis);
-//     float max = min;
-//     for (int i = 1; i < 8; ++i) {
-//         float projection = glm::dot(corners[i], axis);
-//         min = std::min(min, projection);
-//         max = std::max(max, projection);
-//     }
-//     return { min, max };
-// }
+std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) {
+    float min = glm::dot(corners[0], axis);
+    float max = min;
+    for (int i = 1; i < 8; ++i) {
+        float projection = glm::dot(corners[i], axis);
+        min = std::min(min, projection);
+        max = std::max(max, projection);
+    }
+    return { min, max };
+}
 
-// CollisionPoints collisionDetectors::findOBBOBBCollisionPoints(
-//     const OBBCollider* a, const Transform* transformA,
-//     const OBBCollider* b, const Transform* transformB
-// ) {
-//     CollisionPoints result;
-//     result.hasCollision = false;
+ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
+    const OBBCollider* a, const Transform* transformA,
+    const OBBCollider* b, const Transform* transformB
+) {
+    ContactManifold manifold;
 
-//     // Step 1: Compute world-space corner points of each OBB
-//     std::array<glm::vec3, 8> cornersA = getOBBCorners(a, transformA);
-//     std::array<glm::vec3, 8> cornersB = getOBBCorners(b, transformB);
+    // Step 1: Compute world-space corner points of each OBB
+    std::array<glm::vec3, 8> cornersA = getOBBCorners(a, transformA);
+    std::array<glm::vec3, 8> cornersB = getOBBCorners(b, transformB);
 
-//     // Step 2: Extract OBB axes from transform rotation
-//     glm::vec3 axesA[3] = {
-//         glm::normalize(transformA->rotation * glm::vec3(1, 0, 0)),
-//         glm::normalize(transformA->rotation * glm::vec3(0, 1, 0)),
-//         glm::normalize(transformA->rotation * glm::vec3(0, 0, 1))
-//     };
+    // Step 2: Extract OBB axes from transform rotation
+    glm::vec3 axesA[3] = {
+        glm::normalize(transformA->rotation * glm::vec3(1, 0, 0)),
+        glm::normalize(transformA->rotation * glm::vec3(0, 1, 0)),
+        glm::normalize(transformA->rotation * glm::vec3(0, 0, 1))
+    };
 
-//     glm::vec3 axesB[3] = {
-//         glm::normalize(transformB->rotation * glm::vec3(1, 0, 0)),
-//         glm::normalize(transformB->rotation * glm::vec3(0, 1, 0)),
-//         glm::normalize(transformB->rotation * glm::vec3(0, 0, 1))
-//     };
+    glm::vec3 axesB[3] = {
+        glm::normalize(transformB->rotation * glm::vec3(1, 0, 0)),
+        glm::normalize(transformB->rotation * glm::vec3(0, 1, 0)),
+        glm::normalize(transformB->rotation * glm::vec3(0, 0, 1))
+    };
 
-//     // Step 3: Generate the 15 potential separating axes
-//     std::vector<glm::vec3> testAxes;
-//     for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
-//     for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
-//     for (int i = 0; i < 3; ++i)
-//         for (int j = 0; j < 3; ++j) {
-//             glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
-//             if (glm::length(axis) > 0.0001f) // avoid degenerate axes
-//                 testAxes.push_back(glm::normalize(axis));
-//         }
+    // Step 3: Generate the 15 potential separating axes
+    std::vector<glm::vec3> testAxes;
+    for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
+    for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j) {
+            glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
+            if (glm::length(axis) > 0.0001f) // avoid degenerate axes
+                testAxes.push_back(glm::normalize(axis));
+        }
 
-//     float minOverlap = std::numeric_limits<float>::max();
-//     glm::vec3 smallestAxis;
+    float minOverlap = std::numeric_limits<float>::max();
+    glm::vec3 smallestAxis;
 
-//     // Step 4: SAT test
-//     for (const auto& axis : testAxes) {
-//         // Project both sets of corners onto the axis
-//         auto [minA, maxA] = projectOntoAxis(cornersA, axis);
-//         auto [minB, maxB] = projectOntoAxis(cornersB, axis);
+    // Step 4: SAT test
+    // TODO: Generalise SAT test
+    for (const auto& axis : testAxes) {
+        // Project both sets of corners onto the axis
+        auto [minA, maxA] = projectOntoAxis(cornersA, axis);
+        auto [minB, maxB] = projectOntoAxis(cornersB, axis);
 
-//         // Check for overlap
-//         if (maxA < minB || maxB < minA) {
-//             return result; // No collision
-//         }
+        // Check for overlap
+        if (maxA < minB || maxB < minA) {
+            return manifold; // No collision
+        }
 
-//         // Compute overlap amount
-//         float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-//         if (overlap < minOverlap) {
-//             minOverlap = overlap;
-//             smallestAxis = axis;
-//         }
-//     }
+        // Compute overlap amount
+        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            smallestAxis = axis;
+        }
+    }
 
-//     // Step 5: If no separating axis found, we have a collision
-//     result.hasCollision = true;
-//     result.normal = smallestAxis;
-//     result.depth = minOverlap;
-//     result.start = transformA->position; // Placeholder
-//     result.end = transformA->position + smallestAxis * minOverlap;
+    // Step 5: If no separating axis found, we have a collision
+    manifold.normal = smallestAxis;
+    glm::vec3 direction = transformB->position - transformA->position;
 
-//     return result;
-// }
+    if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
+
+    manifold.contactPoints[0].depth = minOverlap;
+    manifold.contactPoints[0].start = (cornersA[0] + cornersB[0]) * 0.5f; // Placeholder for contact point
+    manifold.contactPoints[0].end = manifold.contactPoints[0].start; // Placeholder for contact point
+    manifold.contactsCount = 1;
+
+    return manifold;
+}
 
 // MARK: Mixed - Plane
 
