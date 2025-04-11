@@ -12,7 +12,7 @@ namespace LP
         /// @brief The shared point of contact.
         glm::vec3 location = glm::vec3(0.0f);
 
-        /// @brief Length of `end` - `start`.
+        /// @brief Penetration length of B into A.
         float depth = 0.0f;
     };
 
