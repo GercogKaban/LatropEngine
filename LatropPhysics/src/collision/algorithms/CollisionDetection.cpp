@@ -267,8 +267,7 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     for (int i = 0; i < clippedPoints.size(); ++i) {
         if (i >= 4) break; // Limit to 4 contact points
         manifold.contactPoints[i].depth = minOverlap; // Set depth
-        manifold.contactPoints[i].start = clippedPoints[i]; // Set contact start point
-        manifold.contactPoints[i].end = clippedPoints[i]; // Set contact end point
+        manifold.contactPoints[i].location = clippedPoints[i]; // Set location
     }
     manifold.contactsCount = std::min(4, static_cast<int>(clippedPoints.size()));
 

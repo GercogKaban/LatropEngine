@@ -9,11 +9,8 @@ namespace LP
 
     struct ContactPoint 
     {
-        /// @brief The furthest point of `start` into `end`.
-        glm::vec3 start = glm::vec3(0.0f);
-
-        /// @brief The furthest point of `end` into `start`.
-        glm::vec3 end = glm::vec3(0.0f);
+        /// @brief The shared point of contact.
+        glm::vec3 location = glm::vec3(0.0f);
 
         /// @brief Length of `end` - `start`.
         float depth = 0.0f;
