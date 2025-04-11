@@ -126,40 +126,6 @@ std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners,
     return { min, max };
 }
 
-std::array<glm::vec3, 4> clipIncidentFaceAgainstReference(
-    const std::array<glm::vec3, 4>& incident, 
-    const std::array<glm::vec3, 4>& referenceNormals, 
-    const glm::vec3& referenceFaceNormal
-) {
-    std::array<glm::vec3, 4> clipped;
-    int clippedCount = 0;
-
-    for (const auto& normal : referenceNormals) {
-        glm::vec3 prevPoint = incident[3];
-        for (const auto& currentPoint : incident) {
-            float prevDistance = glm::dot(prevPoint, normal);
-            float currentDistance = glm::dot(currentPoint, normal);
-
-            if (currentDistance < 0) {
-                if (prevDistance < 0) {
-                    clipped[clippedCount++] = currentPoint;
-                } else {
-                    float t = prevDistance / (prevDistance - currentDistance);
-                    clipped[clippedCount++] = prevPoint + t * (currentPoint - prevPoint);
-                    clipped[clippedCount++] = currentPoint;
-                }
-            } else if (prevDistance < 0) {
-                float t = prevDistance / (prevDistance - currentDistance);
-                clipped[clippedCount++] = prevPoint + t * (currentPoint - prevPoint);
-            }
-
-            prevPoint = currentPoint;
-        }
-    }
-
-    return clipped;
-}
-
 ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     const OBBCollider* a, const Transform* transformA,
     const OBBCollider* b, const Transform* transformB
@@ -220,56 +186,44 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     // Step 5: If no separating axis found, we have a collision
     manifold.normal = smallestAxis;
     glm::vec3 direction = transformB->position - transformA->position;
-
     if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
 
-    // Determine reference and incident boxes
-    const OBBCollider* referenceBox = glm::dot(direction, manifold.normal) > 0 ? a : b;
-    const OBBCollider* incidentBox = referenceBox == a ? b : a;
+    // Find candidate contact points: all corners from A and B that are inside the other OBB
+    std::vector<glm::vec3> candidates;
 
-    // Find the reference face normal that is most aligned with the collision normal
-    glm::vec3 referenceFaceNormal = glm::normalize(manifold.normal);
-
-    // Compute corners of the reference face
-    glm::vec3 referenceFaceCorners[4];
-    glm::vec3 referenceExtents = (referenceBox->maxExtents - referenceBox->minExtents) * 0.5f;
-
-    glm::vec3 faceCenter = referenceBox->minExtents + referenceExtents;
-    referenceFaceCorners[0] = faceCenter + referenceFaceNormal * referenceExtents.z; // Top face
-    referenceFaceCorners[1] = faceCenter - referenceFaceNormal * referenceExtents.z; // Bottom face
-    referenceFaceCorners[2] = faceCenter + referenceFaceNormal * referenceExtents.x; // Right face
-    referenceFaceCorners[3] = faceCenter - referenceFaceNormal * referenceExtents.x; // Left face
-
-    // Compute incident face corners based on the incident box's rotation and extents
-    glm::vec3 incidentExtents = (incidentBox->maxExtents - incidentBox->minExtents) * 0.5f;
-    glm::vec3 incidentFaceCenter = incidentBox->minExtents + incidentExtents;
-
-    glm::mat3 incidentRot = glm::mat3(transformB->rotation);
-    std::array<glm::vec3, 4> incidentFaceCorners = {
-        incidentFaceCenter + glm::vec3(0, 0, incidentExtents.z) * incidentRot, // Top face
-        incidentFaceCenter + glm::vec3(0, 0, -incidentExtents.z) * incidentRot, // Bottom face
-        incidentFaceCenter + glm::vec3(incidentExtents.x, 0, 0) * incidentRot, // Right face
-        incidentFaceCenter + glm::vec3(-incidentExtents.x, 0, 0) * incidentRot // Left face
+    auto pointInsideOBB = [](const glm::vec3& point, const OBBCollider* obb, const Transform* transform) {
+        glm::mat3 invRot = glm::transpose(glm::mat3(transform->rotation));
+        glm::vec3 local = invRot * (point - transform->position);
+        local /= transform->scale;
+        glm::vec3 min = obb->minExtents;
+        glm::vec3 max = obb->maxExtents;
+        return (local.x >= min.x && local.x <= max.x &&
+                local.y >= min.y && local.y <= max.y &&
+                local.z >= min.z && local.z <= max.z);
     };
 
-    // Generate side plane normals based on reference face edges and the face normal
-    std::array<glm::vec3, 4> referenceFaceEdges = {
-        glm::normalize(referenceFaceCorners[1] - referenceFaceCorners[0]),
-        glm::normalize(referenceFaceCorners[2] - referenceFaceCorners[0]),
-        glm::normalize(referenceFaceCorners[3] - referenceFaceCorners[0]),
-        glm::normalize(referenceFaceCorners[1] - referenceFaceCorners[2])
-    };
-
-    // Clip the incident face against the reference face
-    auto clippedPoints = clipIncidentFaceAgainstReference(incidentFaceCorners, referenceFaceEdges, referenceFaceNormal);
-
-    // Populate the manifold's contactPoints based on clipped points
-    for (int i = 0; i < clippedPoints.size(); ++i) {
-        if (i >= 4) break; // Limit to 4 contact points
-        manifold.contactPoints[i].depth = minOverlap; // Set depth
-        manifold.contactPoints[i].location = clippedPoints[i]; // Set location
+    for (const auto& corner : cornersA) {
+        if (pointInsideOBB(corner, b, transformB)) candidates.push_back(corner);
     }
-    manifold.contactsCount = std::min(4, static_cast<int>(clippedPoints.size()));
+
+    for (const auto& corner : cornersB) {
+        if (pointInsideOBB(corner, a, transformA)) candidates.push_back(corner);
+    }
+
+    // Sort contact points by penetration depth (approximate using projection onto normal)
+    std::sort(candidates.begin(), candidates.end(), [&](const glm::vec3& p1, const glm::vec3& p2) {
+        float d1 = glm::dot(p1 - transformA->position, manifold.normal);
+        float d2 = glm::dot(p2 - transformA->position, manifold.normal);
+        return d1 > d2;
+    });
+
+    // Keep up to 4 contact points
+    size_t count = std::min(size_t(4), candidates.size());
+    for (size_t i = 0; i < count; ++i) {
+        manifold.contactPoints[i].location = candidates[i];
+        manifold.contactPoints[i].depth = minOverlap;
+    }
+    manifold.contactsCount = static_cast<int>(count);
 
     return manifold;
 }
