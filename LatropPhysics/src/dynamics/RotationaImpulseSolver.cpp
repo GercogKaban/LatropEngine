@@ -59,9 +59,16 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
             float numer = -(1.0f + e) * contactVelocityMagnitude;
             float denom1 = glm::dot(n, n) * (aInvMass + bInvMass);
-            float denom2 = glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
-                         + glm::pow(rbPerpDotN, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+            glm::vec3 denom2_1 = glm::cross(aBody->getInvInertiaTensor() * glm::cross(rAs[i], n), rAs[i])
+                               + glm::cross(bBody->getInvInertiaTensor() * glm::cross(rBs[i], n), rBs[i]);
+
+            float denom2 = glm::dot(denom2_1, n);
+
             float denom = denom1 + denom2;
+
+            // float denom = aInvMass + bInvMass 
+            // + glm::dot(manifold.normal, glm::cross(rAs[i], manifold.normal) * aBody->getInvInertiaTensor())
+            // + glm::dot(manifold.normal, glm::cross(rBs[i], manifold.normal) * bBody->getInvInertiaTensor());
 
             // float denom = aInvMass + bInvMass 
             // + glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
@@ -129,8 +136,11 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
             float numer = -contactVelocityMagnitude;
             float denom1 = glm::dot(n, n) * (aInvMass + bInvMass);
-            float denom2 = glm::pow(raPerpDotT, 2.0f) * aBody->getInvInertiaTensor()[0][0]
-                         + glm::pow(rbPerpDotT, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+            glm::vec3 denom2_1 = glm::cross(aBody->getInvInertiaTensor() * glm::cross(rAs[i], n), rAs[i])
+                               + glm::cross(bBody->getInvInertiaTensor() * glm::cross(rBs[i], n), rBs[i]);
+
+            float denom2 = glm::dot(denom2_1, n);
+
             float denom = denom1 + denom2;
 
             // float denom = aInvMass + bInvMass 
