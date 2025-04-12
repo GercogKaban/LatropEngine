@@ -27,13 +27,13 @@ namespace RotationalScene
     void createFreeFallScenarioIII();
 
     /// @brief Cube B falls with its min edge closer to the min edge of a static Cube A.
-    /// The friction is so great that Cube B balances nearly falls over, but 
-    /// eventually falls on A and stabilises.
+    /// The friction is so great that Cube B balances on its edge, but still not
+    /// enough to stabilise B, thus it eventually rotates and falls down to the void.
     void createFreeFallScenarioIV();
 
     /// @brief Cube B falls with its min edge even closer to the min edge of a static Cube A.
     /// The friction is large enough to stabilise B on top of A. 
-    /// No rotation is happening, B is not moving after landing.
+    /// No rotation is happening, B is not moving.
     void createFreeFallScenarioV();
 
     /// @brief Creates all free fall scenarios with aligned on the Z-axis.
