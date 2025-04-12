@@ -55,12 +55,19 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
             float raPerpDotN = glm::dot(angularLinearVelA, manifold.normal);
             float rbPerpDotN = glm::dot(angularLinearVelB, manifold.normal);
+            glm::vec3 n = manifold.normal;
 
-            float denom = aInvMass + bInvMass 
-            + glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
-            + glm::pow(rbPerpDotN, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+            float numer = -(1.0f + e) * contactVelocityMagnitude;
+            float denom1 = glm::dot(n, n) * (aInvMass + bInvMass);
+            float denom2 = glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
+                         + glm::pow(rbPerpDotN, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+            float denom = denom1 + denom2;
 
-            float j = -(1.0f + e) * contactVelocityMagnitude / denom;
+            // float denom = aInvMass + bInvMass 
+            // + glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
+            // + glm::pow(rbPerpDotN, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+
+            float j = numer / denom;
             j /= float(manifold.contactsCount);
 
             glm::vec3 impulse = j * manifold.normal;
@@ -117,13 +124,20 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
             float raPerpDotT = glm::dot(angularLinearVelA, tangent);
             float rbPerpDotT = glm::dot(angularLinearVelB, tangent);
 
-            float denom = aInvMass + bInvMass 
-            + glm::pow(raPerpDotT, 2.0f) * aBody->getInvInertiaTensor()[0][0]
-            + glm::pow(rbPerpDotT, 2.0f) * bBody->getInvInertiaTensor()[0][0];
-
+            glm::vec3 n = tangent;
             float contactVelocityMagnitude = glm::dot(rVel, tangent);
 
-            float jt = -contactVelocityMagnitude / denom;
+            float numer = -contactVelocityMagnitude;
+            float denom1 = glm::dot(n, n) * (aInvMass + bInvMass);
+            float denom2 = glm::pow(raPerpDotT, 2.0f) * aBody->getInvInertiaTensor()[0][0]
+                         + glm::pow(rbPerpDotT, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+            float denom = denom1 + denom2;
+
+            // float denom = aInvMass + bInvMass 
+            // + glm::pow(raPerpDotN, 2.0f) * aBody->getInvInertiaTensor()[0][0]
+            // + glm::pow(rbPerpDotN, 2.0f) * bBody->getInvInertiaTensor()[0][0];
+
+            float jt = numer / denom;
             jt /= float(manifold.contactsCount);
 
             glm::vec3 frictionImpulse;
