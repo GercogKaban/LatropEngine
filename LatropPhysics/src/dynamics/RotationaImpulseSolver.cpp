@@ -77,12 +77,12 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
             if (aBody->isSimulated()) 
             {
                 aBody->linearVelocity -= impulse * aBody->getInvMass();
-                aBody->angularVelocity -= glm::cross(rAs[i], impulse) * aBody->getInvInertiaTensor()[0][0];
+                aBody->angularVelocity -= aBody->getInvInertiaTensor() * glm::cross(rAs[i], impulse);
             }
             if (bBody->isSimulated()) 
             {
                 bBody->linearVelocity += impulse * bBody->getInvMass();
-                bBody->angularVelocity += glm::cross(rBs[i], impulse) * bBody->getInvInertiaTensor()[0][0];
+                bBody->angularVelocity += bBody->getInvInertiaTensor() * glm::cross(rBs[i], impulse);
             }
         }
 
@@ -145,12 +145,12 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
             if (aBody->isSimulated()) 
             {
                 aBody->linearVelocity -= impulse * aBody->getInvMass();
-                aBody->angularVelocity -= glm::cross(rAs[i], impulse) * aBody->getInvInertiaTensor()[0][0];
+                aBody->angularVelocity -= aBody->getInvInertiaTensor() * glm::cross(rAs[i], impulse);
             }
             if (bBody->isSimulated()) 
             {
                 bBody->linearVelocity += impulse * bBody->getInvMass();
-                bBody->angularVelocity += glm::cross(rBs[i], impulse) * bBody->getInvInertiaTensor()[0][0];
+                bBody->angularVelocity += bBody->getInvInertiaTensor() * glm::cross(rBs[i], impulse);
             }
         }
     }
