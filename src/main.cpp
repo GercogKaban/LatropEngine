@@ -11,7 +11,8 @@ int main()
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
 	// MARK: Samples
-	RotationalScene::createScenarioI();
+	RotationalScene::createSanityCheck(true);
+	// RotationalScene::createScenarioI();
 
 	// Portals are required by the engine at the moment.
 	SharedScene::createPortals();
