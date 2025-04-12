@@ -29,8 +29,8 @@ void RotationalScene::createSanityCheck(bool isDiagonal)
 
 glm::vec3 freeFallOriginI   = { 0.9f, 3.0f, 0.0f };
 glm::vec3 freeFallOriginII  = { 0.5f, 3.0f, 0.0f };
-glm::vec3 freeFallOriginIII = { 0.3f, 3.0f, 0.0f };
-glm::vec3 freeFallOriginIV  = { 0.15f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginIII = { 0.4f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginIV  = { 0.365f, 3.0f, 0.0f };
 glm::vec3 freeFallOriginV   = { 0.14f, 3.0f, 0.0f };
 
 void cubeBFallsOnCubeAFrom(glm::vec3 origin, glm::vec3 offset = glm::vec3(0.0f))
