@@ -25,46 +25,83 @@ void RotationalScene::createSanityCheck(bool isDiagonal)
 		});
 }
 
-void RotationalScene::createScenarioI()
-{
-    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+// MARK: - Free Fall Scenarios
 
+glm::vec3 freeFallOriginI   = { 0.9f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginII  = { 0.5f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginIII = { 0.3f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginIV  = { 0.15f, 3.0f, 0.0f };
+glm::vec3 freeFallOriginV   = { 0.14f, 3.0f, 0.0f };
+
+void cubeBFallsOnCubeAFrom(glm::vec3 origin, glm::vec3 offset = glm::vec3(0.0f))
+{
     auto cubeA = ObjectBuilder::construct<LActor>().lock();
 	cubeA->loadComponent<LG::LCube>();
     cubeA->graphicsComponent->setColorTexture("textures/smile.jpg");
 
-	cubeA->loadComponent< LP::RigidBody>([](LP::RigidBody* physicsComponent)
+	cubeA->loadComponent< LP::RigidBody>([offset](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(false);
 
 			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->takesGravity = false;
 			physicsComponent->material = LP::Material::Metal;
-			physicsComponent->transform.position = glm::vec3(0.0f, 0.0f, 0.0f);
+			physicsComponent->transform.position = offset;
 		});
 
     auto cubeB = ObjectBuilder::construct<LActor>().lock();
 	cubeB->loadComponent<LG::LCube>();
     cubeB->graphicsComponent->setColorTexture("textures/smile.jpg");
 
-	cubeB->loadComponent< LP::RigidBody>([](LP::RigidBody* physicsComponent)
+	cubeB->loadComponent< LP::RigidBody>([origin, offset](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(true);
-            physicsComponent->setMass(10.0f);
+            physicsComponent->setMass(0.100f);
 
 			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->takesGravity = true;
 			physicsComponent->material = LP::Material::Wood;
-			physicsComponent->transform.position = glm::vec3(0.9f, 3.0f, 0.0f);
-            physicsComponent->onCollision = [](const LP::CollisionManifold& manifold, float dt) 
-            {
-                std::cout << "On Collision" << std::endl;
-
-                for (uint8_t i = 0; i < manifold.contactsCount; ++i)
-                {
-                    const auto& location = manifold.contactPoints[i].location;
-                    std::cout << "x: " << location.x << " y: " << location.y << " z: " << location.z << std::endl;
-                }
-            };
+			physicsComponent->transform.position = origin + offset;
 		});
+}
+
+void RotationalScene::createFreeFallScenarioI()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom(freeFallOriginI);
+}
+
+void RotationalScene::createFreeFallScenarioII()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom(freeFallOriginII);
+}
+
+void RotationalScene::createFreeFallScenarioIII()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom(freeFallOriginIII);
+}
+
+void RotationalScene::createFreeFallScenarioIV()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom(freeFallOriginIV);
+}
+
+void RotationalScene::createFreeFallScenarioV()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom(freeFallOriginV);
+}
+
+void RotationalScene::createAllFreeFallScenarios()
+{
+    SharedScene::createPlayer({ 1.0f, 0.5f, 4.0f }, false);
+
+    cubeBFallsOnCubeAFrom(freeFallOriginI,   { 0.0f, 0.0f, 0.0f });
+    cubeBFallsOnCubeAFrom(freeFallOriginII,  { 0.0f, 0.0f, -2.0f });
+    cubeBFallsOnCubeAFrom(freeFallOriginIII, { 0.0f, 0.0f, -4.0f });
+    cubeBFallsOnCubeAFrom(freeFallOriginIV,  { 0.0f, 0.0f, -6.0f });
+    cubeBFallsOnCubeAFrom(freeFallOriginV,   { 0.0f, 0.0f, -8.0f });
 }
