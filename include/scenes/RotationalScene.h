@@ -6,6 +6,8 @@ namespace RotationalScene
     /// @param isDiagonal Rotates around Y if false, around Y and Z otherwise.
     void createSanityCheck(bool isDiagonal = false);
 
+    // MARK: - Free Fall
+
     /// @brief Cube B falls on the edge of a static Cube A, friction is not enough
     /// to stabilise B on A and the impulse gained from free fall is too much.
     /// Cube B spins away down into the void.
@@ -36,4 +38,10 @@ namespace RotationalScene
 
     /// @brief Creates all free fall scenarios with aligned on the Z-axis.
     void createAllFreeFallScenarios();
+
+    // MARK: - Bouncing
+
+    /// @brief Cube B falls perfecly centered on a perfecly elastic Cube A.
+    /// B infinitely bounces off A.
+    void createBouncingScenarioI();
 } // namespace RotationalScene
