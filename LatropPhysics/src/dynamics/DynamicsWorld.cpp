@@ -56,6 +56,6 @@ void DynamicsWorld::moveBodies(float deltaTime)
 void DynamicsWorld::integrate(float deltaTime)
 {
     applyGravity();
-    resolveCollisions(deltaTime);
-    moveBodies(deltaTime);
+    resolveCollisions(deltaTime * timeScale);
+    moveBodies(deltaTime * timeScale);
 }
