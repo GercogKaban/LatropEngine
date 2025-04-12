@@ -15,10 +15,18 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
         Material combinedMaterial = aBody->material.combinedWith(bBody->material);
 
         float e = combinedMaterial.restitution;
+        float staticMu  = combinedMaterial.staticFriction;
+        float dynamicMu = combinedMaterial.dynamicFriction;
+
+        float aInvMass = aBody->getInvMass();
+        float bInvMass = bBody->getInvMass();
 
         std::vector<glm::vec3> impulses;
+        std::vector<float> jValues;
         std::vector<glm::vec3> rAs;
         std::vector<glm::vec3> rBs;
+
+        // Impulses
 
         for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
         {
@@ -43,10 +51,7 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
             // a negative impulse would drive the objects closer together
             if (contactVelocityMagnitude >= 0) continue;
 
-            float aInvMass = aBody->getInvMass();
-            float bInvMass = bBody->getInvMass();
-
-            // Impulse
+            // Normal Impulse
 
             float raPerpDotN = glm::dot(angularLinearVelA, manifold.normal);
             float rbPerpDotN = glm::dot(angularLinearVelB, manifold.normal);
@@ -60,6 +65,7 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
             glm::vec3 impulse = j * manifold.normal;
             impulses.push_back(impulse);
+            jValues.push_back(j);
         }
 
         for (u_int8_t i = 0; i < manifold.contactsCount; ++i)
@@ -81,37 +87,71 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
         }
 
         // Friction
+        impulses.clear();
 
-        // rVel = bVel - aVel;
-        // contactVelocityMagnitude = glm::dot(rVel, manifold.normal);
+        for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
+        {
+            const ContactPoint& contact = manifold.contactPoints[i];
 
-        // glm::vec3 tangent = rVel - contactVelocityMagnitude * manifold.normal;
-        // glm::vec3 friction = { 0.0f, 0.0f, 0.0f };
+            glm::vec3 rA = contact.location - aBody->transform.position;
+            glm::vec3 rB = contact.location - bBody->transform.position;
 
-        // if (glm::length(tangent) > 0.0001f) 
-        // { 
-        //     tangent = glm::normalize(tangent);
+            rAs.push_back(rA);
+            rBs.push_back(rB);
 
-        //     float fVel = glm::dot(rVel, tangent);
-        //     float f    = -fVel / (aInvMass + bInvMass);
+            glm::vec3 angularLinearVelA = glm::cross(aBody->angularVelocity, rA);
+            glm::vec3 angularLinearVelB = glm::cross(bBody->angularVelocity, rB);
 
-        //     float staticMu  = combinedMaterial.staticFriction;
-        //     float dynamicMu = combinedMaterial.dynamicFriction;
+            glm::vec3 aVel = aBody->linearVelocity;
+            glm::vec3 bVel = bBody->linearVelocity;
 
-        //     if (glm::abs(f) < j * staticMu) friction = f * tangent;
-        //     else                            friction = -j * dynamicMu * tangent;
-        // }
+            glm::vec3 rVel = (bVel + angularLinearVelB) - (aVel + angularLinearVelA);
+            glm::vec3 tangent = rVel - glm::dot(rVel, manifold.normal) * manifold.normal;
 
-        // // Final Calculations
+            if (glm::length(tangent) < 0.0001f) continue;
 
-        // if (aBody->isSimulated()) 
-        // {
-        //     aBody->linearVelocity = aVel - friction * aInvMass;
-        // }
+            tangent = glm::normalize(tangent);
 
-        // if (bBody->isSimulated()) 
-        // {
-        //     bBody->linearVelocity = bVel + friction * bInvMass;
-        // }
+            // Tangent Impulse
+
+            float raPerpDotT = glm::dot(angularLinearVelA, tangent);
+            float rbPerpDotT = glm::dot(angularLinearVelB, tangent);
+
+            float denom = aInvMass + bInvMass 
+            + glm::pow(raPerpDotT, 2.0f) * aBody->invInertiaTensorLocal[0][0]
+            + glm::pow(rbPerpDotT, 2.0f) * bBody->invInertiaTensorLocal[0][0];
+
+            float contactVelocityMagnitude = glm::dot(rVel, tangent);
+
+            float jt = -contactVelocityMagnitude / denom;
+            jt /= float(manifold.contactsCount);
+
+            glm::vec3 frictionImpulse;
+
+            float j = jValues.size() > i ? jValues[i] : 0.0f;
+
+            if (glm::abs(jt) < j * staticMu) frictionImpulse = jt * tangent;
+            else                             frictionImpulse = -j * tangent * dynamicMu;
+
+            impulses.push_back(frictionImpulse);
+        }
+
+        for (u_int8_t i = 0; i < manifold.contactsCount; ++i)
+        {
+            if (i >= impulses.size()) continue;
+
+            glm::vec3 impulse = impulses[i];
+
+            if (aBody->isSimulated()) 
+            {
+                aBody->linearVelocity -= impulse * aBody->getInvMass();
+                aBody->angularVelocity -= glm::cross(rAs[i], impulse) * aBody->invInertiaTensorLocal[0][0];
+            }
+            if (bBody->isSimulated()) 
+            {
+                bBody->linearVelocity += impulse * bBody->getInvMass();
+                bBody->angularVelocity += glm::cross(rBs[i], impulse) * bBody->invInertiaTensorLocal[0][0];
+            }
+        }
     }
 }
