@@ -49,11 +49,26 @@ namespace LP
             m_mass = newValue;
             m_invMass = newValue > 0.0f ? 1.0f / newValue : 0.0f;
 
-            // Recompute inertia tensor for a unit cube
-            float inertia = (1.0f / 12.0f) * m_mass * (1 * 1 + 1 * 1); // For a unit cube
+            // Recompute the inverse of the inertia tensor.
+
+            float w = transform.scale.x;
+            float h = transform.scale.y;
+            float d = transform.scale.z;
             
-            assert(inertia > 0.0f && "Inertia must be greater than zero.");
-            m_invInertiaTensorLocal = glm::mat3(1.0f / inertia);
+            float factor = m_mass / 12.0f;
+
+            assert((w * h * d) > 0.0f && "Dimensions must be greater than zero.");
+            assert(factor > 0.0f && "Inertia factor must be greater than zero.");
+
+            float Ixx = factor * (h * h + d * d);
+            float Iyy = factor * (w * w + d * d);
+            float Izz = factor * (w * w + h * h);
+        
+            m_invInertiaTensorLocal = glm::mat3(
+                1 / Ixx, 0.0f, 0.0f,
+                0.0f, 1 / Iyy, 0.0f,
+                0.0f, 0.0f, 1 / Izz
+            );
         }
 
     private:
