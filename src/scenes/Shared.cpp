@@ -18,7 +18,7 @@ void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity)
 
 			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = origin;
-			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
+			// physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
 			physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Minimum;
 			physicsComponent->onCollision = [weakPlayer](LP::CollisionManifold collision, float depth) {

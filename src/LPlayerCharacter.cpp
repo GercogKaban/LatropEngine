@@ -16,7 +16,7 @@ float LPlayerCharacter::getSpeed() const
 {
 	static float walkingSpeed = 1.45f;
 	static float crouchedSpeed = 0.87f;
-	float runningMultiplier = (isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0) * 1.5;
+	float runningMultiplier = (isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0) * 0.5;
 	float speed = isKeyPressed(GLFW_KEY_LEFT_CONTROL) ? crouchedSpeed : walkingSpeed;
 
 	return speed * runningMultiplier;
@@ -171,14 +171,16 @@ void LPlayerCharacter::jump()
 
 void LPlayerCharacter::crouch()
 {
-	float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
-	physicsComponent->transform.position.y -= heightDifference;
-	physicsComponent->transform.scale = crouchedDimensions;
+	// float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
+	// physicsComponent->transform.position.y -= heightDifference;
+	// physicsComponent->transform.scale = crouchedDimensions;
+	physicsComponent->linearVelocity = glm::vec3(0.0f);
+	physicsComponent->angularVelocity = glm::vec3(0.0f);
 }
 
 void LPlayerCharacter::uncrouch()
 {
-	float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
-	physicsComponent->transform.position.y += heightDifference;
-	physicsComponent->transform.scale = standingDimensions;
+	// float heightDifference = (standingDimensions.y - crouchedDimensions.y) / 2.0f;
+	// physicsComponent->transform.position.y += heightDifference;
+	// physicsComponent->transform.scale = standingDimensions;
 }
