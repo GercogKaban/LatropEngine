@@ -24,11 +24,20 @@ namespace LP
         /// @brief If the rigid body takes gravity from the world.
         bool takesGravity = false;
 
+        bool freezesRotation = false;
+
         inline float getMass() const { return m_mass; }
         inline float getInvMass() const { return m_invMass; }
         inline glm::mat3 getInvInertiaTensor() const { 
-            const glm::mat3 rotation = glm::mat3_cast(transform.rotation);
-            return rotation * m_invInertiaTensorLocal * glm::transpose(rotation);
+            if (freezesRotation)
+            {
+                return glm::mat3(0.0f);
+            }
+            else 
+            {
+                const glm::mat3 rotation = glm::mat3_cast(transform.rotation);
+                return rotation * m_invInertiaTensorLocal * glm::transpose(rotation);
+            }
         }
 
         virtual void setIsSimulated(bool newValue) override
