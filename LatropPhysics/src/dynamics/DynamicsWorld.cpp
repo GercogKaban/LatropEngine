@@ -34,7 +34,7 @@ void DynamicsWorld::moveBodies(float deltaTime)
             rigidBody->transform.position = oldPosition + oldVelocity * deltaTime;
 
             // Update angular velocity based on torque and inertia
-            glm::vec3 angularAcceleration = rigidBody->torque * rigidBody->invInertiaTensorLocal;
+            glm::vec3 angularAcceleration = rigidBody->torque * rigidBody->getInvInertiaTensor();
             rigidBody->angularVelocity += angularAcceleration * deltaTime;
 
             // Update rotation based on angular velocity
