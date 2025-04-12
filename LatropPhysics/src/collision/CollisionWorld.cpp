@@ -75,11 +75,11 @@ inline void detectInvidualCollisionsOfAnd(
     {
         if (bool isTrigger = body->isTrigger || other->isTrigger)
         {
-            triggers.push_back({body, other, points});
+            triggers.push_back(CollisionManifold(body, other, points));
         }
         else
         {
-            collisions.push_back({body, other, points});
+            collisions.push_back(CollisionManifold(body, other, points));
         }
     }
 }

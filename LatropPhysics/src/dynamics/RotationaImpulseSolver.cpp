@@ -30,16 +30,13 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
             rAs.push_back(rA);
             rBs.push_back(rB);
 
-            glm::vec3 rAPerp = glm::cross(aBody->angularVelocity, rA);
-            glm::vec3 rBPerp = glm::cross(bBody->angularVelocity, rB);
-
-            // glm::vec3 angularLinearVelA = rAPerp * aBody->angularVelocity;
-            // glm::vec3 angularLinearVelB = rBPerp * bBody->angularVelocity;
+            glm::vec3 angularLinearVelA = glm::cross(aBody->angularVelocity, rA);
+            glm::vec3 angularLinearVelB = glm::cross(bBody->angularVelocity, rB);
 
             glm::vec3 aVel = aBody->linearVelocity;
             glm::vec3 bVel = bBody->linearVelocity;
 
-            glm::vec3 rVel = (bVel + rBPerp) - (aVel + rAPerp);
+            glm::vec3 rVel = (bVel + angularLinearVelB) - (aVel + angularLinearVelA);
             float contactVelocityMagnitude = glm::dot(rVel, manifold.normal);
 
             // This is important for convergence
@@ -51,8 +48,8 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
             // Impulse
 
-            float raPerpDotN = glm::dot(rAPerp, manifold.normal);
-            float rbPerpDotN = glm::dot(rBPerp, manifold.normal);
+            float raPerpDotN = glm::dot(angularLinearVelA, manifold.normal);
+            float rbPerpDotN = glm::dot(angularLinearVelB, manifold.normal);
 
             float denom = aInvMass + bInvMass 
             + glm::pow(raPerpDotN, 2.0f) * aBody->invInertiaTensorLocal[0][0]
