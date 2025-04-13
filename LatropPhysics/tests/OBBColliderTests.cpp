@@ -30,8 +30,9 @@ TEST(OBBColliderTests, ATopCollision4Points) {
     ContactManifold manifold = cubeA.testCollision(&transformA, &cubeB, &transformB);
 
     ASSERT_EQ(manifold.contactsCount, 4);
-    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[0].location, { 0.4f, 0.495f, -0.5f }));
-    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[1].location, { 0.4f, 0.495f, 0.5f }));
-    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[2].location, { 0.5f, 0.5f,  -0.5f }));
-    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[3].location, { 0.5f, 0.5f,  0.5f }));
+    EXPECT_NEAR(manifold.depth, 0.004999, 0.000001);
+    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[0], { 0.4f, 0.495f, -0.5f }));
+    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[1], { 0.4f, 0.495f, 0.5f }));
+    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[2], { 0.5f, 0.5f,  -0.5f }));
+    EXPECT_TRUE(Vec3Equal(manifold.contactPoints[3], { 0.5f, 0.5f,  0.5f }));
 }

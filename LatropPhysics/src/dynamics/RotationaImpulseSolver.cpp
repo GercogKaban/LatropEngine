@@ -30,10 +30,10 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
         for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
         {
-            const ContactPoint& contact = manifold.contactPoints[i];
+            const glm::vec3& location = manifold.contactPoints[i];
 
-            glm::vec3 rA = contact.location - aBody->transform.position;
-            glm::vec3 rB = contact.location - bBody->transform.position;
+            glm::vec3 rA = location - aBody->transform.position;
+            glm::vec3 rB = location - bBody->transform.position;
 
             rAs.push_back(rA);
             rBs.push_back(rB);
@@ -105,10 +105,10 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
 
         for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
         {
-            const ContactPoint& contact = manifold.contactPoints[i];
+            const glm::vec3& location = manifold.contactPoints[i];
 
-            glm::vec3 rA = contact.location - aBody->transform.position;
-            glm::vec3 rB = contact.location - bBody->transform.position;
+            glm::vec3 rA = location - aBody->transform.position;
+            glm::vec3 rB = location - bBody->transform.position;
 
             rAs.push_back(rA);
             rBs.push_back(rB);

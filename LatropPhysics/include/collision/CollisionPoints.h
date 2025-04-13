@@ -7,20 +7,12 @@ namespace LP
 {
     struct CollisionBody;
 
-    struct ContactPoint 
-    {
-        /// @brief The shared point of contact.
-        glm::vec3 location = glm::vec3(0.0f);
-
-        /// @brief Penetration length of B into A.
-        float depth = 0.0f;
-    };
-
     struct ContactManifold
     {
-        std::array<ContactPoint, 4> contactPoints;
+        std::array<glm::vec3, 4> contactPoints;
         glm::vec3 normal = glm::vec3(0.0f);
 
+        float depth = 0.0f;
         uint8_t contactsCount = 0;
 
         inline bool hasCollision() const { return contactsCount != 0; }
@@ -28,12 +20,13 @@ namespace LP
 
     struct CollisionManifold
     {
-        std::array<ContactPoint, 4> contactPoints;
+        std::array<glm::vec3, 4> contactPoints;
         glm::vec3 normal;
 
         CollisionBody* bodyA;
         CollisionBody* bodyB;
 
+        float depth = 0.0f;
         uint8_t contactsCount;
 
         inline bool hasCollision() const { return contactsCount != 0; }
@@ -42,6 +35,7 @@ namespace LP
             : bodyA(bodyA), bodyB(bodyB), 
               contactPoints(manifold.contactPoints),
               normal(manifold.normal),
+              depth(manifold.depth),
               contactsCount(manifold.contactsCount)
         {}
     };

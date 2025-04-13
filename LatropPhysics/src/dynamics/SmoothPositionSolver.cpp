@@ -18,7 +18,7 @@ void SmoothPositionSolver::solve(const std::vector<CollisionManifold>& collision
 		const float slop = 0.01f;
 
 		glm::vec3 correction = manifold.normal * percent
-			* fmax(manifold.contactPoints[0].depth - slop, 0.0f)
+			* fmax(manifold.depth - slop, 0.0f)
 			/ (aInvMass + bInvMass);
 	
 		glm::vec3 deltaA;

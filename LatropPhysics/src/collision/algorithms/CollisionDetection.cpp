@@ -185,6 +185,7 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
     // Step 5: If no separating axis found, we have a collision
     manifold.normal = smallestAxis;
+    manifold.depth = minOverlap;
     glm::vec3 direction = transformB->position - transformA->position;
     if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
 
@@ -220,8 +221,7 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     // Keep up to 4 contact points
     size_t count = std::min(size_t(4), candidates.size());
     for (size_t i = 0; i < count; ++i) {
-        manifold.contactPoints[i].location = candidates[i];
-        manifold.contactPoints[i].depth = minOverlap;
+        manifold.contactPoints[i] = candidates[i];
     }
     manifold.contactsCount = static_cast<int>(count);
 

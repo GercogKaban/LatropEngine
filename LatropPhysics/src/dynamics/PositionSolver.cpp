@@ -16,7 +16,7 @@ void PositionSolver::solve(const std::vector<CollisionManifold>& collisions, flo
         // === Positional Correction ===
         const float percent = 0.2f;  // usually 20% to 80%
         const float slop = 0.01f;    // penetration allowance
-        float correctionMagnitude = glm::max(manifold.contactPoints[0].depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
+        float correctionMagnitude = glm::max(manifold.depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
         glm::vec3 correction = correctionMagnitude * manifold.normal;
 
         if (aBody && aBody->isSimulated())
