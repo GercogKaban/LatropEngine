@@ -13,12 +13,13 @@ void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity)
 	playerCharacter->loadComponent<LP::RigidBody>([weakPlayer, origin, takesGravity](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(true);
+			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->setMass(LPlayerCharacter::mass);
 			physicsComponent->takesGravity = takesGravity;
+			physicsComponent->freezesRotation = true;
 
 			physicsComponent->collider = cubeOBBCollider;
 			physicsComponent->transform.position = origin;
-			physicsComponent->transform.scale = LPlayerCharacter::standingDimensions;
 			physicsComponent->material = LP::Material::HumanBody;
 			physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Minimum;
 			physicsComponent->onCollision = [weakPlayer](LP::CollisionManifold collision, float depth) {
@@ -74,10 +75,10 @@ void SharedScene::createPortals()
 				if (collision.normal.z == 1)
 				{
 					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.points.normal.x << " ";
-					// std::cout << "y: " << collision.points.normal.y << " ";
-					// std::cout << "z: " << collision.points.normal.z << " ";
-					// std::cout << "d: " << collision.points.depth << " ";
+					// std::cout << "x: " << collision.normal.x << " ";
+					// std::cout << "y: " << collision.normal.y << " ";
+					// std::cout << "z: " << collision.normal.z << " ";
+					// std::cout << "d: " << collision.depth << " ";
 					// std::cout << std::endl;
 					// auto portal = player->orangePortal;
 					// // Get destination portal's transform
