@@ -247,7 +247,7 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
     glm::vec3 planeUp    = glm::normalize(transformA->rotation * glm::vec3(0, 1, 0));
 
     // Half extents from scale
-    glm::vec2 halfExtents = glm::vec2(transformA->scale.x, transformA->scale.y);
+    glm::vec2 halfExtents = glm::vec2(transformA->scale.x, transformA->scale.z);
 
     float maxPenetration = 0.0f;
 
