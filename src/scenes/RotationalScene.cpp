@@ -124,6 +124,42 @@ void RotationalScene::createBouncingScenarioI()
     cubeBFallsOnCubeAFrom({ 0.0f, 2.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, material);
 }
 
+void RotationalScene::createBouncingScenarioII()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+
+    auto puddle = ObjectBuilder::construct<LActor>().lock();
+    puddle->loadComponent<LG::LCube>();
+    puddle->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
+        {
+            physicsComponent->setIsSimulated(false);
+            
+            physicsComponent->collider = cubeOBBCollider;
+            physicsComponent->transform.position = { 0.f, 0.5f, -2.f };
+            physicsComponent->transform.scale = glm::vec3(5.0f, 1.0f, 5.0f);
+            physicsComponent->material = LP::Material::Metal;
+            physicsComponent->material.restitution = 1.0; 
+            physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Maximum;
+        });
+    puddle->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+
+    auto cube = ObjectBuilder::construct<LActor>().lock();
+    cube->loadComponent<LG::LCube>();
+    cube->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+
+    cube->loadComponent<LP::RigidBody>([](LP::RigidBody* physicsComponent)
+        {
+            physicsComponent->setIsSimulated(true);
+            physicsComponent->setMass(10.0f);
+            physicsComponent->takesGravity = true;
+            
+            physicsComponent->collider = cubeOBBCollider;
+            physicsComponent->transform.position = glm::vec3(0.f, 5.0f, -2.0f);
+            physicsComponent->transform.rotation *= glm::angleAxis(glm::radians(45.f), glm::vec3(1.f, 0.f, 1.f));
+            physicsComponent->material = LP::Material::Wood;
+        });
+}
+
 // MARK: - Stacking
 
 void RotationalScene::createStackingScenarioI()

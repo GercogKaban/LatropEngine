@@ -45,6 +45,8 @@ namespace RotationalScene
     /// B infinitely bounces off A.
     void createBouncingScenarioI();
 
+    void createBouncingScenarioII();
+
     // MARK: - Stacking
 
     void createStackingScenarioI();
