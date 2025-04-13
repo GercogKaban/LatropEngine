@@ -53,5 +53,5 @@ ContactManifold BoundedPlaneCollider::testCollision(
     const OBBCollider* other,
     const Transform* otherTransform
 ) const {
-    return {};
+    return collisionDetectors::findPlaneOBBCollisionPoints(this, transform, other, otherTransform);
 }

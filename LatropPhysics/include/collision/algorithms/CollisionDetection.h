@@ -48,5 +48,10 @@ namespace LP
             const BoundedPlaneCollider* a, const Transform* transformA,
             const CapsuleCollider* b, const Transform* transformB
         );
+
+        ContactManifold findPlaneOBBCollisionPoints(
+            const BoundedPlaneCollider* a, const Transform* transformA,
+            const OBBCollider* b, const Transform* transformB
+        );
     }
 } // namespace LP

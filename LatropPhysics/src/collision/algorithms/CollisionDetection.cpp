@@ -230,6 +230,50 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
 // MARK: Mixed - Plane
 
+ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
+    const BoundedPlaneCollider* a, const Transform* transformA,
+    const OBBCollider* b, const Transform* transformB
+) {
+    ContactManifold manifold;
+
+    // Get OBB corners in world space
+    std::array<glm::vec3, 8> corners = getOBBCorners(b, transformB);
+
+    // Transform the plane's normal to world space
+    glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
+
+    // Track the deepest penetrating point
+    float maxPenetration = 0.0f;
+    glm::vec3 deepestPoint;
+
+    for (const auto& corner : corners) {
+        float distance = glm::dot(corner - transformA->position, planeNormal);
+
+        // Check if the point is in front of the plane (one-sided collision)
+        if (distance > 0.0f)
+            continue;
+
+        float penetration = -distance;
+
+        if (!manifold.contactsCount || penetration > maxPenetration) {
+            maxPenetration = penetration;
+            deepestPoint = corner;
+        }
+
+        // Add contact point if under 4
+        if (manifold.contactsCount < 4) {
+            manifold.contactPoints[manifold.contactsCount++] = corner;
+        }
+    }
+
+    if (manifold.hasCollision()) {
+        manifold.normal = planeNormal;
+        manifold.depth = maxPenetration;
+    }
+
+    return manifold;
+}
+
 // CollisionPoints collisionDetectors::findPlaneSphereCollisionPoints(
 //     const BoundedPlaneCollider* a, const Transform* transformA,
 //     const SphereCollider* b, const Transform* transformB
