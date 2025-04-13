@@ -107,11 +107,8 @@ void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisi
         {
             const glm::vec3& location = manifold.contactPoints[i];
 
-            glm::vec3 rA = location - aBody->transform.position;
-            glm::vec3 rB = location - bBody->transform.position;
-
-            rAs.push_back(rA);
-            rBs.push_back(rB);
+            glm::vec3 rA = rAs[i];
+            glm::vec3 rB = rBs[i];
 
             glm::vec3 angularLinearVelA = glm::cross(aBody->angularVelocity, rA);
             glm::vec3 angularLinearVelB = glm::cross(bBody->angularVelocity, rB);
