@@ -21,9 +21,14 @@ public:
 
 	void loop();
 
-	float getDelta() const
+	inline std::chrono::duration<float> getDelta() const
 	{
-		return std::chrono::duration<float>(currentFrameTime - previousFrameTime).count();
+		return frameTimeCurrent - frameTimePrevious;
+	}
+
+	inline std::chrono::duration<float> getFixedDelta() const
+	{
+		return fixedDelta;
 	}
 
 protected:
@@ -34,12 +39,12 @@ protected:
 
 	void updateDelta()
 	{
-		previousFrameTime = currentFrameTime;
-		currentFrameTime = std::chrono::high_resolution_clock::now();
+		frameTimePrevious = frameTimeCurrent;
+		frameTimeCurrent = std::chrono::high_resolution_clock::now();
 	}
 
 	void addTickablePrimitive(std::weak_ptr<LTickable> ptr);
-	void executeTickables();
+	void executeTickables(float dt);
 	void addObjectToInit(std::shared_ptr<LActor> objectToInit);
 
 	static LEngine* thisPtr;
@@ -53,10 +58,11 @@ protected:
 
 	std::vector<std::weak_ptr<LTickable>> tickables;
 
-	std::chrono::high_resolution_clock::time_point currentFrameTime = std::chrono::high_resolution_clock::now();
-	std::chrono::high_resolution_clock::time_point previousFrameTime = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point frameTimeCurrent = std::chrono::high_resolution_clock::now();
+	std::chrono::high_resolution_clock::time_point frameTimePrevious = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<float> frameTimeAccumulator = std::chrono::duration<float>(0.0f);
 
-	const float physicsIterationsCount = 128.0;
+	const std::chrono::duration<float> fixedDelta = std::chrono::duration<float>(0.001);
 	const float physicsCellSize = 1.5f;
 	bool requiresPhysicsGridUpdate = true;
 

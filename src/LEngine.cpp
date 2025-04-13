@@ -73,8 +73,11 @@ void LEngine::loop()
 	{
 		FrameMark;
 
+		std::chrono::duration dt = getDelta();
 		updateDelta();
-		fpsTimer += getDelta();
+		frameTimeAccumulator += dt;
+
+		fpsTimer += dt.count();
 		if (fpsTimer >= 1.0f)
 		{
 			fpsTimer = 0.0f;
@@ -85,22 +88,24 @@ void LEngine::loop()
 
 		
 		glfwPollEvents();
-		executeTickables();
+		// Delta Update
+		executeTickables(dt.count());
 
+		// Fixed Delta Update
+		while (frameTimeAccumulator >= fixedDelta)
 		{
 			ZoneScopedNC("Pass: Physics", 0xFF00AACC);
-			auto miniDelta = getDelta() / physicsIterationsCount;
-			for (int i = 0; i < physicsIterationsCount; i++)
-			{
-				physicsWorld.integrate(miniDelta);
-			}
+
+			physicsWorld.integrate(fixedDelta.count());
+			frameTimeAccumulator -= fixedDelta;
 		}
+		
 		renderer->playerModel = LPlayerCharacter::get()->physicsComponent->transform.getAsMatrix();
 		renderer->playerOrientation = LPlayerCharacter::get()->orientation;
 
 		{
 			ZoneScopedNC("Pass: Rendering", 0x000000FF);
-			renderer->drawFrame(getDelta());
+			renderer->drawFrame(dt.count());
 		}
 		fps++;
 	}
@@ -109,14 +114,14 @@ void LEngine::loop()
 	endPlay();
 }
 
-void LEngine::executeTickables()
+void LEngine::executeTickables(float dt)
 {
 	ZoneScopedNC("Pass: Tickables", 0xFF88CC00);
 	for (auto it = tickables.begin(); it != tickables.end(); ++it)
 	{
 		if (!it->expired())
 		{
-			dynamic_cast<LTickable*>(it->lock().get())->tick(getDelta());
+			dynamic_cast<LTickable*>(it->lock().get())->tick(dt);
 		}
 		else
 		{
