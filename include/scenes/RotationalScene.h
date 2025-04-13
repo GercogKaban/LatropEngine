@@ -44,4 +44,8 @@ namespace RotationalScene
     /// @brief Cube B falls perfecly centered on a perfecly elastic Cube A.
     /// B infinitely bounces off A.
     void createBouncingScenarioI();
+
+    // MARK: - Stacking
+
+    void createStackingScenarioI();
 } // namespace RotationalScene

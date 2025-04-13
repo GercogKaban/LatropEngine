@@ -36,19 +36,21 @@ glm::vec3 freeFallOriginV   = { 0.14f, 3.0f, 0.0f };
 void cubeBFallsOnCubeAFrom(
     glm::vec3 origin, 
     glm::vec3 offset = glm::vec3(0.0f), 
-    LP::Material aMaterial = LP::Material::Metal
+    LP::Material aMaterial = LP::Material::Metal,
+    bool bottomIsDynamic = false
 ) {
     auto cubeA = ObjectBuilder::construct<LActor>().lock();
 	cubeA->loadComponent<LG::LCube>();
     cubeA->graphicsComponent->setColorTexture("textures/smile.jpg");
 
-	cubeA->loadComponent<LP::RigidBody>([offset, aMaterial](LP::RigidBody* physicsComponent)
+	cubeA->loadComponent<LP::RigidBody>([offset, aMaterial, bottomIsDynamic](LP::RigidBody* physicsComponent)
 		{
-			physicsComponent->setIsSimulated(false);
+			physicsComponent->setIsSimulated(bottomIsDynamic);
+            // physicsComponent->transform.scale = { 2.0f, 1.0f, 2.0f };
+            if (bottomIsDynamic) physicsComponent->setMass(10.0f);
 
 			physicsComponent->collider = cubeOBBCollider;
-            // physicsComponent->transform.scale = { 2.0f, 1.0f, 2.0f };
-			physicsComponent->takesGravity = false;
+			physicsComponent->takesGravity = bottomIsDynamic;
 			physicsComponent->material = aMaterial;
 			physicsComponent->transform.position = offset;
 		});
@@ -120,4 +122,14 @@ void RotationalScene::createBouncingScenarioI()
 
     SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
     cubeBFallsOnCubeAFrom({ 0.0f, 2.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, material);
+}
+
+// MARK: - Stacking
+
+void RotationalScene::createStackingScenarioI()
+{
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+    cubeBFallsOnCubeAFrom({ 0.15f, 2.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
+
+    cubeBFallsOnCubeAFrom({ 0.f, 2.0f, 0.0f }, { 0.15f, 4.0f, 0.0f }, LP::Material::Metal, true);
 }

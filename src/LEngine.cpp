@@ -12,7 +12,6 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 	thisPtr = this;
 	physicsWorld.addSolver(std::make_unique<LP::RotationaImpulseSolver>());
 	physicsWorld.addSolver(std::make_unique<LP::SmoothPositionSolver>());
-	physicsWorld.timeScale = 0.5f;
 }
 
 void LEngine::beginPlay()
