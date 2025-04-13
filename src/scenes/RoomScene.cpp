@@ -137,6 +137,7 @@ void RoomScene::createPerfectlyBouncyPuddle(glm::vec3 origin, bool withCube)
 
 void RoomScene::create()
 {
+    SharedScene::createPlayer();
     createFloor();
     createWall({ 1, 0 });
     createWall({ -1, 0 });
