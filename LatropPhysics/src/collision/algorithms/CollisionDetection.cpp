@@ -242,25 +242,36 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
     // Transform the plane's normal to world space
     glm::vec3 planeNormal = glm::normalize(transformA->rotation * BoundedPlaneCollider::normal);
 
-    // Track the deepest penetrating point
+    // Compute plane's right and up vectors in world space
+    glm::vec3 planeRight = glm::normalize(transformA->rotation * glm::vec3(1, 0, 0));
+    glm::vec3 planeUp    = glm::normalize(transformA->rotation * glm::vec3(0, 1, 0));
+
+    // Half extents from scale
+    glm::vec2 halfExtents = glm::vec2(transformA->scale.x, transformA->scale.y);
+
     float maxPenetration = 0.0f;
-    glm::vec3 deepestPoint;
 
     for (const auto& corner : corners) {
         float distance = glm::dot(corner - transformA->position, planeNormal);
 
-        // Check if the point is in front of the plane (one-sided collision)
+        // One-sided plane: skip if in front
         if (distance > 0.0f)
             continue;
+
+        // Project corner onto plane to check bounds
+        glm::vec3 toCorner = corner - transformA->position;
+        float rightDist = glm::dot(toCorner, planeRight);
+        float upDist = glm::dot(toCorner, planeUp);
+
+        if (std::abs(rightDist) > halfExtents.x || std::abs(upDist) > halfExtents.y)
+            continue; // Outside bounded region
 
         float penetration = -distance;
 
         if (!manifold.contactsCount || penetration > maxPenetration) {
             maxPenetration = penetration;
-            deepestPoint = corner;
         }
 
-        // Add contact point if under 4
         if (manifold.contactsCount < 4) {
             manifold.contactPoints[manifold.contactsCount++] = corner;
         }
