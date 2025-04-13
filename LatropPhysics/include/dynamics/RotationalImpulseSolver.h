@@ -4,7 +4,7 @@
 
 namespace LP
 {
-    struct RotationaImpulseSolver : Solver
+    struct RotationalImpulseSolver : Solver
     {
         void solve(const std::vector<CollisionManifold>& collisions, float deltaTime) override;
     };

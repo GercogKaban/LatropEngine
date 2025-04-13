@@ -1,12 +1,17 @@
-#include "dynamics/RotationaImpulseSolver.h"
+#include "dynamics/RotationalImpulseSolver.h"
 #include "dynamics/RigidBody.h"
 
 using namespace LP;
 
-void RotationaImpulseSolver::solve(const std::vector<CollisionManifold>& collisions, float deltaTime)
+void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collisions, float deltaTime)
 {
     for (const CollisionManifold& manifold : collisions) 
     {
+        if (glm::epsilonEqual(manifold.depth, 0.0f, 1e-6f))
+        {
+            continue;
+        }
+
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
