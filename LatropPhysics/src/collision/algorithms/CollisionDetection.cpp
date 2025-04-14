@@ -192,39 +192,79 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     glm::vec3 direction = transformB->position - transformA->position;
     if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
 
-    // Find candidate contact points: all corners from A and B that are inside the other OBB
-    std::vector<glm::vec3> candidates;
+    bool referenceIsA = true;
+    float maxDot = -1.0f;
+    int referenceAxis = -1;
 
-    auto pointInsideOBB = [](const glm::vec3& point, const OBBCollider* obb, const Transform* transform) {
-        glm::mat3 invRot = glm::transpose(glm::mat3(transform->rotation));
-        glm::vec3 local = invRot * (point - transform->position);
-        local /= transform->scale;
-        glm::vec3 min = obb->minExtents;
-        glm::vec3 max = obb->maxExtents;
-        return (local.x >= min.x && local.x <= max.x &&
-                local.y >= min.y && local.y <= max.y &&
-                local.z >= min.z && local.z <= max.z);
-    };
-
-    for (const auto& corner : cornersA) {
-        if (pointInsideOBB(corner, b, transformB)) candidates.push_back(corner);
+    // Find best matching axis from A
+    for (int i = 0; i < 3; ++i) {
+        float dot = glm::abs(glm::dot(axesA[i], smallestAxis));
+        if (dot > maxDot) {
+            maxDot = dot;
+            referenceAxis = i;
+            referenceIsA = true;
+        }
     }
 
-    for (const auto& corner : cornersB) {
-        if (pointInsideOBB(corner, a, transformA)) candidates.push_back(corner);
+    // Find best matching axis from B
+    for (int i = 0; i < 3; ++i) {
+        float dot = glm::abs(glm::dot(axesB[i], smallestAxis));
+        if (dot > maxDot) {
+            maxDot = dot;
+            referenceAxis = i;
+            referenceIsA = false;
+        }
     }
 
-    // Sort contact points by penetration depth (approximate using projection onto normal)
-    std::sort(candidates.begin(), candidates.end(), [&](const glm::vec3& p1, const glm::vec3& p2) {
-        float d1 = glm::dot(p1 - transformA->position, manifold.normal);
-        float d2 = glm::dot(p2 - transformA->position, manifold.normal);
-        return d1 > d2;
-    });
+    const Transform* refTransform = referenceIsA ? transformA : transformB;
+    const OBBCollider* refOBB = referenceIsA ? a : b;
+    const glm::vec3* refAxes = referenceIsA ? axesA : axesB;
 
-    // Keep up to 4 contact points
-    size_t count = std::min(size_t(4), candidates.size());
+    const Transform* incTransform = referenceIsA ? transformB : transformA;
+    const OBBCollider* incOBB = referenceIsA ? b : a;
+    const glm::vec3* incAxes = referenceIsA ? axesB : axesA;
+
+    glm::vec3 refCenter = refTransform->position;
+    glm::vec3 refNormal = refAxes[referenceAxis];
+    if (glm::dot(refNormal, smallestAxis) < 0) refNormal = -refNormal;
+
+    // Generate incident face
+    int bestIncidentAxis = 0;
+    float minDot = 1.0f;
+    for (int i = 0; i < 3; ++i) {
+        float dot = glm::dot(incAxes[i], refNormal);
+        if (dot < minDot) {
+            minDot = dot;
+            bestIncidentAxis = i;
+        }
+    }
+
+    glm::vec3 incCenter = incTransform->position;
+    glm::vec3 incNormal = incAxes[bestIncidentAxis];
+    if (glm::dot(incNormal, refNormal) > 0) incNormal = -incNormal;
+
+    glm::vec3 refRight = refAxes[(referenceAxis + 1) % 3];
+    glm::vec3 refUp = refAxes[(referenceAxis + 2) % 3];
+
+    glm::vec3 refExtent = (refOBB->maxExtents - refOBB->minExtents) * 0.5f * refTransform->scale;
+    glm::vec3 centerOffset = refNormal * ((refOBB->maxExtents[referenceAxis] - refOBB->minExtents[referenceAxis]) * 0.5f * refTransform->scale[referenceAxis]);
+
+    glm::vec3 faceCenter = refCenter + centerOffset;
+    std::vector<glm::vec3> clippedPolygon;
+
+    // Get incident face corners
+    std::array<glm::vec3, 8> incCorners = getOBBCorners(incOBB, incTransform);
+    for (const auto& corner : incCorners) {
+        float d = glm::dot(corner - faceCenter, refNormal);
+        if (d <= 0.0f) {
+            clippedPolygon.push_back(corner - d * refNormal);
+        }
+    }
+
+    // Use up to 4 contact points
+    size_t count = std::min(size_t(4), clippedPolygon.size());
     for (size_t i = 0; i < count; ++i) {
-        manifold.contactPoints[i] = candidates[i];
+        manifold.contactPoints[i] = clippedPolygon[i];
     }
     manifold.contactsCount = static_cast<int>(count);
 
