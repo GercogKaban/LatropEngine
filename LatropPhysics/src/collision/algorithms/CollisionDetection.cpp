@@ -95,19 +95,20 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 // MARK: OBB
 
 std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
-    glm::vec3 center = (obb->minExtents + obb->maxExtents) * 0.5f;
     glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
 
-    glm::mat3 rot = glm::mat3(transform->rotation);
+    glm::mat3 rot = glm::mat3_cast(transform->rotation);
+
+    assert(glm::length(transform->scale) > 0.0f);
 
     std::array<glm::vec3, 8> corners;
     int i = 0;
     for (int x = -1; x <= 1; x += 2) {
         for (int y = -1; y <= 1; y += 2) {
             for (int z = -1; z <= 1; z += 2) {
-                glm::vec3 localCorner = center + glm::vec3(x * extents.x, y * extents.y, z * extents.z);
-                localCorner *= transform->scale;
-                corners[i++] = transform->position + rot * (localCorner - center);
+                glm::vec3 offset = glm::vec3(x * extents.x, y * extents.y, z * extents.z);
+                glm::vec3 scaledOffset = offset * transform->scale;
+                corners[i++] = transform->position + rot * scaledOffset;
             }
         }
     }
