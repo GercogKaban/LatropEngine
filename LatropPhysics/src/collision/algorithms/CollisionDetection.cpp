@@ -117,6 +117,8 @@ std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* 
 }
 
 std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) {
+    assert(glm::epsilonEqual(glm::length(axis), 1.0f, 1e-4f));
+
     float min = glm::dot(corners[0], axis);
     float max = min;
     for (int i = 1; i < 8; ++i) {
