@@ -23,7 +23,8 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
     glm::vec3 overlapMax = glm::min(aMax, bMax);
 
     // Check for collision
-    if (overlapMin.x >= overlapMax.x || overlapMin.y >= overlapMax.y || overlapMin.z >= overlapMax.z) {
+    if (overlapMin.x >= overlapMax.x || overlapMin.y >= overlapMax.y || overlapMin.z >= overlapMax.z) 
+    {
         return false;  // No collision
     }
 
@@ -94,7 +95,8 @@ bool collisionDetectors::testAABBAABBForCollision(const AABB& a, const AABB& b)
 
 // MARK: OBB
 
-std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) {
+std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* transform) 
+{
     glm::vec3 extents = (obb->maxExtents - obb->minExtents) * 0.5f;
 
     glm::mat3 rot = glm::mat3_cast(transform->rotation);
@@ -103,9 +105,12 @@ std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* 
 
     std::array<glm::vec3, 8> corners;
     int i = 0;
-    for (int x = -1; x <= 1; x += 2) {
-        for (int y = -1; y <= 1; y += 2) {
-            for (int z = -1; z <= 1; z += 2) {
+    for (int x = -1; x <= 1; x += 2) 
+    {
+        for (int y = -1; y <= 1; y += 2)
+        {
+            for (int z = -1; z <= 1; z += 2) 
+            {
                 glm::vec3 offset = glm::vec3(x * extents.x, y * extents.y, z * extents.z);
                 glm::vec3 scaledOffset = offset * transform->scale;
                 corners[i++] = transform->position + rot * scaledOffset;
@@ -157,7 +162,8 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
     for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
     for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j) {
+        for (int j = 0; j < 3; ++j) 
+        {
             glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
             if (glm::length(axis) > 0.0001f) // avoid degenerate axes
                 testAxes.push_back(glm::normalize(axis));
@@ -168,19 +174,22 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
     // Step 4: SAT test
     // TODO: Generalise SAT test
-    for (const auto& axis : testAxes) {
+    for (const auto& axis : testAxes) 
+    {
         // Project both sets of corners onto the axis
         auto [minA, maxA] = projectOntoAxis(cornersA, axis);
         auto [minB, maxB] = projectOntoAxis(cornersB, axis);
 
         // Check for overlap
-        if (maxA < minB || maxB < minA) {
+        if (maxA < minB || maxB < minA) 
+        {
             return manifold; // No collision
         }
 
         // Compute overlap amount
         float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap < minOverlap) {
+        if (overlap < minOverlap) 
+        {
             minOverlap = overlap;
             smallestAxis = axis;
         }
@@ -195,7 +204,8 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
     // Find candidate contact points: all corners from A and B that are inside the other OBB
     std::vector<glm::vec3> candidates;
 
-    auto pointInsideOBB = [](const glm::vec3& point, const OBBCollider* obb, const Transform* transform) {
+    auto pointInsideOBB = [](const glm::vec3& point, const OBBCollider* obb, const Transform* transform) 
+    {
         glm::mat3 invRot = glm::transpose(glm::mat3(transform->rotation));
         glm::vec3 local = invRot * (point - transform->position);
         local /= transform->scale;
@@ -206,16 +216,19 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
                 local.z >= min.z && local.z <= max.z);
     };
 
-    for (const auto& corner : cornersA) {
+    for (const auto& corner : cornersA) 
+    {
         if (pointInsideOBB(corner, b, transformB)) candidates.push_back(corner);
     }
 
-    for (const auto& corner : cornersB) {
+    for (const auto& corner : cornersB) 
+    {
         if (pointInsideOBB(corner, a, transformA)) candidates.push_back(corner);
     }
 
     // Sort contact points by penetration depth (approximate using projection onto normal)
-    std::sort(candidates.begin(), candidates.end(), [&](const glm::vec3& p1, const glm::vec3& p2) {
+    std::sort(candidates.begin(), candidates.end(), [&](const glm::vec3& p1, const glm::vec3& p2) 
+    {
         float d1 = glm::dot(p1 - transformA->position, manifold.normal);
         float d2 = glm::dot(p2 - transformA->position, manifold.normal);
         return d1 > d2;
@@ -223,7 +236,8 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 
     // Keep up to 4 contact points
     size_t count = std::min(size_t(4), candidates.size());
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) 
+    {
         manifold.contactPoints[i] = candidates[i];
     }
     manifold.contactsCount = static_cast<int>(count);
@@ -254,7 +268,8 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
 
     float maxPenetration = 0.0f;
 
-    for (const auto& corner : corners) {
+    for (const auto& corner : corners) 
+    {
         float distance = glm::dot(corner - transformA->position, planeNormal);
 
         // One-sided plane: skip if in front
@@ -271,16 +286,19 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
 
         float penetration = -distance;
 
-        if (!manifold.contactsCount || penetration > maxPenetration) {
+        if (!manifold.contactsCount || penetration > maxPenetration) 
+        {
             maxPenetration = penetration;
         }
 
-        if (manifold.contactsCount < 4) {
+        if (manifold.contactsCount < 4) 
+        {
             manifold.contactPoints[manifold.contactsCount++] = corner;
         }
     }
 
-    if (manifold.hasCollision()) {
+    if (manifold.hasCollision()) 
+    {
         manifold.normal = planeNormal;
         manifold.depth = maxPenetration;
     }

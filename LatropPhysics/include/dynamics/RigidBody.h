@@ -28,7 +28,8 @@ namespace LP
 
         inline float getMass() const { return m_mass; }
         inline float getInvMass() const { return m_invMass; }
-        inline glm::mat3 getInvInertiaTensor() const { 
+        inline glm::mat3 getInvInertiaTensor() const 
+        { 
             if (freezesRotation)
             {
                 return glm::mat3(0.0f);
