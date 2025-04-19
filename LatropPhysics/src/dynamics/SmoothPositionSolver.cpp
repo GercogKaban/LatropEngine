@@ -3,11 +3,11 @@
 
 using namespace LP;
 
-void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
+void SmoothPositionSolver::solve(const std::vector<CollisionManifold>& collisions, float deltaTime)
 {
     std::vector<std::pair<glm::vec3, glm::vec3>> deltas;
 
-	for (const Collision& manifold : collisions) {
+	for (const CollisionManifold& manifold : collisions) {
 		RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
 
@@ -17,8 +17,8 @@ void SmoothPositionSolver::solve(const std::vector<Collision>& collisions, float
 		const float percent = 0.4f;
 		const float slop = 0.01f;
 
-		glm::vec3 correction = manifold.points.normal * percent
-			* fmax(manifold.points.depth - slop, 0.0f)
+		glm::vec3 correction = manifold.normal * percent
+			* fmax(manifold.depth - slop, 0.0f)
 			/ (aInvMass + bInvMass);
 	
 		glm::vec3 deltaA;

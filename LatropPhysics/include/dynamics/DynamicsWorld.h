@@ -9,6 +9,7 @@ namespace LP
     struct DynamicsWorld : CollisionWorld
     {
         glm::vec3 gravity = { 0.0f, -9.81f, 0.0f };
+        float timeScale = 1.0f;
 
         void addRigidBody(std::weak_ptr<RigidBody> body) 
         {

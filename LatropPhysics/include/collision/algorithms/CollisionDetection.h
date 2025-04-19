@@ -5,63 +5,53 @@ namespace LP
     struct SphereCollider;
     struct CapsuleCollider;
     struct BoundedPlaneCollider;
-    struct AABBCollider;
     struct OBBCollider;
     struct Transform;
-    struct CollisionPoints;
+    struct ContactManifold;
+    struct AABB;
 
     namespace collisionDetectors 
     {
+        // MARK: - ABBB
+
+        bool testAABBAABBForCollision(const AABB& a, const AABB& b);
+
         // MARK: - Sphere
 
-        CollisionPoints findSphereSphereCollisionPoints(
+        ContactManifold findSphereSphereCollisionPoints(
             const SphereCollider* a, const Transform* transformA,
             const SphereCollider* b, const Transform* transformB
         );
         
         // MARK: - Capsule
 
-        CollisionPoints findCapsuleCapsuleCollisionPoints(
+        ContactManifold findCapsuleCapsuleCollisionPoints(
             const CapsuleCollider* a, const Transform* transformA,
             const CapsuleCollider* b, const Transform* transformB
         );
 
-        // MARK: - ABBB
-
-        CollisionPoints findAABBAABBCollisionPoints(
-            const AABBCollider* a, const Transform* transformA,
-            const AABBCollider* b, const Transform* transformB
-        );
-
         // MARK: - OBB
 
-        CollisionPoints findOBBOBBCollisionPoints(
+        ContactManifold findOBBOBBCollisionPoints(
             const OBBCollider* a, const Transform* transformA,
             const OBBCollider* b, const Transform* transformB
         );
 
         // MARK: Mixed - Plane
 
-        CollisionPoints findPlaneSphereCollisionPoints(
+        ContactManifold findPlaneSphereCollisionPoints(
             const BoundedPlaneCollider* a, const Transform* transformA,
             const SphereCollider* b, const Transform* transformB
         );
 
-        CollisionPoints findPlaneCapsuleCollisionPoints(
+        ContactManifold findPlaneCapsuleCollisionPoints(
             const BoundedPlaneCollider* a, const Transform* transformA,
             const CapsuleCollider* b, const Transform* transformB
         );
 
-        CollisionPoints findPlaneAABBCollisionPoints(
+        ContactManifold findPlaneOBBCollisionPoints(
             const BoundedPlaneCollider* a, const Transform* transformA,
-            const AABBCollider* b, const Transform* transformB
-        );
-
-        // MARK: Mixed - AABB
-
-        CollisionPoints findAABBCapsuleCollisionPoints(
-            const AABBCollider* a, const Transform* transformA,
-            const CapsuleCollider* b, const Transform* transformB
+            const OBBCollider* b, const Transform* transformB
         );
     }
 } // namespace LP

@@ -15,7 +15,7 @@ AABB BoundedPlaneCollider::getAABB(const Transform* transform) const
     return { aMin, aMax };
 };
 
-CollisionPoints BoundedPlaneCollider::testCollision(
+ContactManifold BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const Collider* other,
     const Transform* otherTransform
@@ -23,7 +23,7 @@ CollisionPoints BoundedPlaneCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-CollisionPoints BoundedPlaneCollider::testCollision(
+ContactManifold BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const SphereCollider* other,
     const Transform* otherTransform
@@ -31,17 +31,15 @@ CollisionPoints BoundedPlaneCollider::testCollision(
     return {};
 }
 
-CollisionPoints BoundedPlaneCollider::testCollision(
+ContactManifold BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const CapsuleCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findPlaneCapsuleCollisionPoints(
-        this, transform, other, otherTransform
-    );
+    return {};
 }
 
-CollisionPoints BoundedPlaneCollider::testCollision(
+ContactManifold BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const BoundedPlaneCollider* other,
     const Transform* otherTransform
@@ -50,18 +48,10 @@ CollisionPoints BoundedPlaneCollider::testCollision(
     return {};
 };
 
-CollisionPoints BoundedPlaneCollider::testCollision(
-    const Transform* transform,
-    const AABBCollider* other,
-    const Transform* otherTransform
-) const {
-    return collisionDetectors::findPlaneAABBCollisionPoints(this, transform, other, otherTransform);
-};
-
-CollisionPoints BoundedPlaneCollider::testCollision(
+ContactManifold BoundedPlaneCollider::testCollision(
     const Transform* transform,
     const OBBCollider* other,
     const Transform* otherTransform
 ) const {
-    return {};
+    return collisionDetectors::findPlaneOBBCollisionPoints(this, transform, other, otherTransform);
 }

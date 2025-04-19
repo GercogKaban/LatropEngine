@@ -13,11 +13,11 @@ namespace LP
 {
     struct CollisionWorld
     {
-        CollisionWorld(std::function<void(const Collision&, float)> onCollision = [](auto a, auto b) {}) 
+        CollisionWorld(std::function<void(const CollisionManifold&, float)> onCollision = [](auto a, auto b) {}) 
             : onCollision(onCollision)  
             {}
 
-        std::function<void(const Collision&, float)> onCollision;
+        std::function<void(const CollisionManifold&, float)> onCollision;
 
         void addCollisionBody(std::weak_ptr<CollisionBody> body) 
         {
@@ -61,15 +61,15 @@ namespace LP
         }
 
         virtual void resolveCollisions(float deltaTime);
-        virtual void detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers);
-        virtual void solveCollisions(const std::vector<Collision>& collisions, float deltaTime);
+        virtual void detectCollisions(std::vector<CollisionManifold>& collisions, std::vector<CollisionManifold>& triggers);
+        virtual void solveCollisions(const std::vector<CollisionManifold>& collisions, float deltaTime);
 
         void updateSpacialPartitioningOfStaticBodies(float cellSize);
 
     protected:
         std::vector<std::weak_ptr<RigidBody>> movableBodies;
     private:
-        void sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime); 
+        void sendCollisionEvents(const std::vector<CollisionManifold>& collisions, float deltaTime); 
 
         std::vector<std::weak_ptr<CollisionBody>> m_bodies;
         std::vector<std::unique_ptr<Solver>> m_solvers;

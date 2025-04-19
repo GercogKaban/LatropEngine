@@ -43,7 +43,8 @@ endif()
 if(ENABLE_TESTING)
     # Find Google Test package
     find_package(GTest REQUIRED)
-    include_directories(${GTEST_INCLUDE_DIRS})
+    file(GLOB_RECURSE TEST_HEADER_FILES tests/*.cpp)
+    include_directories(${GTEST_INCLUDE_DIRS} TEST_HEADER_FILES)
 
     # Add the test executable
     file(GLOB_RECURSE TEST_SOURCE_FILES tests/*.cpp)

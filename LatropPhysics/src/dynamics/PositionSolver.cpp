@@ -3,9 +3,9 @@
 
 using namespace LP;
 
-void PositionSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
+void PositionSolver::solve(const std::vector<CollisionManifold>& collisions, float deltaTime)
 {
-    for (const Collision& manifold : collisions) 
+    for (const CollisionManifold& manifold : collisions) 
     {
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
@@ -16,8 +16,8 @@ void PositionSolver::solve(const std::vector<Collision>& collisions, float delta
         // === Positional Correction ===
         const float percent = 0.2f;  // usually 20% to 80%
         const float slop = 0.01f;    // penetration allowance
-        float correctionMagnitude = glm::max(manifold.points.depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
-        glm::vec3 correction = correctionMagnitude * manifold.points.normal;
+        float correctionMagnitude = glm::max(manifold.depth - slop, 0.0f) / (aInvMass + bInvMass) * percent;
+        glm::vec3 correction = correctionMagnitude * manifold.normal;
 
         if (aBody && aBody->isSimulated())
         {

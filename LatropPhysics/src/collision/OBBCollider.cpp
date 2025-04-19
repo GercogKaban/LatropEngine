@@ -38,7 +38,7 @@ AABB OBBCollider::getAABB(const Transform* transform) const
 
 // MARK: Colliders
 
-CollisionPoints OBBCollider::testCollision(
+ContactManifold OBBCollider::testCollision(
     const Transform* transform,
     const Collider* other,
     const Transform* otherTransform
@@ -46,7 +46,7 @@ CollisionPoints OBBCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-CollisionPoints OBBCollider::testCollision(
+ContactManifold OBBCollider::testCollision(
     const Transform* transform,
     const SphereCollider* other,
     const Transform* otherTransform
@@ -54,7 +54,7 @@ CollisionPoints OBBCollider::testCollision(
     return {};   
 }
 
-CollisionPoints OBBCollider::testCollision(
+ContactManifold OBBCollider::testCollision(
     const Transform* transform,
     const CapsuleCollider* other,
     const Transform* otherTransform
@@ -62,23 +62,15 @@ CollisionPoints OBBCollider::testCollision(
     return {};
 }
 
-CollisionPoints OBBCollider::testCollision(
+ContactManifold OBBCollider::testCollision(
     const Transform* transform,
     const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
-    return {};
+    return collisionDetectors::findPlaneOBBCollisionPoints(other, otherTransform, this, transform);
 };
 
-CollisionPoints OBBCollider::testCollision(
-    const Transform* transform,
-    const AABBCollider* other,
-    const Transform* otherTransform
-) const {
-    return {};
-}
-
-CollisionPoints OBBCollider::testCollision(
+ContactManifold OBBCollider::testCollision(
     const Transform* transform,
     const OBBCollider* other,
     const Transform* otherTransform

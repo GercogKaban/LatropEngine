@@ -1,6 +1,5 @@
 #include "collision/CollisionWorld.h"
 #include "collision/Collider.h"
-#include "collision/AABBCollider.h"
 #include "shared/AABB.h"
 
 using namespace LP;
@@ -61,8 +60,8 @@ template <typename A, typename B>
 inline void detectInvidualCollisionsOfAnd(
     const A& body,
     const B& other,
-    std::vector<Collision>& collisions,
-    std::vector<Collision>& triggers
+    std::vector<CollisionManifold>& collisions,
+    std::vector<CollisionManifold>& triggers
 ) {
     if (!(body->isSimulated() || other->isSimulated())) return;
 
@@ -70,17 +69,17 @@ inline void detectInvidualCollisionsOfAnd(
     auto otherCollider = other->collider.lock();
     if (!bodyCollider || !otherCollider) return;
 
-    CollisionPoints points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
+    ContactManifold points = bodyCollider->testCollision(&body->transform, otherCollider.get(), &other->transform);
 
-    if (points.hasCollision)
+    if (points.hasCollision())
     {
-        if (bool isTrigger = body->isTrigger || other->isTrigger)
+        if (body->isTrigger || other->isTrigger)
         {
-            triggers.push_back({body, other, points});
+            triggers.push_back(CollisionManifold(body, other, points));
         }
         else
         {
-            collisions.push_back({body, other, points});
+            collisions.push_back(CollisionManifold(body, other, points));
         }
     }
 }
@@ -89,8 +88,8 @@ template <typename A, typename B>
 inline void detectInvidualCollisionsOfIn(
     const B& other,
     const std::vector<A>& elements,
-    std::vector<Collision>& collisions,
-    std::vector<Collision>& triggers
+    std::vector<CollisionManifold>& collisions,
+    std::vector<CollisionManifold>& triggers
 ) {
     for (const std::weak_ptr<CollisionBody> &otherWeakPtr : elements)
     {
@@ -110,8 +109,8 @@ template <typename A, typename B>
 inline void detectInvidualCollisionsIn(
     const std::vector<A>& lhs,
     const std::vector<B>& rhs,
-    std::vector<Collision>& collisions, 
-    std::vector<Collision>& triggers
+    std::vector<CollisionManifold>& collisions, 
+    std::vector<CollisionManifold>& triggers
 ) {
     for(const std::weak_ptr<CollisionBody>& bodyWeakPtr : lhs)
     {
@@ -123,7 +122,7 @@ inline void detectInvidualCollisionsIn(
     }
 }
 
-void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::vector<Collision>& triggers)
+void CollisionWorld::detectCollisions(std::vector<CollisionManifold>& collisions, std::vector<CollisionManifold>& triggers)
 {
     // Step 1: All Static VS All Movable
     for(const std::weak_ptr<RigidBody>& bodyWeakPtr : movableBodies)
@@ -172,7 +171,7 @@ void CollisionWorld::detectCollisions(std::vector<Collision>& collisions, std::v
     detectInvidualCollisionsIn(movableBodies, movableBodies, collisions, triggers);
 }
 
-void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, float deltaTime)
+void CollisionWorld::solveCollisions(const std::vector<CollisionManifold>& collisions, float deltaTime)
 {
     for(const std::unique_ptr<Solver>& solver : m_solvers)
     {
@@ -180,9 +179,9 @@ void CollisionWorld::solveCollisions(const std::vector<Collision>& collisions, f
     }
 }
 
-void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collisions, float deltaTime) 
+void CollisionWorld::sendCollisionEvents(const std::vector<CollisionManifold>& collisions, float deltaTime) 
 {
-    for(const Collision& collision : collisions)
+    for(const CollisionManifold& collision : collisions)
     {
         onCollision(collision, deltaTime);
 
@@ -193,8 +192,8 @@ void CollisionWorld::sendCollisionEvents(const std::vector<Collision>& collision
 
 void CollisionWorld::resolveCollisions(float deltaTime)
  {
-    std::vector<Collision> collisions;
-    std::vector<Collision> triggers;
+    std::vector<CollisionManifold> collisions;
+    std::vector<CollisionManifold> triggers;
 
     detectCollisions(collisions, triggers);
     solveCollisions(collisions, deltaTime);

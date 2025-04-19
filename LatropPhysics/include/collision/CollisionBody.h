@@ -14,7 +14,7 @@ namespace LP
         virtual ~CollisionBody() = default;
 
         Transform transform {};
-        std::function<void(Collision, float)> onCollision = [](auto a, auto b) {};
+        std::function<void(const CollisionManifold&, float)> onCollision = [](auto a, auto b) {};
         std::weak_ptr<Collider> collider;
 
         /// @brief If the body is a trigger it is not affected by collisions

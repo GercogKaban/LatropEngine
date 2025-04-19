@@ -3,9 +3,9 @@
 
 using namespace LP;
 
-void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaTime)
+void ImpulseSolver::solve(const std::vector<CollisionManifold>& collisions, float deltaTime)
 {
-    for (const Collision& manifold : collisions) 
+    for (const CollisionManifold& manifold : collisions) 
     {
         RigidBody* aBody = dynamic_cast<RigidBody*>(manifold.bodyA);
         RigidBody* bBody = dynamic_cast<RigidBody*>(manifold.bodyB);
@@ -17,7 +17,7 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         glm::vec3 aVel = aBody->linearVelocity;
         glm::vec3 bVel = bBody->linearVelocity;
         glm::vec3 rVel = bVel - aVel;
-        float nSpd = glm::dot(rVel, manifold.points.normal);
+        float nSpd = glm::dot(rVel, manifold.normal);
 
         float aInvMass = aBody->getInvMass();
         float bInvMass = bBody->getInvMass();
@@ -31,7 +31,7 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         float e = combinedMaterial.restitution;
         float j = -(1.0f + e) * nSpd / (aInvMass + bInvMass);
 
-        glm::vec3 impluse = j * manifold.points.normal;
+        glm::vec3 impluse = j * manifold.normal;
 
         if (aBody->isSimulated()) aVel -= impluse * aInvMass;
         if (bBody->isSimulated()) bVel += impluse * bInvMass;
@@ -39,9 +39,9 @@ void ImpulseSolver::solve(const std::vector<Collision>& collisions, float deltaT
         // Friction
 
         rVel = bVel - aVel;
-        nSpd = glm::dot(rVel, manifold.points.normal);
+        nSpd = glm::dot(rVel, manifold.normal);
 
-        glm::vec3 tangent = rVel - nSpd * manifold.points.normal;
+        glm::vec3 tangent = rVel - nSpd * manifold.normal;
         glm::vec3 friction = { 0.0f, 0.0f, 0.0f };
 
         if (glm::length(tangent) > 0.0001f) 

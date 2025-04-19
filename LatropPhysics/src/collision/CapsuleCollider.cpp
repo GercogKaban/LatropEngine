@@ -38,7 +38,7 @@ AABB CapsuleCollider::getAABB(const Transform* transform) const
     return AABB { min, max };
 }
 
-CollisionPoints CapsuleCollider::testCollision(
+ContactManifold CapsuleCollider::testCollision(
     const Transform* transform,
     const Collider* other,
     const Transform* otherTransform
@@ -46,7 +46,7 @@ CollisionPoints CapsuleCollider::testCollision(
     return other->testCollision(otherTransform, this, transform);
 }
 
-CollisionPoints CapsuleCollider::testCollision(
+ContactManifold CapsuleCollider::testCollision(
     const Transform* transform,
     const SphereCollider* other,
     const Transform* otherTransform
@@ -54,37 +54,23 @@ CollisionPoints CapsuleCollider::testCollision(
     return {};
 }
 
-CollisionPoints CapsuleCollider::testCollision(
+ContactManifold CapsuleCollider::testCollision(
     const Transform* transform,
     const CapsuleCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findCapsuleCapsuleCollisionPoints(
-        this, transform, other, otherTransform
-    );
+    return {};
 }
 
-CollisionPoints CapsuleCollider::testCollision(
+ContactManifold CapsuleCollider::testCollision(
     const Transform* transform,
     const BoundedPlaneCollider* other,
     const Transform* otherTransform
 ) const {
-    return collisionDetectors::findPlaneCapsuleCollisionPoints(
-        other, otherTransform, this, transform
-    );
+    return {};
 }
 
-CollisionPoints CapsuleCollider::testCollision(
-    const Transform* transform,
-    const AABBCollider* other,
-    const Transform* otherTransform
-) const {
-    return collisionDetectors::findAABBCapsuleCollisionPoints(
-        other, otherTransform, this, transform
-    );
-}
-
-CollisionPoints CapsuleCollider::testCollision(
+ContactManifold CapsuleCollider::testCollision(
     const Transform* transform,
     const OBBCollider* other,
     const Transform* otherTransform

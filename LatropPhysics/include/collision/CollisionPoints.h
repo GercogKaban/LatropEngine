@@ -1,38 +1,43 @@
 #pragma once
 
 #include <glm/vec3.hpp>
+#include <array>
 
 namespace LP 
 {
     struct CollisionBody;
 
-    struct CollisionPoints 
+    struct ContactManifold
     {
-        /// @brief The furthest point of `start` into `end`.
-        glm::vec3 start = glm::vec3(0.0f);
-
-        /// @brief The furthest point of `end` into `start`.
-        glm::vec3 end = glm::vec3(0.0f);
-
-        /// @brief `end` - `start`, normalized.
+        constexpr static uint32_t maxContactsCountIn3D = 4;
+        std::array<glm::vec3, maxContactsCountIn3D> contactPoints;
         glm::vec3 normal = glm::vec3(0.0f);
 
-        /// @brief Length of `end` - `start`.
         float depth = 0.0f;
+        uint32_t contactsCount = 0;
 
-        bool hasCollision = false;
+        inline bool hasCollision() const { return contactsCount != 0; }
     };
 
-    struct Collision
+    struct CollisionManifold
     {
-        Collision(CollisionBody* bodyA, CollisionBody* bodyB, const CollisionPoints& points)
-            : bodyA(bodyA), 
-              bodyB(bodyB), 
-              points(points)
-            {}
+        std::array<glm::vec3, ContactManifold::maxContactsCountIn3D> contactPoints;
+        glm::vec3 normal;
 
-        CollisionPoints points;
         CollisionBody* bodyA;
         CollisionBody* bodyB;
+
+        float depth = 0.0f;
+        uint32_t contactsCount;
+
+        inline bool hasCollision() const { return contactsCount != 0; }
+
+        CollisionManifold(CollisionBody* bodyA, CollisionBody* bodyB, const ContactManifold& manifold)
+            : bodyA(bodyA), bodyB(bodyB), 
+              contactPoints(manifold.contactPoints),
+              normal(manifold.normal),
+              depth(manifold.depth),
+              contactsCount(manifold.contactsCount)
+        {}
     };
 } // namespace LP
