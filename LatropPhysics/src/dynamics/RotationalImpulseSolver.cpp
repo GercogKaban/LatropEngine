@@ -28,8 +28,12 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
 
         std::vector<glm::vec3> impulses;
         std::vector<float> jValues;
+        
         std::vector<glm::vec3> rAs;
+        rAs.reserve(manifold.contactsCount);
+
         std::vector<glm::vec3> rBs;
+        rBs.reserve(manifold.contactsCount);
 
         // Impulses
 
@@ -87,10 +91,8 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
             jValues.push_back(j);
         }
 
-        for (uint32_t i = 0; i < manifold.contactsCount; ++i)
+        for (uint32_t i = 0; i < manifold.contactsCount && i < impulses.size(); ++i)
         {
-            if (i >= impulses.size()) continue;
-
             glm::vec3 impulse = impulses[i];
 
             if (aBody->isSimulated()) 
@@ -162,10 +164,8 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
             impulses.push_back(frictionImpulse);
         }
 
-        for (u_int8_t i = 0; i < manifold.contactsCount; ++i)
+        for (uint32_t i = 0; i < manifold.contactsCount && i < impulses.size(); ++i)
         {
-            if (i >= impulses.size()) continue;
-
             glm::vec3 impulse = impulses[i];
 
             if (aBody->isSimulated()) 
