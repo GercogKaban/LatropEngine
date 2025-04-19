@@ -12,7 +12,7 @@ int main()
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
 	// MARK: Samples
-	RotationalScene::createBouncingScenarioII();
+	RotationalScene::createAllFreeFallScenarios();
 
 	// Portals are required by the engine at the moment.
 	SharedScene::createPortals();

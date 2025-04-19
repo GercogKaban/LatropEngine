@@ -46,6 +46,7 @@ namespace RotationalScene
     void createBouncingScenarioI();
 
     void createBouncingScenarioII();
+    void createBouncingScenarioIII();
 
     // MARK: - Stacking
 
