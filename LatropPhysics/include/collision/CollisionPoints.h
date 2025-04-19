@@ -9,25 +9,26 @@ namespace LP
 
     struct ContactManifold
     {
-        std::array<glm::vec3, 4> contactPoints;
+        constexpr static uint32_t maxContactsCountIn3D = 4;
+        std::array<glm::vec3, maxContactsCountIn3D> contactPoints;
         glm::vec3 normal = glm::vec3(0.0f);
 
         float depth = 0.0f;
-        uint8_t contactsCount = 0;
+        uint32_t contactsCount = 0;
 
         inline bool hasCollision() const { return contactsCount != 0; }
     };
 
     struct CollisionManifold
     {
-        std::array<glm::vec3, 4> contactPoints;
+        std::array<glm::vec3, ContactManifold::maxContactsCountIn3D> contactPoints;
         glm::vec3 normal;
 
         CollisionBody* bodyA;
         CollisionBody* bodyB;
 
         float depth = 0.0f;
-        uint8_t contactsCount;
+        uint32_t contactsCount;
 
         inline bool hasCollision() const { return contactsCount != 0; }
 

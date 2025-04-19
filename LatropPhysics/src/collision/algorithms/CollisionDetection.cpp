@@ -234,9 +234,9 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
         return d1 > d2;
     });
 
-    // Keep up to 4 contact points
-    size_t count = std::min(size_t(4), candidates.size());
-    for (size_t i = 0; i < count; ++i) 
+    // Keep up to ContactManifold::maxContactsCountIn3D contact points
+    uint32_t count = std::min(ContactManifold::maxContactsCountIn3D, static_cast<uint32_t>(candidates.size()));
+    for (uint32_t i = 0; i < count; ++i) 
     {
         manifold.contactPoints[i] = candidates[i];
     }
@@ -291,7 +291,7 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
             maxPenetration = penetration;
         }
 
-        if (manifold.contactsCount < 4) 
+        if (manifold.contactsCount < ContactManifold::maxContactsCountIn3D) 
         {
             manifold.contactPoints[manifold.contactsCount++] = corner;
         }

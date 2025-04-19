@@ -33,7 +33,7 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
 
         // Impulses
 
-        for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
+        for (uint32_t i = 0; i < manifold.contactsCount; ++i) 
         {
             const glm::vec3& location = manifold.contactPoints[i];
 
@@ -87,7 +87,7 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
             jValues.push_back(j);
         }
 
-        for (u_int8_t i = 0; i < manifold.contactsCount; ++i)
+        for (uint32_t i = 0; i < manifold.contactsCount; ++i)
         {
             if (i >= impulses.size()) continue;
 
@@ -108,7 +108,7 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
         // Friction
         impulses.clear();
 
-        for (uint8_t i = 0; i < manifold.contactsCount; ++i) 
+        for (uint32_t i = 0; i < manifold.contactsCount; ++i) 
         {
             const glm::vec3& location = manifold.contactPoints[i];
 
