@@ -16,7 +16,7 @@ float LPlayerCharacter::getSpeed() const
 {
 	static float walkingSpeed = 1.45f;
 	static float crouchedSpeed = 0.87f;
-	float runningMultiplier = (isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0) * 1.5;
+	float runningMultiplier = (isKeyPressed(GLFW_KEY_LEFT_SHIFT) ? 2.0 : 1.0);
 	float speed = isKeyPressed(GLFW_KEY_LEFT_CONTROL) ? crouchedSpeed : walkingSpeed;
 
 	return speed * runningMultiplier;
@@ -46,6 +46,74 @@ void LPlayerCharacter::tick(float delta)
 		physicsComponent->linearVelocity.z = velocity.z;
 	}
 	updateCamera();
+}
+
+void LPlayerCharacter::setOrientation(const glm::quat& newValue)
+{
+	this->orientation = newValue;
+	// Update camera
+	this->updateCamera();
+
+	// Compute the new camera direction from the quaternion
+	glm::vec3 front = this->orientation * glm::vec3(0.0f, 0.0f, -1.0f);
+	LRenderer::get()->setCameraFront(glm::normalize(front));
+}
+
+void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* srcPortal, const LP::RigidBody* dstPortal)
+{
+    const auto& src = srcPortal->transform;
+    const auto& dst = dstPortal->transform;
+
+    // 180° flip so player exits facing outward
+    glm::quat flip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+
+    // delta rotation to convert src-space → dst-space (with facing flip)
+    glm::quat delta = dst.rotation * glm::inverse(src.rotation);
+
+    // translate position: preserve offset from source, then apply delta
+    glm::vec3 worldPos = physicsComponent->transform.position;
+    glm::vec3 newPos = dst.position + delta * (worldPos - src.position);
+
+    // rotate orientation and velocity by delta
+    glm::quat newOrient = glm::normalize(delta * this->orientation);
+    glm::vec3 newVel = delta * physicsComponent->linearVelocity;
+
+    // small safety nudge along destination normal
+    glm::vec3 dstNormal = glm::normalize(dst.rotation * glm::vec3(0.0f, 1.0f, 0.0f));
+    const float safetyOffset = 0.12f;
+    newPos += dstNormal * safetyOffset;
+
+    // apply
+    physicsComponent->transform.position = newPos;
+    physicsComponent->linearVelocity = newVel;
+    // setOrientation(newOrient);
+	setOrientation(orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+}
+
+void LPlayerCharacter::teleportTo(const LP::RigidBody* destinationPortal)
+{
+	// Get destination portal's transform
+	auto destinationTransform = destinationPortal->transform;
+	// destinationTransform.position.y -= 1.0f;
+
+	// Compute teleport position: Move to portal position & offset slightly along normal
+	glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 1.0f, 0.0f });
+	// Teleport position
+	physicsComponent->transform.position = destinationTransform.position;// + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
+	physicsComponent->linearVelocity = glm::reflect(physicsComponent->linearVelocity, portalNormal);
+
+	// Rotate player 180 degrees around Y-axis
+	// Create a reflection matrix
+    // glm::mat3 R = glm::mat3(1.0f) - 2.0f * glm::outerProduct(portalNormal, portalNormal);
+
+    // // Convert the orientation to a matrix
+    // glm::mat3 rot = glm::mat3_cast(orientation);
+
+    // // Reflect the rotation
+    // glm::mat3 reflectedRot = R * rot * R;
+
+	// setOrientation(glm::quat_cast(reflectedRot));
+	setOrientation(orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
 }
 
 void LPlayerCharacter::beginPlay()
@@ -133,12 +201,7 @@ void LPlayerCharacter::mouseInput(GLFWwindow* window, double xpos, double ypos)
 		playerCharacter->lastX = playerCharacter->centerX;
 		playerCharacter->lastY = playerCharacter->centerY;
 
-		// Update camera
-		playerCharacter->updateCamera();
-
-		// Compute the new camera direction from the quaternion
-		glm::vec3 front = playerCharacter->orientation * glm::vec3(0.0f, 0.0f, -1.0f);
-		LRenderer::get()->setCameraFront(glm::normalize(front));
+		playerCharacter->setOrientation(playerCharacter->orientation);
 	}
 }
 

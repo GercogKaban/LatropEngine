@@ -37,7 +37,7 @@ void SharedScene::createPortals()
 	const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
 	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
-	const glm::vec3 pos1 = glm::vec3(7.0f, 1.0f, -5.0f);
+	const glm::vec3 pos1 = glm::vec3(7.0f, 10.0f, -5.0f);
 	const glm::vec3 pos2 = glm::vec3(-5.0f, 1.0f, -5.0f);
 
 	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
@@ -72,7 +72,7 @@ void SharedScene::createPortals()
 			physicsComponent->isTrigger = true;
 
 			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1)
+				if (collision.normal.z == 1 && collision.depth > 0.000001)
 				{
 					// std::cout << "Colliding: ";
 					// std::cout << "x: " << collision.normal.x << " ";
@@ -80,19 +80,9 @@ void SharedScene::createPortals()
 					// std::cout << "z: " << collision.normal.z << " ";
 					// std::cout << "d: " << collision.depth << " ";
 					// std::cout << std::endl;
-					// auto portal = player->orangePortal;
-					// // Get destination portal's transform
-					// auto destinationTransform = portal->transform;
-					// // destinationTransform.position.y -= 1.0f;
 
-					// // Compute teleport position: Move to portal position & offset slightly along normal
-					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 1.0f, 0.0f });
-					// // Teleport position
-					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
-
-					// // Rotate player 180 degrees around Y-axis
-					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+					// player->teleportTo(player->orangePortal);
+					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
 				}
 			};
 		});
@@ -117,27 +107,16 @@ void SharedScene::createPortals()
 			physicsComponent->isTrigger = true;
 
 			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == -1)
+				if (collision.normal.z == 1 && collision.depth > 0.000001)
 				{
 					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.points.normal.x << " ";
-					// std::cout << "y: " << collision.points.normal.y << " ";
-					// std::cout << "z: " << collision.points.normal.z << " ";
-					// std::cout << "d: " << collision.points.depth << " ";
+					// std::cout << "x: " << collision.normal.x << " ";
+					// std::cout << "y: " << collision.normal.y << " ";
+					// std::cout << "z: " << collision.normal.z << " ";
+					// std::cout << "d: " << collision.depth << " ";
 					// std::cout << std::endl;
-					// auto portal = player->bluePortal;
-					// // Get destination portal's transform
-					// auto destinationTransform = portal->transform;
-					// // destinationTransform.position.y -= 1.0f;
-
-					// // Compute teleport position: Move to portal position & offset slightly along normal
-					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3{ 0.0f, 1.0f, 0.0f });
-					// // Teleport position
-					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
-
-					// // Rotate player 180 degrees around Y-axis
-					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+					// player->teleportTo(player->bluePortal);
+					player->teleportThroughPortal(player->orangePortal, player->bluePortal);
 				}
 			};
 		});
