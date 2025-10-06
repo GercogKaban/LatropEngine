@@ -33,7 +33,7 @@ public:
 	static const glm::vec3 crouchedDimensions;
 	static const float mass;
 
-	glm::quat orientation{};
+	glm::quat orientation = glm::quat(1, 0, 0, 0);
 	// FIXME: Temporary storage for portals to reference one another
 	LP::RigidBody* bluePortal;
 	LP::RigidBody* orangePortal;
