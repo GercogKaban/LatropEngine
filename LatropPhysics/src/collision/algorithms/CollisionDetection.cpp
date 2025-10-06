@@ -1,3 +1,7 @@
+#include <vector>
+#include <limits>
+#include <algorithm>
+
 #include "collision/algorithms/CollisionDetection.h"
 #include "collision/SphereCollider.h"
 #include "collision/CapsuleCollider.h"
@@ -5,8 +9,6 @@
 #include "collision/OBBCollider.h"
 #include "shared/Transform.h"
 #include "shared/AABB.h"
-#include <vector>
-#include <limits>
 
 using namespace LP;
 
