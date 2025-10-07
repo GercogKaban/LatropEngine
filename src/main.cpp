@@ -3,6 +3,7 @@
 #include "scenes/Shared.h"
 #include "scenes/RotationalScene.h"
 #include "scenes/RoomScene.h"
+#include "scenes/PortalsSandbox.h"
 
 // MARK: Main
 
@@ -13,10 +14,11 @@ int main()
 
 	// MARK: Samples
 	// RotationalScene::createAllFreeFallScenarios();
-	RoomScene::create();
+	// RoomScene::create();
+	PortalsSandbox::createSymmetricScenario();
 
 	// Portals are required by the engine at the moment.
-	SharedScene::createPortals();
+	// SharedScene::createPortals();
 	
 	// MARK: RunLoop
 	engine.loop();
