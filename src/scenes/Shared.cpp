@@ -41,11 +41,11 @@ void SharedScene::createPortals()
 	const glm::vec3 pos2 = glm::vec3(-5.0f, 1.0f, -5.0f);
 
 	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
-	bluePortal->loadComponent<LG::LPortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
+	bluePortal->loadComponent<LG::BluePortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
+			dynamic_cast<LG::BluePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
 
 			auto p1View = glm::lookAt(pos1, pos1 + cameraFront, cameraUp);
 
@@ -88,11 +88,11 @@ void SharedScene::createPortals()
 		});
 
 	auto orangePortal = ObjectBuilder::construct<LActor>().lock();
-	orangePortal->loadComponent<LG::LPortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
+	orangePortal->loadComponent<LG::OrangePortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
+			dynamic_cast<LG::OrangePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
 		});
 	orangePortal->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
 		{
