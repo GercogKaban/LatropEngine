@@ -72,7 +72,7 @@ void SharedScene::createPortals()
 			physicsComponent->isTrigger = true;
 
 			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1 && collision.depth > 0.000001)
+				if (collision.normal.z == 1/* && collision.depth > 0.000001*/)
 				{
 					// std::cout << "Colliding: ";
 					// std::cout << "x: " << collision.normal.x << " ";
@@ -82,7 +82,7 @@ void SharedScene::createPortals()
 					// std::cout << std::endl;
 
 					// player->teleportTo(player->orangePortal);
-					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
+					// player->teleportThroughPortal(player->bluePortal, player->orangePortal);
 				}
 			};
 		});
@@ -107,7 +107,7 @@ void SharedScene::createPortals()
 			physicsComponent->isTrigger = true;
 
 			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1 && collision.depth > 0.000001)
+				if (collision.normal.z == 1/* && collision.depth > 0.001*/)
 				{
 					// std::cout << "Colliding: ";
 					// std::cout << "x: " << collision.normal.x << " ";
@@ -116,8 +116,25 @@ void SharedScene::createPortals()
 					// std::cout << "d: " << collision.depth << " ";
 					// std::cout << std::endl;
 					// player->teleportTo(player->bluePortal);
-					player->teleportThroughPortal(player->orangePortal, player->bluePortal);
+					// player->teleportThroughPortal(player->orangePortal, player->bluePortal);
 				}
 			};
+		});
+}
+
+void SharedScene::createCube(glm::vec3 origin, bool takesGravity, std::__1::string &&texturePath)
+{
+	auto cubeD = ObjectBuilder::construct<LActor>().lock();
+	cubeD->loadComponent<LG::LCube>();
+    cubeD->graphicsComponent->setColorTexture(std::move(texturePath));
+	cubeD->loadComponent< LP::RigidBody>([origin, takesGravity](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(takesGravity);
+			if (takesGravity) physicsComponent->setMass(10.0f);
+
+			physicsComponent->collider = cubeOBBCollider;
+			physicsComponent->takesGravity = takesGravity;
+			physicsComponent->material = LP::Material::Metal;
+			physicsComponent->transform.position = origin;
 		});
 }
