@@ -138,7 +138,7 @@ void PortalsSandbox::createRotatedScenario()
     RoomScene::createFloor(400, 400);
 
 	// MARK: Stairs
-	RoomScene::createSmoothStairs(600, { 6, -1, 2});
+	RoomScene::createSmoothStairs(600, { 6, -1, 2}, 4.5);
 
 	// MARK: Cubes
     bool isSimulated = false;
@@ -205,6 +205,8 @@ void PortalsSandbox::createRotatedScenario()
 	// MARK: Portals
     const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
 	glm::quat rotationY1 = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	rotationY1 = glm::angleAxis(glm::radians(-45.0f), glm::vec3(0, 0, 1)) * rotationY1;
+
 	glm::quat rotationY2 = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 	rotationY2 = glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0)) * rotationY2;
 
