@@ -15,7 +15,8 @@ int main()
 	// MARK: Samples
 	// RotationalScene::createAllFreeFallScenarios();
 	// RoomScene::create();
-	PortalsSandbox::createSymmetricScenario();
+	// PortalsSandbox::createSymmetricScenario();
+	PortalsSandbox::createRotatedScenario();
 
 	// Portals are required by the engine at the moment.
 	// SharedScene::createPortals();

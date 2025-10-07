@@ -29,7 +29,7 @@ void RoomScene::createFloor(int width, int depth)
                 physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Maximum;
                 physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Minimum;
             });
-            floor->graphicsComponent->setColorTexture("textures/smile.jpg");
+            floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
         }
     }
 }
