@@ -138,7 +138,8 @@ void PortalsSandbox::createRotatedScenario()
     RoomScene::createFloor(400, 400);
 
 	// MARK: Stairs
-	RoomScene::createSmoothStairs(600, { 6, -1, 2}, 4.5);
+	RoomScene::createSmoothStairs(600, { 6, -1, 2 }, 4.5);
+	RoomScene::createPerfectlyBouncyPuddle({ 6, 0.0, 2 }, true);
 
 	// MARK: Cubes
     bool isSimulated = false;
@@ -154,7 +155,7 @@ void PortalsSandbox::createRotatedScenario()
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
 			physicsComponent->material.restitution = 1.0f;
-			physicsComponent->transform.position = glm::vec3(6.0f, 1.0f, 2.0f);
+			physicsComponent->transform.position = glm::vec3(6.0f, 1.0f, 12.0f);
 		});
 
     auto cubeB = ObjectBuilder::construct<LActor>().lock();
@@ -169,7 +170,7 @@ void PortalsSandbox::createRotatedScenario()
 			physicsComponent->takesGravity = isSimulated;
 			physicsComponent->material = LP::Material::Metal;
 			physicsComponent->material.restitution = 1.0f;
-			physicsComponent->transform.position = glm::vec3(3.0f, 2.0f, 1.0f);
+			physicsComponent->transform.position = glm::vec3(3.0f, 2.0f, 10.0f);
 		});
 
     auto cubeC = ObjectBuilder::construct<LActor>().lock();
@@ -214,11 +215,11 @@ void PortalsSandbox::createRotatedScenario()
 	const glm::vec3 pos2 = glm::vec3(-1.0f, 1.5f, -8.0f);
 
 	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
-	bluePortal->loadComponent<LG::LPortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
+	bluePortal->loadComponent<LG::BluePortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
+			dynamic_cast<LG::BluePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
 
 			auto p1View = glm::lookAt(pos1, pos1 + cameraFront, cameraUp);
 
@@ -245,11 +246,11 @@ void PortalsSandbox::createRotatedScenario()
 		});
 
 	auto orangePortal = ObjectBuilder::construct<LActor>().lock();
-	orangePortal->loadComponent<LG::LPortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
+	orangePortal->loadComponent<LG::OrangePortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
+			dynamic_cast<LG::OrangePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
 		});
 	orangePortal->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY2](LP::RigidBody* physicsComponent)
 		{
