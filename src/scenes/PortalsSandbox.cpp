@@ -37,7 +37,7 @@ void createFloor(int width, int depth)
 
 void PortalsSandbox::createSymmetricScenario()
 {
-    SharedScene::createPlayer();
+    SharedScene::createPlayer({ -4, 2, -3.5 }, true);
     createFloor(400, 400);
 
     // MARK: Cubes
@@ -106,8 +106,8 @@ void PortalsSandbox::createSymmetricScenario()
     const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
 	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
-	const glm::vec3 pos1 = glm::vec3(4.0f, 1.0f, -5.0f);
-	const glm::vec3 pos2 = glm::vec3(-4.0f, 1.0f, -5.0f);
+	const glm::vec3 pos1 = glm::vec3(4.0f, 1.5f, -5.0f);
+	const glm::vec3 pos2 = glm::vec3(-4.0f, 1.5f, -5.0f);
 
 	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
 	bluePortal->loadComponent<LG::LPortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
