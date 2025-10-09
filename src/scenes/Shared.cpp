@@ -184,13 +184,30 @@ void SharedScene::createBluePortalUI(glm::vec3 origin, glm::quat rotation, glm::
 			auto player = LPlayerCharacter::get();
 			player->bluePortal = physicsComponent;
 
-			physicsComponent->collider = cubeOBBCollider;
+			physicsComponent->collider = planeYUPCollider;
 			physicsComponent->transform.position = origin;
 			physicsComponent->transform.scale = scale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {};
+			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+
+			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
+				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
+				// bodyNormal = glm::normalize(bodyNormal);
+				// std::cout << glm::dot(portalNormal, bodyNormal);
+				// std::cout << "x: " << portalNormal.x << " ";
+				// std::cout << "y: " << portalNormal.y << " ";
+				// std::cout << "z: " << portalNormal.z << " ";
+				// std::cout << "x: " << bodyNormal.x << " ";
+				// std::cout << "y: " << bodyNormal.y << " ";
+				// std::cout << "z: " << bodyNormal.z << " ";
+				// std::cout << std::endl;
+				if (glm::dot(portalNormal, bodyNormal) > 0)
+				{
+					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
+				}
+			};
 		});
 
 	if (isDecorated) decorate(origin, rotation, scale);
@@ -221,15 +238,24 @@ void SharedScene::createOrangePortalUI(glm::vec3 origin, glm::quat rotation, glm
 			physicsComponent->setIsSimulated(false);
 
 			auto player = LPlayerCharacter::get();
-			player->bluePortal = physicsComponent;
+			player->orangePortal = physicsComponent;
 
-			physicsComponent->collider = cubeOBBCollider;
+			physicsComponent->collider = planeYUPCollider;
 			physicsComponent->transform.position = origin;
 			physicsComponent->transform.scale = scale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {};
+			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+
+			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
+				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
+				// float dot = glm::dot(portalNormal, bodyNormal)
+				if (glm::dot(portalNormal, bodyNormal) > 0)
+				{
+					player->teleportThroughPortal(player->orangePortal, player->bluePortal);
+				}
+			};
 		});
 
 	if (isDecorated) decorate(origin, rotation, scale);

@@ -80,7 +80,7 @@ void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* srcPortal, con
 
     // small safety nudge along destination normal
     glm::vec3 dstNormal = glm::normalize(dst.rotation * glm::vec3(0.0f, 1.0f, 0.0f));
-    const float safetyOffset = 0.12f;
+    const float safetyOffset = 0.03f; // 0.12f;
     newPos += dstNormal * safetyOffset;
 
     // apply

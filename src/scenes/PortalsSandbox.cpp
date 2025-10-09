@@ -20,6 +20,21 @@ void PortalsSandbox::createSymmetricScenario()
 	SharedScene::createOrangePortalUI({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
 }
 
+void PortalsSandbox::createAsymmetricScenario()
+{
+    SharedScene::createPlayer({ -4, 2, -3.5 }, true);
+    RoomScene::createFloor(400, 400);
+
+    // MARK: Cubes
+	SharedScene::createCube({ 6.0f, 1.0f, -2.0f }, false);
+	SharedScene::createCube({ 3.0f, 1.0f, -1.0f }, false);
+	SharedScene::createCube({ -6.0f, 1.0f, -8.0f }, false);
+
+    // MARK: Portals
+	SharedScene::createBluePortalUI({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1)));
+	SharedScene::createOrangePortalUI({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
+}
+
 void PortalsSandbox::createRotatedScenario()
 {
 	SharedScene::createPlayer();
