@@ -148,5 +148,5 @@ void RoomScene::create()
     createPerfectlyBouncyPuddle({ 7.0f, 0.5f, -3.0f }, false);
 
     SharedScene::createBluePortal({ 7.0f, 10.0f, -5.0f });
-	SharedScene::createOrangePortal({ -5.0f, 1.0f, -5.0f });
+	SharedScene::createOrangePortal({ -5.0f, 1.5f, -5.0f });
 }
