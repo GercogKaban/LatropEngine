@@ -32,7 +32,7 @@ void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity)
 		});
 }
 
-void SharedScene::createCube(glm::vec3 origin, bool takesGravity, std::__1::string &&texturePath)
+void SharedScene::createCube(glm::vec3 origin, bool takesGravity, std::string &&texturePath)
 {
 	auto cubeD = ObjectBuilder::construct<LActor>().lock();
 	cubeD->loadComponent<LG::LCube>();
