@@ -59,61 +59,51 @@ void LPlayerCharacter::setOrientation(const glm::quat& newValue)
 	LRenderer::get()->setCameraFront(glm::normalize(front));
 }
 
-void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* srcPortal, const LP::RigidBody* dstPortal)
-{
-    const auto& src = srcPortal->transform;
-    const auto& dst = dstPortal->transform;
+// TODO: Move this func somewhere shared
+void decomposeMatrixManual(const glm::mat4& m, glm::vec3& position, glm::quat& rotation, glm::vec3& scale) {
+    position = glm::vec3(m[3]); // translation
 
-    // 180° flip so player exits facing outward
-    glm::quat flip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0, 1, 0));
+    // Extract the basis vectors
+    glm::vec3 col0 = glm::vec3(m[0]);
+    glm::vec3 col1 = glm::vec3(m[1]);
+    glm::vec3 col2 = glm::vec3(m[2]);
 
-    // delta rotation to convert src-space → dst-space (with facing flip)
-    glm::quat delta = dst.rotation * glm::inverse(src.rotation);
+    // Compute scale
+    scale.x = glm::length(col0);
+    scale.y = glm::length(col1);
+    scale.z = glm::length(col2);
 
-    // translate position: preserve offset from source, then apply delta
-    glm::vec3 worldPos = physicsComponent->transform.position;
-    glm::vec3 newPos = dst.position + delta * (worldPos - src.position);
+    // Normalize columns to remove scaling
+    if (scale.x != 0) col0 /= scale.x;
+    if (scale.y != 0) col1 /= scale.y;
+    if (scale.z != 0) col2 /= scale.z;
 
-    // rotate orientation and velocity by delta
-    glm::quat newOrient = glm::normalize(delta * this->orientation);
-    glm::vec3 newVel = delta * physicsComponent->linearVelocity;
-
-    // small safety nudge along destination normal
-    glm::vec3 dstNormal = glm::normalize(dst.rotation * glm::vec3(0.0f, 1.0f, 0.0f));
-    const float safetyOffset = 0.03f; // 0.12f;
-    newPos += dstNormal * safetyOffset;
-
-    // apply
-    physicsComponent->transform.position = newPos;
-    physicsComponent->linearVelocity = newVel;
-    // setOrientation(newOrient);
-	setOrientation(orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+    // Rebuild rotation matrix
+    glm::mat3 rotMat(col0, col1, col2);
+    rotation = glm::quat_cast(rotMat);
 }
 
-void LPlayerCharacter::teleportTo(const LP::RigidBody* destinationPortal)
+void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* portalIn, const LP::RigidBody* portalOut)
 {
-	// Get destination portal's transform
-	auto destinationTransform = destinationPortal->transform;
-	// destinationTransform.position.y -= 1.0f;
+	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
 
-	// Compute teleport position: Move to portal position & offset slightly along normal
-	glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 1.0f, 0.0f });
-	// Teleport position
-	physicsComponent->transform.position = destinationTransform.position;// + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-	physicsComponent->linearVelocity = glm::reflect(physicsComponent->linearVelocity, portalNormal);
+    glm::mat4 portalInMat = portalIn->transform.getAsMatrix();
+    glm::mat4 portalOutMat = portalOut->transform.getAsMatrix();
 
-	// Rotate player 180 degrees around Y-axis
-	// Create a reflection matrix
-    // glm::mat3 R = glm::mat3(1.0f) - 2.0f * glm::outerProduct(portalNormal, portalNormal);
+	auto playerTransform = physicsComponent->transform;
+	// TODO: Add support for direct rotation mutation
+	playerTransform.rotation = orientation;
+    glm::mat4 playerRelativeToPortalIn = glm::inverse(portalInMat) * playerTransform.getAsMatrix();
+    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), { 0.0f, 0.0f, 1.0f });
+    glm::mat4 rotatedRelativeToPortalIn = rotationMatrix * playerRelativeToPortalIn;
 
-    // // Convert the orientation to a matrix
-    // glm::mat3 rot = glm::mat3_cast(orientation);
+    glm::mat4 playerWorldFromPortalOut = portalOutMat * rotatedRelativeToPortalIn;
 
-    // // Reflect the rotation
-    // glm::mat3 reflectedRot = R * rot * R;
-
-	// setOrientation(glm::quat_cast(reflectedRot));
-	setOrientation(orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+	glm::vec3 skew;
+    glm::vec4 perspective;
+	auto &t = physicsComponent->transform;
+    decomposeMatrixManual(playerWorldFromPortalOut, t.position, playerTransform.rotation, t.scale);
+	setOrientation(playerTransform.rotation);
 }
 
 void LPlayerCharacter::beginPlay()

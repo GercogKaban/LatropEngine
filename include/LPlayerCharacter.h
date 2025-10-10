@@ -18,7 +18,6 @@ public:
 
 	virtual void tick(float delta) override;
 	void setOrientation(const glm::quat& newValue);
-	void teleportTo(const LP::RigidBody* destinationPortal);
 	void teleportThroughPortal(const LP::RigidBody* srcPortal, const LP::RigidBody* dstPortal);
 	void resetJump() { jumpsCounter = 0; }
 
