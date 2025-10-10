@@ -16,8 +16,8 @@ void PortalsSandbox::createSymmetricScenario()
 	SharedScene::createCube({ -6.0f, 1.0f, -8.0f }, false);
 
     // MARK: Portals
-	SharedScene::createBluePortalUI({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1)));
-	SharedScene::createOrangePortalUI({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
+	SharedScene::createBluePortal({ 4.0f, 1.5f, -5.0f });
+	SharedScene::createOrangePortal({ -4.0f, 1.5f, -5.0f });
 }
 
 void PortalsSandbox::createAsymmetricScenario()
@@ -31,8 +31,8 @@ void PortalsSandbox::createAsymmetricScenario()
 	SharedScene::createCube({ -6.0f, 1.0f, -8.0f }, false);
 
     // MARK: Portals
-	SharedScene::createBluePortalUI({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1)));
-	SharedScene::createOrangePortalUI({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
+	SharedScene::createBluePortal({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1)));
+	SharedScene::createOrangePortal({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
 }
 
 void PortalsSandbox::createRotatedScenario()
@@ -52,6 +52,6 @@ void PortalsSandbox::createRotatedScenario()
 	SharedScene::createCube({ -6.0f, 1.0f, -8.0f }, false);
 
 	// MARK: Portals
-	SharedScene::createBluePortalUI({ 4.0f, 1.6f, -5.0f }, glm::angleAxis(glm::radians(-45.0f), glm::vec3(0, 0, 1)));
-	SharedScene::createOrangePortalUI({ -1.0f, 1.5f, -8.0f }, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0)));
+	SharedScene::createBluePortal({ 4.0f, 1.6f, -5.0f }, glm::angleAxis(glm::radians(-45.0f), glm::vec3(0, 0, 1)));
+	SharedScene::createOrangePortal({ -1.0f, 1.5f, -8.0f }, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0)));
 }

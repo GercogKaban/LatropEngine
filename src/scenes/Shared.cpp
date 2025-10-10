@@ -32,96 +32,6 @@ void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity)
 		});
 }
 
-void SharedScene::createPortals()
-{
-	const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
-	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
-
-	const glm::vec3 pos1 = glm::vec3(7.0f, 10.0f, -5.0f);
-	const glm::vec3 pos2 = glm::vec3(-5.0f, 1.0f, -5.0f);
-
-	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
-	bluePortal->loadComponent<LG::BluePortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
-		{
-			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::BluePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
-
-			auto p1View = glm::lookAt(pos1, pos1 + cameraFront, cameraUp);
-
-			auto playerView = LRenderer::get()->getView();
-
-			//glm::mat4 model(1.0f);
-			//model = glm::translate(model, {0,0,5});
-
-			auto modifiedModel = p1View * playerView;
-
-			return;
-		});
-	bluePortal->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
-		{
-			physicsComponent->setIsSimulated(false);
-
-			auto player = LPlayerCharacter::get();
-			player->bluePortal = physicsComponent;
-
-			physicsComponent->collider = cubeOBBCollider;
-			physicsComponent->transform.position = pos1;
-			physicsComponent->transform.scale = portalScale;
-			physicsComponent->transform.rotation *= rotationY;
-			physicsComponent->isTrigger = true;
-
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1/* && collision.depth > 0.000001*/)
-				{
-					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.normal.x << " ";
-					// std::cout << "y: " << collision.normal.y << " ";
-					// std::cout << "z: " << collision.normal.z << " ";
-					// std::cout << "d: " << collision.depth << " ";
-					// std::cout << std::endl;
-
-					// player->teleportTo(player->orangePortal);
-					// player->teleportThroughPortal(player->bluePortal, player->orangePortal);
-				}
-			};
-		});
-
-	auto orangePortal = ObjectBuilder::construct<LActor>().lock();
-	orangePortal->loadComponent<LG::OrangePortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
-		{
-			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
-			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::OrangePortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
-		});
-	orangePortal->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
-		{
-			physicsComponent->setIsSimulated(false);
-			auto player = LPlayerCharacter::get();
-			player->orangePortal = physicsComponent;
-
-			physicsComponent->collider = cubeOBBCollider;
-			physicsComponent->transform.position = pos2;
-			physicsComponent->transform.scale = portalScale;
-			physicsComponent->transform.rotation *= rotationY;
-			physicsComponent->isTrigger = true;
-
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1/* && collision.depth > 0.001*/)
-				{
-					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.normal.x << " ";
-					// std::cout << "y: " << collision.normal.y << " ";
-					// std::cout << "z: " << collision.normal.z << " ";
-					// std::cout << "d: " << collision.depth << " ";
-					// std::cout << std::endl;
-					// player->teleportTo(player->bluePortal);
-					// player->teleportThroughPortal(player->orangePortal, player->bluePortal);
-				}
-			};
-		});
-}
-
 void SharedScene::createCube(glm::vec3 origin, bool takesGravity, std::__1::string &&texturePath)
 {
 	auto cubeD = ObjectBuilder::construct<LActor>().lock();
@@ -157,7 +67,7 @@ void decorate(glm::vec3 origin, glm::quat rotation, glm::vec3 scale)
 		floor->graphicsComponent->setColorTexture("textures/PavingStones138.jpg");
 }
 
-void SharedScene::createBluePortalUI(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
+void SharedScene::createBluePortal(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
 {
 	glm::quat rotationY = rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
@@ -194,15 +104,6 @@ void SharedScene::createBluePortalUI(glm::vec3 origin, glm::quat rotation, glm::
 
 			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
 				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
-				// bodyNormal = glm::normalize(bodyNormal);
-				// std::cout << glm::dot(portalNormal, bodyNormal);
-				// std::cout << "x: " << portalNormal.x << " ";
-				// std::cout << "y: " << portalNormal.y << " ";
-				// std::cout << "z: " << portalNormal.z << " ";
-				// std::cout << "x: " << bodyNormal.x << " ";
-				// std::cout << "y: " << bodyNormal.y << " ";
-				// std::cout << "z: " << bodyNormal.z << " ";
-				// std::cout << std::endl;
 				if (glm::dot(portalNormal, bodyNormal) > 0)
 				{
 					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
@@ -213,7 +114,7 @@ void SharedScene::createBluePortalUI(glm::vec3 origin, glm::quat rotation, glm::
 	if (isDecorated) decorate(origin, rotation, scale);
 }
 
-void SharedScene::createOrangePortalUI(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
+void SharedScene::createOrangePortal(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
 {
 	glm::quat rotationY = rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
@@ -250,7 +151,6 @@ void SharedScene::createOrangePortalUI(glm::vec3 origin, glm::quat rotation, glm
 
 			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
 				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
-				// float dot = glm::dot(portalNormal, bodyNormal)
 				if (glm::dot(portalNormal, bodyNormal) > 0)
 				{
 					player->teleportThroughPortal(player->orangePortal, player->bluePortal);

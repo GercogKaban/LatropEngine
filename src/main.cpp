@@ -9,17 +9,11 @@
 
 int main()
 {
-	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
+	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow", false, 1920, 1080 };
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
-	// MARK: Samples
-	// RotationalScene::createAllFreeFallScenarios();
-	// RoomScene::create();
-	PortalsSandbox::createAsymmetricScenario();
-	// PortalsSandbox::createRotatedScenario();
-
-	// Portals are required by the engine at the moment.
-	// SharedScene::createPortals();
+	// - Warning: Portals are required by the engine at the moment.
+	RoomScene::create();
 	
 	// MARK: RunLoop
 	engine.loop();

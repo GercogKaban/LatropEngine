@@ -91,7 +91,7 @@ void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* portalIn, cons
     glm::mat4 portalOutMat = portalOut->transform.getAsMatrix();
 
 	auto playerTransform = physicsComponent->transform;
-	// TODO: Add support for direct rotation mutation
+	// TODO: Add support for direct rotation mutation for objects
 	playerTransform.rotation = orientation;
     glm::mat4 playerRelativeToPortalIn = glm::inverse(portalInMat) * playerTransform.getAsMatrix();
     glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), { 0.0f, 0.0f, 1.0f });
@@ -104,6 +104,12 @@ void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* portalIn, cons
 	auto &t = physicsComponent->transform;
     decomposeMatrixManual(playerWorldFromPortalOut, t.position, playerTransform.rotation, t.scale);
 	setOrientation(playerTransform.rotation);
+
+	glm::vec3 portalNormal = glm::normalize(portalOut->transform.rotation * up);
+	// TODO: Reflect angular velocity for ojects
+	physicsComponent->linearVelocity = glm::reflect(physicsComponent->linearVelocity, portalNormal);
+	glm::vec3 normalVelocity = glm::normalize(physicsComponent->linearVelocity);
+	physicsComponent->transform.position = physicsComponent->transform.position + normalVelocity * -0.001f;
 }
 
 void LPlayerCharacter::beginPlay()
