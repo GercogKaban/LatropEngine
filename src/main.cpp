@@ -13,7 +13,8 @@ int main()
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
 	// - Warning: Portals are required by the engine at the moment.
-	RoomScene::create();
+	//RoomScene::create();
+	PortalsSandbox::createRotatedScenario();
 	
 	// MARK: RunLoop
 	engine.loop();

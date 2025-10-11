@@ -17,9 +17,10 @@ public:
 	LEngine(std::unique_ptr <LWindow> window);
 	static LEngine* get() { return thisPtr; }
 
-	bool isGameStarted() const { return bGameStarted; }
-
 	void loop();
+
+	auto getFrameNumber() const { return frameNum; }
+	bool isGameStarted() const { return getFrameNumber() != 0; }
 
 	inline std::chrono::duration<float> getDelta() const
 	{
@@ -68,8 +69,7 @@ protected:
 
 	float fpsTimer = 0.0f;
 	uint32 fps = 0;
-
-	bool bGameStarted = false;
+	uint64 frameNum = 0;
 };
 
 class ObjectBuilder
@@ -83,18 +83,26 @@ public:
 
 		if (LEngine* engine = LEngine::get())
 		{	
-			engine->objectsToInit.push_back(object);
+			if (!engine->isGameStarted())
+			{
+				engine->objectsToInit.push_back(object);
+			}
+			else
+			{
+				assert(false && "You can't create objects dynamically for now, do it before game started");
+			}
 		}
 
 		return object;
 	}
 
 	template<typename Component>
-	[[nodiscard]] static void registerComponent(std::shared_ptr<Component> component)
+	static void registerComponent(std::shared_ptr<Component> component)
 	{
 		if constexpr (std::is_base_of<LG::LGraphicsComponent, Component>::value)
 		{
 			RenderComponentBuilder::adjustImpl(component);
+			assert(!LEngine::get()->isGameStarted() && "You can't construct graphics components dynamically for now, do it before game started");
 		}
 
 		else if constexpr (std::is_base_of<LP::CollisionBody, Component>::value)
