@@ -24,7 +24,7 @@ void LActor::beginPlay()
 
 		const_cast<std::function<bool()>&>(graphicsComponent->isAlwaysStatic) = [this]()
 		{
-			return !physicsComponent->takesGravity;
+			return !physicsComponent->isSimulated();
 		};
 
 		ObjectBuilder::registerComponent(graphicsComponent);
