@@ -7,4 +7,5 @@ namespace PortalsSandbox
     void createSymmetricScenario();
     void createAsymmetricScenario();
     void createRotatedScenario();
+    void createStablePlayground();
 } // namespace RoomScene

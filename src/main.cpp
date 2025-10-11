@@ -14,7 +14,7 @@ int main()
 
 	// - Warning: Portals are required by the engine at the moment.
 	//RoomScene::create();
-	PortalsSandbox::createRotatedScenario();
+	PortalsSandbox::createStablePlayground();
 	
 	// MARK: RunLoop
 	engine.loop();
