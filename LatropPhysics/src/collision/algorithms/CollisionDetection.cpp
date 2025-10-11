@@ -276,8 +276,8 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
     {
         float distance = glm::dot(corner - transformA->position, planeNormal);
 
-        // One-sided plane: skip if in front
-        if (distance > 0.0f)
+        // Skip if in front or too far behind (outside bounded depth)
+        if (distance > 0.0f || distance < -transformA->scale.y)
             continue;
 
         // Project corner onto plane to check bounds
