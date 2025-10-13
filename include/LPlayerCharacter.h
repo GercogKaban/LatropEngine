@@ -17,6 +17,8 @@ public:
 	LPlayerCharacter(const glm::vec3& startPosition);
 
 	virtual void tick(float delta) override;
+	void setOrientation(const glm::quat& newValue);
+	void teleportThroughPortal(const LP::RigidBody* srcPortal, const LP::RigidBody* dstPortal);
 	void resetJump() { jumpsCounter = 0; }
 
 	float getSpeed() const;
@@ -30,7 +32,7 @@ public:
 	static const glm::vec3 crouchedDimensions;
 	static const float mass;
 
-	glm::quat orientation{};
+	glm::quat orientation = glm::quat(1, 0, 0, 0);
 	// FIXME: Temporary storage for portals to reference one another
 	LP::RigidBody* bluePortal;
 	LP::RigidBody* orangePortal;

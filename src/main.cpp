@@ -3,19 +3,18 @@
 #include "scenes/Shared.h"
 #include "scenes/RotationalScene.h"
 #include "scenes/RoomScene.h"
+#include "scenes/PortalsSandbox.h"
 
 // MARK: Main
 
 int main()
 {
-	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow",false, 1920, 1080 };
+	LWindow::LWindowSpecs wndSpecs{ LWindow::WindowMode::Windowed,"LGWindow", true, 1920, 1080 };
 	LEngine engine(std::make_unique<LWindow>(wndSpecs));
 
-	// MARK: Samples
-	RotationalScene::createAllFreeFallScenarios();
-
-	// Portals are required by the engine at the moment.
-	SharedScene::createPortals();
+	// - Warning: Portals are required by the engine at the moment.
+	//RoomScene::create();
+	PortalsSandbox::createStablePlayground();
 	
 	// MARK: RunLoop
 	engine.loop();

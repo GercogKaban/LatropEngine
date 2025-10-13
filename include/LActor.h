@@ -24,7 +24,7 @@ public:
 			graphicsComponent = graphicsComponentReal;
 			initGraphicsComponent = [initLogics, graphicsComponentReal]() {initLogics(graphicsComponentReal.get()); };
 
-			componentCounter[graphicsComponentReal->getTypeName()]++;
+			componentCounter[graphicsComponentReal->getType()]++;
 		}
 
 		// physics component
@@ -52,7 +52,7 @@ protected:
 	std::function<void()> initGraphicsComponent;
 	std::function<void()> initPhysicsComponent;
 
-	static std::unordered_map<std::string, uint32> componentCounter;
+	static std::unordered_map<LG::EPrimitiveType, uint32> componentCounter;
 
 	// DEBUG_CODE(std::shared_ptr<LG::LGraphicsComponent> debugRenderComponent;)
 };

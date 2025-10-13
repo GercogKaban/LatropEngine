@@ -16,7 +16,6 @@ LEngine::LEngine(std::unique_ptr<LWindow> window)
 
 void LEngine::beginPlay()
 {
-	bGameStarted = true;
 }
 
 void LEngine::endPlay()
@@ -108,6 +107,7 @@ void LEngine::loop()
 			renderer->drawFrame(dt.count());
 		}
 		fps++;
+		frameNum++;
 	}
 
 	renderer->exit();

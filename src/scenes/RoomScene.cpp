@@ -29,7 +29,7 @@ void RoomScene::createFloor(int width, int depth)
                 physicsComponent->material.frictionCombinator = LP::Material::CombinationMode::Maximum;
                 physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Minimum;
             });
-            floor->graphicsComponent->setColorTexture("textures/smile.jpg");
+            floor->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
         }
     }
 }
@@ -145,5 +145,8 @@ void RoomScene::create()
     createWall({ 0, -1 });
     createSmoothStairs(1000, { 5, 0, 2 }, 2.0, 0.05);
     createSmoothStairs(200, { -5, 0, 2 }, 1.4, 0.05);
-    createPerfectlyBouncyPuddle({ 7.0f, 0.5f, 7.0f }, false);
+    createPerfectlyBouncyPuddle({ 7.0f, 0.5f, -3.0f }, false);
+
+    SharedScene::createBluePortal({ 7.0f, 10.0f, -5.0f });
+	SharedScene::createOrangePortal({ -5.0f, 1.5f, -5.0f });
 }

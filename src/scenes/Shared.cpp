@@ -32,113 +32,131 @@ void SharedScene::createPlayer(glm::vec3 origin, bool takesGravity)
 		});
 }
 
-void SharedScene::createPortals()
+void SharedScene::createCube(glm::vec3 origin, bool takesGravity, std::string &&texturePath)
 {
-	const glm::vec3 portalScale = glm::vec3(1.6f, 0.01f, 2.8f);
-	glm::quat rotationY = glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	auto cubeD = ObjectBuilder::construct<LActor>().lock();
+	cubeD->loadComponent<LG::LCube>();
+    cubeD->graphicsComponent->setColorTexture(std::move(texturePath));
+	cubeD->loadComponent< LP::RigidBody>([origin, takesGravity](LP::RigidBody* physicsComponent)
+		{
+			physicsComponent->setIsSimulated(takesGravity);
+			if (takesGravity) physicsComponent->setMass(10.0f);
 
-	const glm::vec3 pos1 = glm::vec3(7.0f, 1.0f, -5.0f);
-	const glm::vec3 pos2 = glm::vec3(-5.0f, 1.0f, -5.0f);
+			physicsComponent->collider = cubeOBBCollider;
+			physicsComponent->takesGravity = takesGravity;
+			physicsComponent->material = LP::Material::Metal;
+			physicsComponent->transform.position = origin;
+		});
+}
+
+void decorate(glm::vec3 origin, glm::quat rotation, glm::vec3 scale)
+{
+	auto finalRotation = rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+	finalRotation = finalRotation * glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+
+	auto floor = ObjectBuilder::construct<LActor>().lock();
+		floor->loadComponent<LG::LPlane>();
+		floor->loadComponent<LP::RigidBody>([origin, finalRotation, scale](LP::RigidBody *physicsComponent) 
+		{
+			physicsComponent->setIsSimulated(false);
+
+			physicsComponent->transform.rotation *= finalRotation;
+			physicsComponent->transform.scale = scale;
+			physicsComponent->transform.position = origin;
+		});
+		floor->graphicsComponent->setColorTexture("textures/PavingStones138.jpg");
+}
+
+void SharedScene::createBluePortal(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
+{
+	glm::quat rotationY = rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
 	auto bluePortal = ObjectBuilder::construct<LActor>().lock();
-	bluePortal->loadComponent<LG::LPortal>([pos1](LG::LGraphicsComponent* graphicsComponent)
+	bluePortal->loadComponent<LG::BluePortal>([origin](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos1, pos1 + cameraFront, cameraUp));
+			dynamic_cast<LG::BluePortal*>(graphicsComponent)->setPortalView(glm::lookAt(origin, origin + cameraFront, cameraUp));
 
-			auto p1View = glm::lookAt(pos1, pos1 + cameraFront, cameraUp);
+			auto p1View = glm::lookAt(origin, origin + cameraFront, cameraUp);
 
 			auto playerView = LRenderer::get()->getView();
-
-			//glm::mat4 model(1.0f);
-			//model = glm::translate(model, {0,0,5});
 
 			auto modifiedModel = p1View * playerView;
 
 			return;
 		});
-	bluePortal->loadComponent<LP::RigidBody>([pos1, portalScale, rotationY](LP::RigidBody* physicsComponent)
+
+	bluePortal->loadComponent<LP::RigidBody>([origin, scale, rotationY](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(false);
 
 			auto player = LPlayerCharacter::get();
 			player->bluePortal = physicsComponent;
 
-			physicsComponent->collider = cubeOBBCollider;
-			physicsComponent->transform.position = pos1;
-			physicsComponent->transform.scale = portalScale;
+			physicsComponent->collider = planeYUPCollider;
+			physicsComponent->transform.position = origin;
+			physicsComponent->transform.scale = scale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == 1)
+			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+
+			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
+				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
+				if (glm::dot(portalNormal, bodyNormal) > 0)
 				{
-					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.normal.x << " ";
-					// std::cout << "y: " << collision.normal.y << " ";
-					// std::cout << "z: " << collision.normal.z << " ";
-					// std::cout << "d: " << collision.depth << " ";
-					// std::cout << std::endl;
-					// auto portal = player->orangePortal;
-					// // Get destination portal's transform
-					// auto destinationTransform = portal->transform;
-					// // destinationTransform.position.y -= 1.0f;
-
-					// // Compute teleport position: Move to portal position & offset slightly along normal
-					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3 { 0.0f, 1.0f, 0.0f });
-					// // Teleport position
-					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
-
-					// // Rotate player 180 degrees around Y-axis
-					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
 				}
 			};
 		});
 
+	if (isDecorated) decorate(origin, rotation, scale);
+}
+
+void SharedScene::createOrangePortal(glm::vec3 origin, glm::quat rotation, glm::vec3 scale, bool isDecorated)
+{
+	glm::quat rotationY = rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1, 0, 0));
+
 	auto orangePortal = ObjectBuilder::construct<LActor>().lock();
-	orangePortal->loadComponent<LG::LPortal>([pos2](LG::LGraphicsComponent* graphicsComponent)
+	orangePortal->loadComponent<LG::OrangePortal>([origin](LG::LGraphicsComponent* graphicsComponent)
 		{
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			dynamic_cast<LG::LPortal*>(graphicsComponent)->setPortalView(glm::lookAt(pos2, pos2 + cameraFront, cameraUp));
+			dynamic_cast<LG::OrangePortal*>(graphicsComponent)->setPortalView(glm::lookAt(origin, origin + cameraFront, cameraUp));
+
+			auto p1View = glm::lookAt(origin, origin + cameraFront, cameraUp);
+
+			auto playerView = LRenderer::get()->getView();
+
+			auto modifiedModel = p1View * playerView;
+
+			return;
 		});
-	orangePortal->loadComponent<LP::RigidBody>([pos2, portalScale, rotationY](LP::RigidBody* physicsComponent)
+
+	orangePortal->loadComponent<LP::RigidBody>([origin, scale, rotationY](LP::RigidBody* physicsComponent)
 		{
 			physicsComponent->setIsSimulated(false);
+
 			auto player = LPlayerCharacter::get();
 			player->orangePortal = physicsComponent;
 
-			physicsComponent->collider = cubeOBBCollider;
-			physicsComponent->transform.position = pos2;
-			physicsComponent->transform.scale = portalScale;
+			physicsComponent->collider = planeYUPCollider;
+			physicsComponent->transform.position = origin;
+			physicsComponent->transform.scale = scale;
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			physicsComponent->onCollision = [player](LP::CollisionManifold collision, float dt) {
-				if (collision.normal.z == -1)
+			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+
+			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
+				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
+				if (glm::dot(portalNormal, bodyNormal) > 0)
 				{
-					// std::cout << "Colliding: ";
-					// std::cout << "x: " << collision.points.normal.x << " ";
-					// std::cout << "y: " << collision.points.normal.y << " ";
-					// std::cout << "z: " << collision.points.normal.z << " ";
-					// std::cout << "d: " << collision.points.depth << " ";
-					// std::cout << std::endl;
-					// auto portal = player->bluePortal;
-					// // Get destination portal's transform
-					// auto destinationTransform = portal->transform;
-					// // destinationTransform.position.y -= 1.0f;
-
-					// // Compute teleport position: Move to portal position & offset slightly along normal
-					// glm::vec3 portalNormal = glm::normalize(destinationTransform.rotation * glm::vec3{ 0.0f, 1.0f, 0.0f });
-					// // Teleport position
-					// player->physicsComponent->transform.position = destinationTransform.position + portalNormal/* * 1.1f */; // Offset slightly to prevent instant re-trigger
-					// player->physicsComponent->linearVelocity = glm::reflect(player->physicsComponent->linearVelocity, portalNormal);
-
-					// // Rotate player 180 degrees around Y-axis
-					// player->setOrientation(player->orientation * glm::angleAxis(glm::radians(180.0f) ,glm::vec3(0, 1, 0)));
+					player->teleportThroughPortal(player->orangePortal, player->bluePortal);
 				}
 			};
 		});
+
+	if (isDecorated) decorate(origin, rotation, scale);
 }
