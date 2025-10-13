@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.20)
-project (LizardGraphics C CXX)
+project (LatropGraphics C CXX)
 
 set(CMAKE_SKIP_INSTALL_RULES ON)
 set(CMAKE_SUPPRESS_REGENERATION ON)
@@ -24,8 +24,8 @@ endif()
 
 find_package(Vulkan REQUIRED)
 
-add_library(LizardGraphics STATIC ${SOURCE_FILES} ${HEADER_FILES})
-target_include_directories(LizardGraphics PUBLIC
+add_library(LatropGraphics STATIC ${SOURCE_FILES} ${HEADER_FILES})
+target_include_directories(LatropGraphics PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/GLFW>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/magic_enum/include>
@@ -51,10 +51,10 @@ add_custom_target(run_script ALL
     COMMENT "Running script before build"
 )
 
-add_dependencies(LizardGraphics run_script)
+add_dependencies(LatropGraphics run_script)
 
-target_precompile_headers(LizardGraphics PUBLIC src/pch.h)
-target_compile_features(LizardGraphics PRIVATE cxx_std_20)
+target_precompile_headers(LatropGraphics PUBLIC src/pch.h)
+target_compile_features(LatropGraphics PRIVATE cxx_std_20)
 
 
 add_subdirectory(tracy-profiler)
