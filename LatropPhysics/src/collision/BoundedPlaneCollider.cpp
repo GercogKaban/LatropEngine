@@ -1,0 +1,57 @@
+#include "collision/BoundedPlaneCollider.h"
+#include "collision/algorithms/CollisionDetection.h"
+#include "shared/Transform.h"
+#include "shared/AABB.h"
+
+using namespace LP;
+
+glm::vec3 BoundedPlaneCollider::normal = { 0.0f, 1.0f, 0.0f };
+
+AABB BoundedPlaneCollider::getAABB(const Transform* transform) const
+{ 
+    glm::vec3 aMin = transform->position - transform->scale / 2.0f;
+    glm::vec3 aMax = transform->position + transform->scale / 2.0f;
+
+    return { aMin, aMax };
+};
+
+ContactManifold BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const Collider* other,
+    const Transform* otherTransform
+) const {
+    return other->testCollision(otherTransform, this, transform);
+}
+
+ContactManifold BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const SphereCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
+
+ContactManifold BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const CapsuleCollider* other,
+    const Transform* otherTransform
+) const {
+    return {};
+}
+
+ContactManifold BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const BoundedPlaneCollider* other,
+    const Transform* otherTransform
+) const {
+    // We don't really care about plane-plane collisions.
+    return {};
+};
+
+ContactManifold BoundedPlaneCollider::testCollision(
+    const Transform* transform,
+    const OBBCollider* other,
+    const Transform* otherTransform
+) const {
+    return collisionDetectors::findPlaneOBBCollisionPoints(this, transform, other, otherTransform);
+}
