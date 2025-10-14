@@ -112,13 +112,9 @@ target_include_directories(LatropEngine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/engine/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/physics/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/graphics/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/include/GLFW>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/magic_enum/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/VulkanMemoryAllocator/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies>
-    ${Vulkan_INCLUDE_DIR}
     $<INSTALL_INTERFACE:sources/engine/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/include/GLFW>
 )
 
 if(WIN32)
