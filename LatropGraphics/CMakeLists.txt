@@ -13,8 +13,8 @@ if (CLANG_C_COMPILER AND CLANG_CXX_COMPILER)
     set(CMAKE_CXX_COMPILER ${CLANG_CXX_COMPILER} CACHE STRING "C++ Compiler" FORCE)
 endif()
 
-file(GLOB HEADER_FILES src/*.h)
-file(GLOB SOURCE_FILES src/*.cpp src/shaders/*.frag src/shaders/*.vert)
+file(GLOB_RECURSE HEADER_FILES include/*.h)
+file(GLOB_RECURSE SOURCE_FILES src/*.cpp src/*.frag src/*.vert)
 
 if(WIN32)
     set(PYTHON_COMMAND python)
@@ -26,7 +26,7 @@ find_package(Vulkan REQUIRED)
 
 add_library(LatropGraphics STATIC ${SOURCE_FILES} ${HEADER_FILES})
 target_include_directories(LatropGraphics PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/glfw/include/GLFW>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/magic_enum/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/VulkanMemoryAllocator/include>
@@ -53,7 +53,7 @@ add_custom_target(run_script ALL
 
 add_dependencies(LatropGraphics run_script)
 
-target_precompile_headers(LatropGraphics PUBLIC src/pch.h)
+target_precompile_headers(LatropGraphics PUBLIC include/pch.h)
 target_compile_features(LatropGraphics PRIVATE cxx_std_20)
 
 
