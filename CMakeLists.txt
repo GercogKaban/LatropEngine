@@ -82,12 +82,15 @@ file(GLOB_RECURSE LG_SOURCE_FILES sources/graphics/src/*.cpp sources/graphics/sr
 add_library(LatropGraphics STATIC ${LG_SOURCE_FILES} ${LG_HEADER_FILES})
 target_include_directories(LatropGraphics PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/graphics/include>
+    $<INSTALL_INTERFACE:sources/graphics/include>
+)
+
+target_include_directories(LatropGraphics SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/include/GLFW>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/magic_enum/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/VulkanMemoryAllocator/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies>
-    $<INSTALL_INTERFACE:sources/graphics/include>
     ${Vulkan_INCLUDE_DIR}
 )
 
@@ -112,9 +115,11 @@ target_include_directories(LatropEngine PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/engine/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/physics/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/sources/graphics/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
     $<INSTALL_INTERFACE:sources/engine/include>
+)
+target_include_directories(LatropEngine SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/include/GLFW>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
 )
 
 if(WIN32)
