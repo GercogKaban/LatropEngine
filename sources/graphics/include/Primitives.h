@@ -3,6 +3,8 @@
 #include <vector>
 #include <array>
 #include <functional>
+#include <set>
+#include <format>
 
 #include "globals.h"
 #include "vulkan/vulkan.h"
