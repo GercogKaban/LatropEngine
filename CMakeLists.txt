@@ -141,7 +141,7 @@ target_include_directories(LatropGame PUBLIC
 )
 
 add_custom_target(move_textures ALL 
-    COMMAND ${CMAKE_COMMAND} -E env PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR} ${PYTHON_COMMAND} ${PROJECT_SOURCE_DIR}/scripts/move_textures.py ${PROJECT_SOURCE_DIR}/sources/graphics ${CMAKE_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} -E env PROJECT_SOURCE_DIR=${PROJECT_SOURCE_DIR} ${PYTHON_COMMAND} ${PROJECT_SOURCE_DIR}/scripts/move_textures.py ${PROJECT_SOURCE_DIR}/sources/engine ${CMAKE_BINARY_DIR}
     COMMENT "Running script before build"
 )
 
