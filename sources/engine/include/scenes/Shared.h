@@ -3,6 +3,7 @@
 #include <collision/OBBCollider.h>
 #include <collision/BoundedPlaneCollider.h>
 #include <string>
+#include <memory>
 
 extern std::shared_ptr<LP::OBBCollider> cubeOBBCollider;
 extern std::shared_ptr<LP::BoundedPlaneCollider> planeYUPCollider;

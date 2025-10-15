@@ -316,3 +316,4 @@ android-ndk-r25b
 TracyTargets.cmake
 _deps/
 *.cxx
+/textures
