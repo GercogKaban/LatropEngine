@@ -9,4 +9,4 @@
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
 [submodule "tracy-profiler"]
 	path = dependencies/tracy-profiler
-	url = https://github.com/wolfpld/tracy
+	url = https://github.com/GercogKaban/tracy
