@@ -28,7 +28,7 @@ DEBUG_BREAK \
 throw std::runtime_error("");\
 
 #define HANDLE_VK_ERROR(func) \
-    if (auto res = func != VK_SUCCESS) \
+    if (func != VK_SUCCESS) \
     { \
         RAISE_VK_ERROR(func)\
     } \
