@@ -94,7 +94,7 @@ void RoomScene::createSmoothStairs(int height, glm::vec3 origin, float radius, f
                 physicsComponent->material = LP::Material::Concrete; 
             });
 
-        step->graphicsComponent->setColorTexture("textures/PavingStones138.jpg");
+        step->graphicsComponent->setColorTexture("textures/nether-portal.jpg");
 
         angle += angleStep; // smooth curve
     }
@@ -114,7 +114,7 @@ void RoomScene::createPerfectlyBouncyPuddle(glm::vec3 origin, bool withCube)
             physicsComponent->material.restitution = 1.0; 
             physicsComponent->material.restitutionCombinator = LP::Material::CombinationMode::Maximum;
         });
-    puddle->graphicsComponent->setColorTexture("textures/Tiles133D.jpg");
+    puddle->graphicsComponent->setColorTexture("textures/Carpet015.jpg");
 
     if (withCube)
     {

@@ -73,6 +73,6 @@ void PortalsSandbox::createStablePlayground()
 	SharedScene::createCube({ -6.0f, 1.0f, -8.0f }, false);
 
 	// MARK: Portals
-	SharedScene::createBluePortal({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
-	SharedScene::createOrangePortal({ -1.0f, 1.5f, -8.0f }, glm::angleAxis(glm::radians(-90.0f), glm::vec3(0, 1, 0)));
+	SharedScene::createBluePortal({ 4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 0, 1)));
+	SharedScene::createOrangePortal({ -4.0f, 1.5f, -5.0f }, glm::angleAxis(glm::radians(0.0f), glm::vec3(0, 1, 0)));
 }

@@ -97,7 +97,7 @@ void OriginalScene::createStairs(int height, int maxLength)
 		}
 		else
 		{
-			step->graphicsComponent->setColorTexture("textures/smile2.jpg");
+			step->graphicsComponent->setColorTexture("textures/bricks.jpg");
 		}
 
         // Move to the next position
