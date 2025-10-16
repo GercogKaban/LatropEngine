@@ -148,3 +148,35 @@ add_custom_target(move_textures ALL
 add_dependencies(LatropGame move_textures)
 
 target_link_libraries(LatropGame LatropEngine LatropGraphics ${Vulkan_LIBRARIES} glfw LatropPhysics TracyClient)
+
+# MARK: - Testing
+# Option to enable or disable tests
+if(WIN32)
+    # Do nothing because Windows can't do tests(apparently)
+else()
+    option(ENABLE_TESTING "Enable building tests" ON)
+endif()
+
+if(ENABLE_TESTING)
+    # Find Google Test package
+    find_package(GTest REQUIRED)
+    file(GLOB_RECURSE LP_TEST_HEADER_FILES tests/physicsTests/*.cpp)
+    include_directories(${GTEST_INCLUDE_DIRS} LP_TEST_HEADER_FILES)
+
+    # Add the test executable
+    file(GLOB_RECURSE LP_TEST_SOURCE_FILES tests/physicsTests/*.cpp)
+    add_executable(LatropPhysicsTests ${LP_TEST_SOURCE_FILES})
+
+    # Link the test executable with the LatropPhysics library and Google Test
+    target_link_libraries(LatropPhysicsTests
+        LatropPhysics       # Link your LatropPhysics library
+        ${GTEST_LIBRARIES}  # Link Google Test
+        pthread             # For POSIX systems (Linux/macOS)
+    )
+
+    # Optionally: Enable testing and automatically run the tests when building
+    enable_testing()
+    add_test(NAME LatropPhysicsTests COMMAND LatropPhysicsTests)
+
+    gtest_discover_tests(LatropPhysicsTests)
+endif()
