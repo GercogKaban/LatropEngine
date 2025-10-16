@@ -23,7 +23,7 @@ def run_python_script():
         # Call the other Python script
         print("Running move textures")
         subprocess.check_call(["python", "move_textures.py", 
-                       f"{currentdir}/LizardGraphics-2.0", 
+                       f"{currentdir}/LatropGraphics", 
                        f"{currentdir}/textures/Release"])
         
     except subprocess.CalledProcessError as e:

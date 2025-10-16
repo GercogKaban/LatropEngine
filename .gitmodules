@@ -1,12 +1,12 @@
-[submodule "magic_enum"]
-	path = LatropGraphics/magic_enum
-	url = https://github.com/Neargye/magic_enum
-[submodule "glfw"]
-	path = LatropGraphics/glfw
-	url = https://github.com/glfw/glfw
-[submodule "VulkanMemoryAllocator"]
-	path = LatropGraphics/VulkanMemoryAllocator
+[submodule "dependencies/tracy-profiler"]
+	path = dependencies/tracy-profiler
+	url = https://github.com/GercogKaban/tracy-profiler
+[submodule "dependencies/VulkanMemoryAllocator"]
+	path = dependencies/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-[submodule "tracy-profiler"]
-	path = LatropGraphics/tracy-profiler
-	url = https://github.com/wolfpld/tracy
+[submodule "dependencies/glfw"]
+	path = dependencies/glfw
+	url = https://github.com/glfw/glfw
+[submodule "dependencies/magic_enum"]
+	path = dependencies/magic_enum
+	url = https://github.com/Neargye/magic_enum

@@ -830,6 +830,8 @@ VkResult LRenderer::createImage(const std::string& texturePath, Image& imageOut)
         {
             RAISE_VK_ERROR("failed to load texture image!");
         }
+
+        return VK_ERROR_UNKNOWN;
     }
 }
 
@@ -872,6 +874,7 @@ VkResult LRenderer::loadTextureImage(const std::string& texturePath)
             textureSamplers[imageToCreate.mipLevels] = sampler;
         }
     }
+    return VK_SUCCESS;
 }
 
 void LRenderer::clearUndefinedImage(VkImage imageToClear)
