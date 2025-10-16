@@ -11,12 +11,6 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_program(CLANG_C_COMPILER clang)
 find_program(CLANG_CXX_COMPILER clang++)
 
-if (CLANG_C_COMPILER AND CLANG_CXX_COMPILER)
-    message("Found clang")
-    set(CMAKE_C_COMPILER ${CLANG_C_COMPILER} CACHE STRING "C Compiler" FORCE)
-    set(CMAKE_CXX_COMPILER ${CLANG_CXX_COMPILER} CACHE STRING "C++ Compiler" FORCE)
-endif()
-
 # Select target-specific python name
 if(WIN32)
     set(PYTHON_COMMAND python)
@@ -122,10 +116,6 @@ target_include_directories(LatropEngine SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
 )
 
-if(WIN32)
-set_target_properties(LatropEngine PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
-endif()
-
 # MARK: Game
 file(GLOB_RECURSE L_HEADER_FILES sources/game/include/*.h)
 file(GLOB_RECURSE L_SOURCE_FILES sources/game/src/*.cpp)
@@ -179,4 +169,11 @@ if(ENABLE_TESTING)
     add_test(NAME LatropPhysicsTests COMMAND LatropPhysicsTests)
 
     gtest_discover_tests(LatropPhysicsTests)
+endif()
+
+# Mark - Sets compilers
+if(WIN32)
+set_target_properties(LatropEngine PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
+set_target_properties(LatropGame PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
+set_target_properties(LatropGraphics PROPERTIES VS_PLATFORM_TOOLSET ClangCL)
 endif()
