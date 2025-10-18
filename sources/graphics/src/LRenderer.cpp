@@ -110,6 +110,7 @@ void LRenderer::init()
         GraphicsPipelineParams mainPipelineParams;
         mainPipelineParams.bInstanced = true;
         mainPipelineParams.polygonMode = VkPolygonMode::VK_POLYGON_MODE_FILL;
+        mainPipelineParams.cullingMode = VkCullModeFlagBits::VK_CULL_MODE_FRONT_AND_BACK;
         HANDLE_VK_ERROR(createGraphicsPipeline(mainPipelineParams, graphicsPipelineInstancedPortal, portalPass->getRenderPass()))
 
         mainPipelineParams.bInstanced = false;

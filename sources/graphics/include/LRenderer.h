@@ -71,6 +71,7 @@ public:
 	struct GraphicsPipelineParams
 	{
 		VkPolygonMode polygonMode;
+		VkCullModeFlagBits cullingMode = VkCullModeFlagBits::VK_CULL_MODE_BACK_BIT;
 		bool bInstanced;
 	};
 
