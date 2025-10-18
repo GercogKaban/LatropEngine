@@ -41,6 +41,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(dependencies/glfw)
 
+# MARK: Freetype
+add_subdirectory(dependencies/freetype-2.14.1)
+
 # MARK: Tracy Profiler
 add_subdirectory(dependencies/tracy-profiler)
 add_compile_definitions(TRACY_ENABLE)
@@ -81,6 +84,7 @@ target_include_directories(LatropGraphics PUBLIC
 
 target_include_directories(LatropGraphics SYSTEM PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glfw/include/GLFW>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/freetype-2.14.1/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/magic_enum/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/VulkanMemoryAllocator/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/dependencies/tracy-profiler/public>
@@ -137,7 +141,7 @@ add_custom_target(move_textures ALL
 
 add_dependencies(LatropGame move_textures)
 
-target_link_libraries(LatropGame LatropEngine LatropGraphics ${Vulkan_LIBRARIES} glfw LatropPhysics TracyClient)
+target_link_libraries(LatropGame LatropEngine LatropGraphics ${Vulkan_LIBRARIES} glfw LatropPhysics TracyClient freetype)
 
 # MARK: - Testing
 # Option to enable or disable tests

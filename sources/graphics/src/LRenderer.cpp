@@ -2,6 +2,7 @@
 #include "LRenderer.h"
 #include "pch.h"
 
+// TODO: Do we really need it?
 #define private public
 #define protected public
 #include "Primitives.h"
@@ -58,6 +59,8 @@ LRenderer::LRenderer(const std::unique_ptr<LWindow>& window, StaticInitData&& in
     glfwSetWindowUserPointer(this->window, this);
     glfwSetFramebufferSizeCallback(this->window, framebufferResizeCallback);
 	init();
+
+    textRenderer = std::make_unique<TextRenderer>();
 }
 
 LRenderer::~LRenderer()

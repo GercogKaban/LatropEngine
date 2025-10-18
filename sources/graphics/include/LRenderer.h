@@ -17,6 +17,7 @@
 
 #include "LWindow.h"
 #include "Primitives.h"
+#include "TextRenderer.h"
 
 #include <vma/vk_mem_alloc.h>
 
@@ -169,6 +170,8 @@ public:
 protected:
 
 	static LRenderer* thisPtr;
+
+	std::unique_ptr<TextRenderer> textRenderer;
 
 	void init();
 	void cleanup();
