@@ -1,6 +1,7 @@
 #include "LPlayerCharacter.h"
 #include <LRenderer.h>
 #include <glfw3.h>
+#include <collision/BoundedPlaneCollider.h>
 
 LPlayerCharacter* LPlayerCharacter::thisPtr = nullptr;
 const glm::vec3 LPlayerCharacter::standingDimensions = glm::vec3(0.5, 1.6f, /*0.3*/0.5f);
@@ -85,7 +86,8 @@ void decomposeMatrixManual(const glm::mat4& m, glm::vec3& position, glm::quat& r
 
 void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* portalIn, const LP::RigidBody* portalOut)
 {
-	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+	// MARK: Camera/Position Adjustment
+	glm::vec3 up = LP::BoundedPlaneCollider::normal;
 
     glm::mat4 portalInMat = portalIn->transform.getAsMatrix();
     glm::mat4 portalOutMat = portalOut->transform.getAsMatrix();
@@ -99,17 +101,34 @@ void LPlayerCharacter::teleportThroughPortal(const LP::RigidBody* portalIn, cons
 
     glm::mat4 playerWorldFromPortalOut = portalOutMat * rotatedRelativeToPortalIn;
 
-	glm::vec3 skew;
-    glm::vec4 perspective;
 	auto &t = physicsComponent->transform;
     decomposeMatrixManual(playerWorldFromPortalOut, t.position, playerTransform.rotation, t.scale);
 	setOrientation(playerTransform.rotation);
 
-	glm::vec3 portalNormal = glm::normalize(portalOut->transform.rotation * up);
+	// MARK: Velocity Re-direction
+	// (similar transformations as above, but with with vec3 and quat)
+	// Preserve velocity by rotating it from portalIn frame to portalOut frame.
+	glm::quat inRot  = portalIn->transform.rotation;
+	glm::quat outRot = portalOut->transform.rotation;
+
+	// 1) express velocity in portalIn local space
+	glm::vec3 localVel = glm::inverse(inRot) * physicsComponent->linearVelocity;
+
+	// 2) OPTIONAL: if the position transform used a 180° around portal local Z
+	//    (we do this above with rotationMatrix) then apply same flip here.
+	//    Axis can be replaced with what we need, depending on desired orientation.
+	glm::quat flip = glm::angleAxis(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+	localVel = flip * localVel;
+
+	// 3) convert local velocity into world using portalOut rotation
+	glm::vec3 newWorldVel = outRot * localVel;
+
+	// TODO: Consider portals velocity
+	// 4) If portals have linear velocity (moving portals), add portalOut velocity:
+	// newWorldVel += portalOut->linearVelocity - portalIn->linearVelocity; // optional
+
+	physicsComponent->linearVelocity = newWorldVel;
 	// TODO: Reflect angular velocity for ojects
-	physicsComponent->linearVelocity = glm::reflect(physicsComponent->linearVelocity, portalNormal);
-	glm::vec3 normalVelocity = glm::normalize(physicsComponent->linearVelocity);
-	physicsComponent->transform.position = physicsComponent->transform.position + normalVelocity * -0.001f;
 }
 
 void LPlayerCharacter::beginPlay()

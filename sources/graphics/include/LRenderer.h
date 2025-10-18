@@ -437,7 +437,7 @@ protected:
 	glm::mat4 projection;
 	
     float degrees = 80.0f;
-    float zNear = 0.1f;
+    float zNear = 0.001f;
 	float zFar = 1000.0f;
 
 	glm::vec3 cameraPositionToPlayer = glm::vec3(0.0f, 0.0f, 0.0f);

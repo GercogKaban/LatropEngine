@@ -1,6 +1,7 @@
 #include "scenes/Shared.h"
 #include "LPlayerCharacter.h"
 #include "LEngine.h"
+#include <collision/BoundedPlaneCollider.h>
 
 // MARK: - Shared Colliders
 std::shared_ptr<LP::OBBCollider> cubeOBBCollider = std::make_shared<LP::OBBCollider>(LP::OBBCollider::makeCube());
@@ -77,14 +78,6 @@ void SharedScene::createBluePortal(glm::vec3 origin, glm::quat rotation, glm::ve
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 			dynamic_cast<LG::BluePortal*>(graphicsComponent)->setPortalView(glm::lookAt(origin, origin + cameraFront, cameraUp));
-
-			auto p1View = glm::lookAt(origin, origin + cameraFront, cameraUp);
-
-			auto playerView = LRenderer::get()->getView();
-
-			auto modifiedModel = p1View * playerView;
-
-			return;
 		});
 
 	bluePortal->loadComponent<LP::RigidBody>([origin, scale, rotationY](LP::RigidBody* physicsComponent)
@@ -100,11 +93,11 @@ void SharedScene::createBluePortal(glm::vec3 origin, glm::quat rotation, glm::ve
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+			glm::vec3 portalNormal = rotationY * LP::BoundedPlaneCollider::normal;
 
 			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
-				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
-				if (glm::dot(portalNormal, bodyNormal) > 0)
+				glm::vec3 bodyNormal = collision.bodyB->transform.position - collision.bodyA->transform.position;
+				if (glm::dot(portalNormal, bodyNormal) < 0)
 				{
 					player->teleportThroughPortal(player->bluePortal, player->orangePortal);
 				}
@@ -124,14 +117,6 @@ void SharedScene::createOrangePortal(glm::vec3 origin, glm::quat rotation, glm::
 			const glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, 1.0f);
 			const glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 			dynamic_cast<LG::OrangePortal*>(graphicsComponent)->setPortalView(glm::lookAt(origin, origin + cameraFront, cameraUp));
-
-			auto p1View = glm::lookAt(origin, origin + cameraFront, cameraUp);
-
-			auto playerView = LRenderer::get()->getView();
-
-			auto modifiedModel = p1View * playerView;
-
-			return;
 		});
 
 	orangePortal->loadComponent<LP::RigidBody>([origin, scale, rotationY](LP::RigidBody* physicsComponent)
@@ -147,11 +132,11 @@ void SharedScene::createOrangePortal(glm::vec3 origin, glm::quat rotation, glm::
 			physicsComponent->transform.rotation *= rotationY;
 			physicsComponent->isTrigger = true;
 
-			glm::vec3 portalNormal = rotationY * glm::vec3(0, 1, 0);
+			glm::vec3 portalNormal = rotationY * LP::BoundedPlaneCollider::normal;
 
 			physicsComponent->onCollision = [player, portalNormal](LP::CollisionManifold collision, float dt) {
-				glm::vec3 bodyNormal = collision.bodyA->transform.position - collision.bodyB->transform.position;
-				if (glm::dot(portalNormal, bodyNormal) > 0)
+				glm::vec3 bodyNormal = collision.bodyB->transform.position - collision.bodyA->transform.position;
+				if (glm::dot(portalNormal, bodyNormal) < 0)
 				{
 					player->teleportThroughPortal(player->orangePortal, player->bluePortal);
 				}
