@@ -127,6 +127,7 @@ namespace LG
 
     extern const std::vector<LG::LGraphicsComponent::Vertex> verticesCube;
     extern const std::vector<uint16> indicesCube;
+    extern const std::vector<LG::LGraphicsComponent::Vertex> verticesPortalCube;
 
     class LCube : public LGraphicsComponent
     {
@@ -157,7 +158,7 @@ namespace LG
         }
     };
 
-    class LPortal : public LPlane
+    class LPortal : public LGraphicsComponent
     {
         friend class LRenderer;
 
@@ -165,10 +166,13 @@ namespace LG
 
         LPortal()
         {
+            type = EPrimitiveType::GenericPortal;
+            vertices = &verticesPortalCube;
+            indices = &indicesCube;
+
             portalIndex = ++portalCounter;
             std::string textureName = std::format("portal{}", portalIndex);
             setColorTexture(std::move(textureName));
-            type = EPrimitiveType::GenericPortal;
         }
 
         const glm::mat4& getPortalView() const { return view; }

@@ -57,6 +57,29 @@ const std::vector<uint16_t> LG::indicesCube =
     12, 13, 1, 1, 0, 12
 };
 
+const std::vector<LG::LGraphicsComponent::Vertex> LG::verticesPortalCube =
+{
+    // 8 shared corner vertices with unique UVs where necessary
+    {{-0.5f, -1.0f,  0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}}, // 0
+    {{ 0.5f, -1.0f,  0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}}, // 1
+    {{ 0.5f,  0.0f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // 2
+    {{-0.5f,  0.0f,  0.5f}, {1.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // 3
+
+    {{ 0.5f, -1.0f, -0.5f}, {1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 4
+    {{-0.5f, -1.0f, -0.5f}, {0.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // 5
+    {{-0.5f,  0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}, // 6
+    {{ 0.5f,  0.0f, -0.5f}, {0.5f, 0.5f, 0.5f}, {0.0f, 1.0f}}, // 7
+
+    // Extra 6 unique vertices for correct texture mapping
+    {{-0.5f,  0.0f, -0.5f}, {0.5f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 8  (for top)
+    {{-0.5f,  0.0f,  0.5f}, {0.0f, 1.0f, 1.0f}, {1.0f, 0.0f}}, // 9  (for top)
+    {{ 0.5f,  0.0f,  0.5f}, {1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}, // 10 (for top)
+    {{ 0.5f,  0.0f, -0.5f}, {0.5f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // 11 (for top)
+
+    {{-0.5f, -1.0f, -0.5f}, {1.0f, 0.5f, 0.0f}, {0.0f, 0.0f}}, // 12 (for bottom)
+    {{ 0.5f, -1.0f, -0.5f}, {0.5f, 1.0f, 0.5f}, {0.0f, 0.0f}}, // 13 (for bottom)
+};
+
 void LG::LGraphicsComponent::setColorTexture(std::string&& path)
 {
     textures.insert(path);
