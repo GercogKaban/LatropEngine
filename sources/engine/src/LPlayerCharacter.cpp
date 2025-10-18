@@ -46,7 +46,6 @@ void LPlayerCharacter::tick(float delta)
 		physicsComponent->linearVelocity.x = velocity.x;
 		physicsComponent->linearVelocity.z = velocity.z;
 	}
-	updateCamera();
 }
 
 void LPlayerCharacter::setOrientation(const glm::quat& newValue)

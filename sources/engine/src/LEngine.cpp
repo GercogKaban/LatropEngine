@@ -99,6 +99,7 @@ void LEngine::loop()
 			frameTimeAccumulator -= fixedDelta;
 		}
 		
+		LPlayerCharacter::get()->updateCamera();
 		renderer->playerModel = LPlayerCharacter::get()->physicsComponent->transform.getAsMatrix();
 		renderer->playerOrientation = LPlayerCharacter::get()->orientation;
 

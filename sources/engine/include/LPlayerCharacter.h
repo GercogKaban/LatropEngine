@@ -20,6 +20,7 @@ public:
 	void setOrientation(const glm::quat& newValue);
 	void teleportThroughPortal(const LP::RigidBody* srcPortal, const LP::RigidBody* dstPortal);
 	void resetJump() { jumpsCounter = 0; }
+	void updateCamera();
 
 	float getSpeed() const;
 
@@ -46,7 +47,6 @@ protected:
 	static void handleInput(class GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void mouseInput(class GLFWwindow* window, double xpos, double ypos);
 
-	void updateCamera();
 	void jump();
 	void crouch();
 	void uncrouch();
