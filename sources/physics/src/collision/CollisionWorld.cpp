@@ -65,6 +65,12 @@ inline void detectInvidualCollisionsOfAnd(
 ) {
     if (!(body->isSimulated() || other->isSimulated())) return;
 
+    // Two bodies that cannot move relative to each other (static or asleep) have
+    // nothing to resolve. Triggers are still reported, a sleeping body inside
+    // a trigger is still inside it.
+    auto isImmobile = [](const auto& b) { return !b->isSimulated() || b->isAsleep(); };
+    if (isImmobile(body) && isImmobile(other) && !(body->isTrigger || other->isTrigger)) return;
+
     auto bodyCollider = body->collider.lock();
     auto otherCollider = other->collider.lock();
     if (!bodyCollider || !otherCollider) return;
@@ -196,6 +202,16 @@ void CollisionWorld::resolveCollisions(float deltaTime)
     std::vector<CollisionManifold> triggers;
 
     detectCollisions(collisions, triggers);
+
+    // Bodies that were asleep and got hit are skipped by the detection, and so
+    // are the bodies they rest on. Waking them means starting over.
+    while (wakeSleepingBodies(collisions))
+    {
+        collisions.clear();
+        triggers.clear();
+        detectCollisions(collisions, triggers);
+    }
+
     solveCollisions(collisions, deltaTime);
 
     sendCollisionEvents(collisions, deltaTime);

@@ -23,6 +23,10 @@ namespace LP
 
         /// @brief If the body is simulated and moves, or only affects others.
         inline bool isSimulated() const { return m_isSimulated; }
+
+        /// @brief If the body is asleep: it is simulated, but at rest and temporarily
+        /// frozen until something disturbs it. Only dynamic bodies can sleep.
+        virtual bool isAsleep() const { return false; }
         virtual void setIsSimulated(bool newValue) { m_isSimulated = newValue; }
 
     private:

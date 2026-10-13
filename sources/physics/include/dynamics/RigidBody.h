@@ -6,6 +6,7 @@
 #include "collision/CollisionBody.h"
 #include "Material.h"
 #include <cassert>
+#include <cstdint>
 
 namespace LP 
 {
@@ -25,6 +26,51 @@ namespace LP
         bool takesGravity = false;
 
         bool freezesRotation = false;
+
+        /// @brief If the body is allowed to fall asleep once it comes to rest. Bodies that
+        /// are driven by game code every frame can opt out.
+        bool allowsSleeping = true;
+
+        virtual bool isAsleep() const override { return m_sleepGroup != 0; }
+
+        /// @brief Bodies that fell asleep together share a group, and wake up together.
+        inline uint32_t getSleepGroup() const { return m_sleepGroup; }
+
+        /// @brief How long the body has been moving slower than the sleep threshold.
+        inline float getQuietTime() const { return m_quietTime; }
+        inline void addQuietTime(float deltaTime) { m_quietTime += deltaTime; }
+        inline void resetQuietTime() { m_quietTime = 0.0f; }
+
+        /// @brief Freezes the body in its current pose. Sleeping bodies are skipped by
+        /// the simulation and act as immovable obstacles.
+        void sleep(uint32_t group)
+        {
+            m_sleepGroup = group;
+            m_sleepPosition = transform.position;
+            m_sleepRotation = transform.rotation;
+
+            linearVelocity = glm::vec3(0.0f);
+            angularVelocity = glm::vec3(0.0f);
+            force = glm::vec3(0.0f);
+            torque = glm::vec3(0.0f);
+        }
+
+        void wake()
+        {
+            m_sleepGroup = 0;
+            m_quietTime = 0.0f;
+        }
+
+        /// @brief Whether game code touched a sleeping body: moved it, gave it a velocity
+        /// or applied a force. Such a body has to wake up, as nothing else would tell it.
+        bool isDisturbedWhileAsleep() const
+        {
+            return isAsleep() && (
+                linearVelocity != glm::vec3(0.0f) || angularVelocity != glm::vec3(0.0f) ||
+                force != glm::vec3(0.0f) || torque != glm::vec3(0.0f) ||
+                transform.position != m_sleepPosition || transform.rotation != m_sleepRotation
+            );
+        }
 
         inline float getMass() const { return m_mass; }
         inline float getInvMass() const { return m_invMass; }
@@ -86,5 +132,10 @@ namespace LP
         float m_invMass = 1.0f;
 
         glm::mat3 m_invInertiaTensorLocal = glm::mat3(1.0f);
+
+        uint32_t m_sleepGroup = 0;
+        float m_quietTime = 0.0f;
+        glm::vec3 m_sleepPosition = glm::vec3(0.0f);
+        glm::quat m_sleepRotation = glm::quat(1.0f, glm::vec3(0.0f));
     };
 }

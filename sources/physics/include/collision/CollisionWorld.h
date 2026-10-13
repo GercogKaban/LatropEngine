@@ -64,6 +64,11 @@ namespace LP
         virtual void detectCollisions(std::vector<CollisionManifold>& collisions, std::vector<CollisionManifold>& triggers);
         virtual void solveCollisions(const std::vector<CollisionManifold>& collisions, float deltaTime);
 
+        /// @brief Called with the detected collisions before they are solved. Returns true
+        /// if it woke up bodies that were skipped by the detection, in which case the
+        /// collisions are detected again to include them.
+        virtual bool wakeSleepingBodies(const std::vector<CollisionManifold>& collisions) { return false; }
+
         void updateSpacialPartitioningOfStaticBodies(float cellSize);
 
     protected:
