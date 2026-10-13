@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <unordered_set>
 
 using namespace LP;
 
@@ -22,6 +23,9 @@ namespace
     /// it, it accumulates until the body tumbles.
     constexpr int iterations = 20;
 
+    /// A contact continues the one from the previous step if it is this close.
+    constexpr float matchDistance = 0.05f;
+
     struct Contact
     {
         glm::vec3 rA;
@@ -36,6 +40,11 @@ namespace
         /// contact that is still separated the speed that closes the gap exactly.
         float targetSpeed;
         bool useStaticFriction;
+
+        glm::vec3 point;
+
+        /// Warm starting from a bounce would launch the body a second time.
+        bool resting;
 
         float normalImpulse = 0.0f;
         float tangentImpulse[2] = { 0.0f, 0.0f };
@@ -132,6 +141,7 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
             Contact contact;
             const glm::vec3& location = manifold.contactPoints[i];
 
+            contact.point = location;
             contact.rA = location - a->transform.position;
             contact.rB = location - b->transform.position;
             contact.tangents[0] = t0;
@@ -163,6 +173,8 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
                 ? -separation / deltaTime
                 : bounceSpeed;
 
+            contact.resting = bounceSpeed == 0.0f;
+
             const glm::vec3 slide = relativeVelocity - approachSpeed * n;
             contact.useStaticFriction = glm::length(slide) < staticFrictionSpeed;
 
@@ -170,6 +182,68 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
         }
 
         constraints.push_back(std::move(constraint));
+    }
+
+    // A body that takes an impact this step carries an impulse that is only
+    // valid for this step: the contacts below it have to transmit the impact
+    // as well. Caching or replaying those would launch the body next step.
+    std::unordered_set<const RigidBody*> impacted;
+    for (const Constraint& constraint : constraints)
+    {
+        for (const Contact& contact : constraint.contacts)
+        {
+            if (contact.resting) continue;
+            if (constraint.a->isSimulated()) impacted.insert(constraint.a);
+            if (constraint.b->isSimulated()) impacted.insert(constraint.b);
+        }
+    }
+
+    auto isQuiet = [&](const Constraint& constraint)
+    {
+        return !impacted.count(constraint.a) && !impacted.count(constraint.b);
+    };
+
+    // MARK: Warm start
+    {
+        const float dtRatio = (m_previousDeltaTime > 0.0f && deltaTime > 0.0f) ? deltaTime / m_previousDeltaTime : 1.0f;
+
+        for (Constraint& constraint : constraints)
+        {
+            if (!isQuiet(constraint)) continue;
+
+            auto cached = m_cache.find({ constraint.a, constraint.b });
+            if (cached == m_cache.end()) continue;
+
+            std::vector<bool> used(cached->second.size(), false);
+            const glm::vec3 n = constraint.normal;
+
+            for (Contact& contact : constraint.contacts)
+            {
+                if (!contact.resting) continue;
+
+                int best = -1;
+                float bestDistance = matchDistance;
+                for (size_t i = 0; i < cached->second.size(); ++i)
+                {
+                    if (used[i]) continue;
+                    float d = glm::length(cached->second[i].point - contact.point);
+                    if (d < bestDistance) { bestDistance = d; best = int(i); }
+                }
+                if (best < 0) continue;
+                used[best] = true;
+
+                const CachedContact& previous = cached->second[best];
+
+                contact.normalImpulse = previous.normalImpulse * dtRatio;
+                contact.tangentImpulse[0] = glm::dot(previous.tangentImpulse, contact.tangents[0]) * dtRatio;
+                contact.tangentImpulse[1] = glm::dot(previous.tangentImpulse, contact.tangents[1]) * dtRatio;
+
+                applyImpulse(constraint.a, constraint.b, contact,
+                    contact.normalImpulse * n
+                    + contact.tangentImpulse[0] * contact.tangents[0]
+                    + contact.tangentImpulse[1] * contact.tangents[1]);
+            }
+        }
     }
 
     // MARK: Iterate
@@ -220,5 +294,28 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
                 applyImpulse(a, b, contact, lambda * constraint.normal);
             }
         }
+    }
+
+    // MARK: Remember
+
+    m_cache.clear();
+    m_previousDeltaTime = deltaTime;
+
+    for (const Constraint& constraint : constraints)
+    {
+        if (!isQuiet(constraint)) continue;
+
+        std::vector<CachedContact> contacts;
+        for (const Contact& contact : constraint.contacts)
+        {
+            if (!contact.resting) continue;
+
+            contacts.push_back({
+                contact.point,
+                contact.normalImpulse,
+                contact.tangentImpulse[0] * contact.tangents[0] + contact.tangentImpulse[1] * contact.tangents[1]
+            });
+        }
+        if (!contacts.empty()) m_cache[{ constraint.a, constraint.b }] = std::move(contacts);
     }
 }

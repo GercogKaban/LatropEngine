@@ -175,3 +175,35 @@ TEST(RestingContactTests, ElasticBounceDoesNotIntroduceRotation) {
     EXPECT_LT(maxAngularSpeed, 1e-3f);
     EXPECT_GT(minY, 0.95f); // Never sinks into the floor.
 }
+
+// MARK: Mass ratio
+
+/// A heavy cube on a light one on the floor: the same layout as
+/// `RotationalScene::createStackingScenarioI` (static, 0.1, 10, 0.1). With 20
+/// iterations per step a solver that forgets its impulses every step cannot
+/// carry a 100:1 load, and the tower collapses.
+TEST(RestingContactTests, HeavyCubeOnLightCubeStaysStanding) {
+    RestingWorld scene;
+    auto lightBottom = scene.addCube(0.1f, { 0.15f, 2.0f, 0.0f });
+    auto heavy = scene.addCube(10.0f, { 0.15f, 4.0f, 0.0f }, Material::Metal);
+    auto lightTop = scene.addCube(0.1f, { 0.15f, 6.0f, 0.0f });
+
+    auto motion = scene.run(lightTop, 12.0f, 2.0f);
+
+    EXPECT_LT(motion.maxAngularSpeed, 1e-2f);
+    EXPECT_LT(motion.heightRange, 1e-3f);
+    EXPECT_GT(lightBottom->transform.position.y, 0.98f);
+    EXPECT_NEAR(heavy->transform.position.y, 2.0f, 0.05f);
+    EXPECT_NEAR(lightTop->transform.position.y, 3.0f, 0.05f);
+}
+
+/// The heavy cube must stay on top of the light one instead of squeezing through it.
+TEST(RestingContactTests, HeavyCubeDroppedOnLightCubeDoesNotPassThrough) {
+    RestingWorld scene;
+    auto light = scene.addCube(0.1f, { 0.15f, 2.0f, 0.0f }, Material::Metal);
+    auto heavy = scene.addCube(10.0f, { 0.0f, 3.5f, 0.0f });
+
+    scene.run(heavy, 10.0f, 1.0f);
+
+    EXPECT_GT(heavy->transform.position.y, light->transform.position.y + 0.9f);
+}
