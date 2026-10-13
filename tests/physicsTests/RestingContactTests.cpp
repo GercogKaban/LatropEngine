@@ -151,3 +151,27 @@ TEST(RestingContactTests, OffsetStackOfThreeStaysStanding) {
     EXPECT_LT(motion.heightRange, 1e-2f);
     EXPECT_GT(cubes.back()->transform.position.y, 2.9f);
 }
+
+// MARK: Bouncing
+
+/// A flat landing on a perfectly elastic surface must stay flat. Any residual spin
+/// left by the solver accumulates, because nothing damps an elastic bounce.
+TEST(RestingContactTests, ElasticBounceDoesNotIntroduceRotation) {
+    RestingWorld scene;
+    scene.bodies.front()->material.restitution = 1.0f;
+    scene.bodies.front()->material.restitutionCombinator = Material::CombinationMode::Maximum;
+
+    auto cube = scene.addCube(0.1f, { 0.0f, 2.0f, 0.0f });
+
+    float maxAngularSpeed = 0.0f;
+    float minY = 1e9f;
+    for (int i = 0; i < 20000; ++i) // ~7 bounces
+    {
+        scene.world.integrate(fixedDelta);
+        maxAngularSpeed = std::max(maxAngularSpeed, glm::length(cube->angularVelocity));
+        minY = std::min(minY, cube->transform.position.y);
+    }
+
+    EXPECT_LT(maxAngularSpeed, 1e-3f);
+    EXPECT_GT(minY, 0.95f); // Never sinks into the floor.
+}

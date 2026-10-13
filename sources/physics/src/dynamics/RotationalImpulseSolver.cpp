@@ -16,7 +16,11 @@ namespace
     /// Tangential speed below which static friction is used.
     constexpr float staticFrictionSpeed = 0.01f;
 
-    constexpr int iterations = 8;
+    /// Four coplanar corner contacts on a rigid body are nearly redundant, which
+    /// makes Gauss-Seidel converge slowly. With ~8 iterations a perfectly elastic
+    /// landing leaves a small residual spin each bounce, and since nothing damps
+    /// it, it accumulates until the body tumbles.
+    constexpr int iterations = 20;
 
     struct Contact
     {
@@ -142,12 +146,22 @@ void RotationalImpulseSolver::solve(const std::vector<CollisionManifold>& collis
 
             const float separation = std::max(-manifold.penetrations[i], 0.0f);
 
-            // Speculative contact: a point that has not touched yet may keep
+            const float bounceSpeed = approachSpeed < -restitutionThreshold
+                ? -material.restitution * approachSpeed
+                : 0.0f;
+
+            // A point that reaches the surface during this step is part of the
+            // same impact as its neighbours. Giving it a different target than
+            // the points already touching (keep approaching vs. bounce back)
+            // would put a net torque on a flat landing.
+            const bool reachesSurfaceThisStep = deltaTime > 0.0f && separation <= -approachSpeed * deltaTime;
+
+            // Speculative contact: a point that is still further away may keep
             // approaching, but only as fast as it takes to close the gap in
             // this step. Treating it as touching would make the body stick.
-            contact.targetSpeed = (separation > 0.0f && deltaTime > 0.0f)
+            contact.targetSpeed = (separation > 0.0f && !reachesSurfaceThisStep && deltaTime > 0.0f)
                 ? -separation / deltaTime
-                : (approachSpeed < -restitutionThreshold ? -material.restitution * approachSpeed : 0.0f);
+                : bounceSpeed;
 
             const glm::vec3 slide = relativeVelocity - approachSpeed * n;
             contact.useStaticFriction = glm::length(slide) < staticFrictionSpeed;
