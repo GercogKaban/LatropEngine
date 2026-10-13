@@ -228,10 +228,38 @@ void RotationalScene::createBouncingScenarioIII()
 
 // MARK: - Stacking
 
+void createStackCube(glm::vec3 position, bool isDynamic, float mass, LP::Material material)
+{
+    auto cube = ObjectBuilder::construct<LActor>().lock();
+    cube->loadComponent<LG::LCube>();
+    cube->graphicsComponent->setColorTexture("textures/smile.jpg");
+
+    cube->loadComponent<LP::RigidBody>([=](LP::RigidBody* physicsComponent)
+        {
+            physicsComponent->setIsSimulated(isDynamic);
+            if (isDynamic) physicsComponent->setMass(mass);
+
+            physicsComponent->collider = cubeOBBCollider;
+            physicsComponent->takesGravity = isDynamic;
+            physicsComponent->material = material;
+            physicsComponent->transform.position = position;
+        });
+}
+
 void RotationalScene::createStackingScenarioI()
 {
-    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
-    cubeBFallsOnCubeAFrom({ 0.15f, 2.0f, 0.0f }, { 0.0f, 0.0f, 0.0f });
+    // A static base with a tower of dynamic cubes released above it, all at
+    // once. The spacing is a bit more than a cube, so every cube falls only a
+    // short distance onto the one below instead of from the full tower height.
+    constexpr int cubesCount = 20;
+    constexpr float dropSpacing = 1.5f;
 
-    cubeBFallsOnCubeAFrom({ 0.f, 2.0f, 0.0f }, { 0.15f, 4.0f, 0.0f }, LP::Material::Metal, true);
+    SharedScene::createPlayer({ 0.0f, 0.5f, 4.0f }, false);
+
+    createStackCube({ 0.0f, 0.0f, 0.0f }, false, 0.0f, LP::Material::Metal);
+
+    for (int i = 1; i < cubesCount; ++i)
+    {
+        createStackCube({ 0.0f, dropSpacing * float(i), 0.0f }, true, 1.0f, LP::Material::Wood);
+    }
 }
