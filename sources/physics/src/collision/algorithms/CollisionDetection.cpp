@@ -123,19 +123,115 @@ std::array<glm::vec3, 8> getOBBCorners(const OBBCollider* obb, const Transform* 
     return corners;
 }
 
-std::pair<float, float> projectOntoAxis(const std::array<glm::vec3, 8>& corners, const glm::vec3& axis) 
+namespace
 {
-    assert(glm::epsilonEqual(glm::length(axis), 1.0f, 1e-4f));
+    /// Contact points that are further than this above the reference face are
+    /// dropped. A resting box is never perfectly flat, so without some margin
+    /// the raised corners disappear and the manifold becomes one-sided, which
+    /// makes the solver spin the box instead of holding it.
+    constexpr float contactMargin = 0.02f;
 
-    float min = glm::dot(corners[0], axis);
-    float max = min;
-    for (int i = 1; i < 8; ++i) 
+    /// Edge axes must win over face axes by this much to be selected. Parallel
+    /// edges of nearly aligned boxes produce noisy cross products that would
+    /// otherwise beat the (correct) face axis and push the boxes sideways.
+    constexpr float edgeAxisRelativeBias = 0.95f;
+    constexpr float edgeAxisAbsoluteBias = 0.001f;
+
+    struct OrientedBox
     {
-        float projection = glm::dot(corners[i], axis);
-        min = std::min(min, projection);
-        max = std::max(max, projection);
+        glm::vec3 center;
+        glm::vec3 axes[3];
+        glm::vec3 halfExtents;
+    };
+
+    OrientedBox makeOrientedBox(const OBBCollider* obb, const Transform* transform)
+    {
+        OrientedBox box;
+        box.center = transform->position;
+        box.halfExtents = (obb->maxExtents - obb->minExtents) * 0.5f * glm::abs(transform->scale);
+        for (int i = 0; i < 3; ++i)
+        {
+            glm::vec3 unit(0.0f);
+            unit[i] = 1.0f;
+            box.axes[i] = glm::normalize(transform->rotation * unit);
+        }
+        return box;
     }
-    return { min, max };
+
+    /// Distance from the box center to its surface along the given direction.
+    float projectedRadius(const OrientedBox& box, const glm::vec3& direction)
+    {
+        return box.halfExtents.x * std::abs(glm::dot(direction, box.axes[0]))
+             + box.halfExtents.y * std::abs(glm::dot(direction, box.axes[1]))
+             + box.halfExtents.z * std::abs(glm::dot(direction, box.axes[2]));
+    }
+
+    /// Sutherland-Hodgman: keeps the part of the polygon with dot(p, normal) <= offset.
+    std::vector<glm::vec3> clipPolygon(
+        const std::vector<glm::vec3>& polygon,
+        const glm::vec3& normal,
+        float offset
+    ) {
+        std::vector<glm::vec3> result;
+        if (polygon.empty()) return result;
+
+        glm::vec3 previous = polygon.back();
+        float previousDistance = glm::dot(previous, normal) - offset;
+
+        for (const glm::vec3& current : polygon)
+        {
+            float currentDistance = glm::dot(current, normal) - offset;
+
+            if ((currentDistance <= 0.0f) != (previousDistance <= 0.0f))
+            {
+                float t = previousDistance / (previousDistance - currentDistance);
+                result.push_back(previous + t * (current - previous));
+            }
+            if (currentDistance <= 0.0f)
+            {
+                result.push_back(current);
+            }
+
+            previous = current;
+            previousDistance = currentDistance;
+        }
+
+        return result;
+    }
+
+    /// Picks the 4 points that span the largest area, always keeping the deepest one.
+    std::vector<size_t> reduceContacts(const std::vector<glm::vec3>& points, const std::vector<float>& penetrations, const glm::vec3& normal)
+    {
+        std::vector<size_t> all(points.size());
+        for (size_t i = 0; i < all.size(); ++i) all[i] = i;
+        if (points.size() <= ContactManifold::maxContactsCountIn3D) return all;
+
+        size_t first = 0;
+        for (size_t i = 1; i < points.size(); ++i)
+            if (penetrations[i] > penetrations[first]) first = i;
+
+        size_t second = first;
+        float farthest = -1.0f;
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            float d = glm::dot(points[i] - points[first], points[i] - points[first]);
+            if (d > farthest) { farthest = d; second = i; }
+        }
+
+        size_t third = first, fourth = first;
+        float maxArea = 0.0f, minArea = 0.0f;
+        for (size_t i = 0; i < points.size(); ++i)
+        {
+            float area = glm::dot(glm::cross(points[second] - points[first], points[i] - points[first]), normal);
+            if (area > maxArea) { maxArea = area; third = i; }
+            if (area < minArea) { minArea = area; fourth = i; }
+        }
+
+        std::vector<size_t> chosen = { first, second };
+        if (third != first) chosen.push_back(third);
+        if (fourth != first && fourth != third) chosen.push_back(fourth);
+        return chosen;
+    }
 }
 
 ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
@@ -144,107 +240,162 @@ ContactManifold collisionDetectors::findOBBOBBCollisionPoints(
 ) {
     ContactManifold manifold;
 
-    // Step 1: Compute world-space corner points of each OBB
-    std::array<glm::vec3, 8> cornersA = getOBBCorners(a, transformA);
-    std::array<glm::vec3, 8> cornersB = getOBBCorners(b, transformB);
+    const OrientedBox boxA = makeOrientedBox(a, transformA);
+    const OrientedBox boxB = makeOrientedBox(b, transformB);
+    const glm::vec3 delta = boxB.center - boxA.center;
 
-    // Step 2: Extract OBB axes from transform rotation
-    glm::vec3 axesA[3] = {
-        glm::normalize(transformA->rotation * glm::vec3(1, 0, 0)),
-        glm::normalize(transformA->rotation * glm::vec3(0, 1, 0)),
-        glm::normalize(transformA->rotation * glm::vec3(0, 0, 1))
+    // Step 1: SAT. Face axes and edge axes are tracked separately so that face
+    // contacts can be preferred, see edgeAxisRelativeBias.
+    float faceOverlap = std::numeric_limits<float>::max();
+    int faceOwner = 0;     // 0 - A, 1 - B
+    int faceIndex = 0;
+
+    auto overlapAlong = [&](const glm::vec3& axis)
+    {
+        return projectedRadius(boxA, axis) + projectedRadius(boxB, axis) - std::abs(glm::dot(delta, axis));
     };
 
-    glm::vec3 axesB[3] = {
-        glm::normalize(transformB->rotation * glm::vec3(1, 0, 0)),
-        glm::normalize(transformB->rotation * glm::vec3(0, 1, 0)),
-        glm::normalize(transformB->rotation * glm::vec3(0, 0, 1))
-    };
-
-    // Step 3: Generate the 15 potential separating axes
-    std::vector<glm::vec3> testAxes;
-    for (int i = 0; i < 3; ++i) testAxes.push_back(axesA[i]);
-    for (int i = 0; i < 3; ++i) testAxes.push_back(axesB[i]);
     for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j) 
-        {
-            glm::vec3 axis = glm::cross(axesA[i], axesB[j]);
-            if (glm::length(axis) > 0.0001f) // avoid degenerate axes
-                testAxes.push_back(glm::normalize(axis));
-        }
-
-    float minOverlap = std::numeric_limits<float>::max();
-    glm::vec3 smallestAxis;
-
-    // Step 4: SAT test
-    // TODO: Generalise SAT test
-    for (const auto& axis : testAxes) 
     {
-        // Project both sets of corners onto the axis
-        auto [minA, maxA] = projectOntoAxis(cornersA, axis);
-        auto [minB, maxB] = projectOntoAxis(cornersB, axis);
+        float overlap = overlapAlong(boxA.axes[i]);
+        if (overlap < 0.0f) return manifold;
+        if (overlap < faceOverlap) { faceOverlap = overlap; faceOwner = 0; faceIndex = i; }
+    }
 
-        // Check for overlap
-        if (maxA < minB || maxB < minA) 
-        {
-            return manifold; // No collision
-        }
+    for (int i = 0; i < 3; ++i)
+    {
+        float overlap = overlapAlong(boxB.axes[i]);
+        if (overlap < 0.0f) return manifold;
+        // Prefer A as the reference box when both are about equal, otherwise
+        // the reference flips between frames and so do the contact points.
+        if (overlap < faceOverlap * 0.98f - 0.001f) { faceOverlap = overlap; faceOwner = 1; faceIndex = i; }
+    }
 
-        // Compute overlap amount
-        float overlap = std::min(maxA, maxB) - std::max(minA, minB);
-        if (overlap < minOverlap) 
+    float edgeOverlap = std::numeric_limits<float>::max();
+    int edgeI = 0, edgeJ = 0;
+    glm::vec3 edgeAxis(0.0f);
+
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
         {
-            minOverlap = overlap;
-            smallestAxis = axis;
+            glm::vec3 axis = glm::cross(boxA.axes[i], boxB.axes[j]);
+            float length = glm::length(axis);
+            if (length < 1e-4f) continue; // parallel edges
+
+            axis /= length;
+            float overlap = overlapAlong(axis);
+            if (overlap < 0.0f) return manifold;
+            if (overlap < edgeOverlap) { edgeOverlap = overlap; edgeI = i; edgeJ = j; edgeAxis = axis; }
         }
     }
 
-    // Step 5: If no separating axis found, we have a collision
-    manifold.normal = smallestAxis;
-    manifold.depth = minOverlap;
-    glm::vec3 direction = transformB->position - transformA->position;
-    if (glm::dot(direction, manifold.normal) > 0.0f) manifold.normal *= -1.0f;
-
-    // Find candidate contact points: all corners from A and B that are inside the other OBB
-    std::vector<glm::vec3> candidates;
-
-    auto pointInsideOBB = [](const glm::vec3& point, const OBBCollider* obb, const Transform* transform) 
+    // Step 2: Contact generation
+    if (edgeOverlap < faceOverlap * edgeAxisRelativeBias - edgeAxisAbsoluteBias)
     {
-        glm::mat3 invRot = glm::transpose(glm::mat3(transform->rotation));
-        glm::vec3 local = invRot * (point - transform->position);
-        local /= transform->scale;
-        glm::vec3 min = obb->minExtents;
-        glm::vec3 max = obb->maxExtents;
-        return (local.x >= min.x && local.x <= max.x &&
-                local.y >= min.y && local.y <= max.y &&
-                local.z >= min.z && local.z <= max.z);
+        // Edge - edge: a single contact between the closest points of the two edges.
+        glm::vec3 axisAtoB = glm::dot(delta, edgeAxis) >= 0.0f ? edgeAxis : -edgeAxis;
+
+        glm::vec3 pointA = boxA.center;
+        glm::vec3 pointB = boxB.center;
+        for (int k = 0; k < 3; ++k)
+        {
+            if (k != edgeI) pointA += (glm::dot(axisAtoB, boxA.axes[k]) >= 0.0f ? 1.0f : -1.0f) * boxA.halfExtents[k] * boxA.axes[k];
+            if (k != edgeJ) pointB -= (glm::dot(axisAtoB, boxB.axes[k]) >= 0.0f ? 1.0f : -1.0f) * boxB.halfExtents[k] * boxB.axes[k];
+        }
+
+        const glm::vec3& dirA = boxA.axes[edgeI];
+        const glm::vec3& dirB = boxB.axes[edgeJ];
+        glm::vec3 r = pointA - pointB;
+        float bb = glm::dot(dirA, dirB);
+        float c = glm::dot(dirA, r);
+        float f = glm::dot(dirB, r);
+        float denom = 1.0f - bb * bb;
+
+        float s = (bb * f - c) / denom;
+        float t = bb * s + f;
+
+        manifold.contactPoints[0] = 0.5f * ((pointA + s * dirA) + (pointB + t * dirB));
+        manifold.penetrations[0] = edgeOverlap;
+        manifold.contactsCount = 1;
+        manifold.depth = edgeOverlap;
+        manifold.normal = -axisAtoB; // Points from B to A
+        return manifold;
+    }
+
+    // Face contact: clip the incident face against the side planes of the reference face.
+    const OrientedBox& reference = faceOwner == 0 ? boxA : boxB;
+    const OrientedBox& incident  = faceOwner == 0 ? boxB : boxA;
+
+    // Normal of the reference face pointing towards the incident box.
+    glm::vec3 referenceDelta = incident.center - reference.center;
+    glm::vec3 referenceNormal = reference.axes[faceIndex];
+    if (glm::dot(referenceDelta, referenceNormal) < 0.0f) referenceNormal = -referenceNormal;
+
+    // Incident face is the one that faces the reference box the most.
+    int incidentIndex = 0;
+    float mostAntiParallel = 0.0f;
+    for (int i = 0; i < 3; ++i)
+    {
+        float d = std::abs(glm::dot(referenceNormal, incident.axes[i]));
+        if (d > mostAntiParallel) { mostAntiParallel = d; incidentIndex = i; }
+    }
+
+    glm::vec3 incidentNormal = incident.axes[incidentIndex];
+    if (glm::dot(incidentNormal, referenceNormal) > 0.0f) incidentNormal = -incidentNormal;
+
+    int u = (incidentIndex + 1) % 3;
+    int v = (incidentIndex + 2) % 3;
+    glm::vec3 incidentCenter = incident.center + incidentNormal * incident.halfExtents[incidentIndex];
+    glm::vec3 du = incident.axes[u] * incident.halfExtents[u];
+    glm::vec3 dv = incident.axes[v] * incident.halfExtents[v];
+
+    std::vector<glm::vec3> polygon = {
+        incidentCenter + du + dv,
+        incidentCenter - du + dv,
+        incidentCenter - du - dv,
+        incidentCenter + du - dv
     };
 
-    for (const auto& corner : cornersA) 
+    for (int k = 0; k < 3 && !polygon.empty(); ++k)
     {
-        if (pointInsideOBB(corner, b, transformB)) candidates.push_back(corner);
+        if (k == faceIndex) continue;
+        const glm::vec3& side = reference.axes[k];
+        float offset = glm::dot(reference.center, side);
+        polygon = clipPolygon(polygon, side, offset + reference.halfExtents[k]);
+        polygon = clipPolygon(polygon, -side, -offset + reference.halfExtents[k]);
     }
 
-    for (const auto& corner : cornersB) 
+    float referenceOffset = glm::dot(reference.center, referenceNormal) + reference.halfExtents[faceIndex];
+
+    std::vector<glm::vec3> points;
+    std::vector<float> penetrations;
+    for (const glm::vec3& point : polygon)
     {
-        if (pointInsideOBB(corner, a, transformA)) candidates.push_back(corner);
+        float separation = glm::dot(point, referenceNormal) - referenceOffset;
+        if (separation > contactMargin) continue;
+
+        // Report the point halfway between the two surfaces.
+        points.push_back(point - referenceNormal * (separation * 0.5f));
+        penetrations.push_back(-separation);
     }
 
-    // Sort contact points by penetration depth (approximate using projection onto normal)
-    std::sort(candidates.begin(), candidates.end(), [&](const glm::vec3& p1, const glm::vec3& p2) 
-    {
-        float d1 = glm::dot(p1 - transformA->position, manifold.normal);
-        float d2 = glm::dot(p2 - transformA->position, manifold.normal);
-        return d1 > d2;
-    });
+    if (points.empty()) return manifold;
 
-    // Keep up to ContactManifold::maxContactsCountIn3D contact points
-    uint32_t count = std::min(ContactManifold::maxContactsCountIn3D, static_cast<uint32_t>(candidates.size()));
-    for (uint32_t i = 0; i < count; ++i) 
+    std::vector<size_t> chosen = reduceContacts(points, penetrations, referenceNormal);
+    float deepest = 0.0f;
+    for (size_t i = 0; i < chosen.size(); ++i)
     {
-        manifold.contactPoints[i] = candidates[i];
+        manifold.contactPoints[i] = points[chosen[i]];
+        manifold.penetrations[i] = penetrations[chosen[i]];
+        deepest = std::max(deepest, penetrations[chosen[i]]);
     }
-    manifold.contactsCount = static_cast<int>(count);
+
+    manifold.contactsCount = static_cast<uint32_t>(chosen.size());
+    manifold.depth = deepest;
+
+    // Normal points from B to A. referenceNormal points from the reference box to the other one.
+    manifold.normal = faceOwner == 0 ? -referenceNormal : referenceNormal;
 
     return manifold;
 }
@@ -297,6 +448,7 @@ ContactManifold collisionDetectors::findPlaneOBBCollisionPoints(
 
         if (manifold.contactsCount < ContactManifold::maxContactsCountIn3D) 
         {
+            manifold.penetrations[manifold.contactsCount] = penetration;
             manifold.contactPoints[manifold.contactsCount++] = corner;
         }
     }
